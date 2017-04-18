@@ -8,15 +8,7 @@ typedef unsigned char Byte;
 typedef Byte Cell[mem_cell_size];
 typedef Cell Memory[mem_size];
 
-void mem_print(Memory mem);
-
-void mem_init(Memory mem) {
-    for(int i = 0; i < mem_size; i++) {
-        for (int j = 0; j < mem_cell_size; j++) {
-            mem[i][j] = NULL;
-        }
-    }
-}
+typedef Byte *PCell;
 
 void mem_write(Memory mem, int address, Cell cell) {
     if (address < 0 || address >= mem_size) return;
