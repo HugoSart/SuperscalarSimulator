@@ -7,6 +7,7 @@
 %token VALUE
 %token COMMA COLON 
 %token OPCODE
+%token REGISTER ADRESS
 %token EOL QUOTE
 %token ABS
 %token ADD
@@ -14,10 +15,10 @@
 %%
 
 calclist: /* nothing */
- | calclist opcode EOL { printf("= %d\n", $2); }
+  | calclist opcode EOL { printf("= %d\n", $2); }
   ;
 opcode: 
-  | OPCODE args { $$ = 0 }
+  | OPCODE args     { $$ = 0 }
   ;
 args: term
   | term COMMA args { $$ = 3 }

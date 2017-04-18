@@ -1316,11 +1316,6 @@ yyreduce:
     { printf("= %d\n", (yyvsp[(2) - (3)])); ;}
     break;
 
-  case 5:
-#line 20 "parser.y"
-    { (yyval) = 0 ;}
-    break;
-
   case 7:
 #line 23 "parser.y"
     { (yyval) = 3 ;}
@@ -1333,7 +1328,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 1337 "parser.tab.c"
+#line 1332 "parser.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
