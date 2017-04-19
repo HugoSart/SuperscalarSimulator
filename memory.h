@@ -8,8 +8,6 @@ typedef unsigned char Byte;
 typedef Byte Cell[mem_cell_size];
 typedef Cell Memory[mem_size];
 
-typedef Byte *PCell;
-
 void mem_write(Memory mem, int address, Cell cell) {
     if (address < 0 || address >= mem_size) return;
 
@@ -19,7 +17,7 @@ void mem_write(Memory mem, int address, Cell cell) {
 
 }
 
-Byte *mem_read(Memory mem, int address) {
+Cell *mem_read(Memory mem, int address) {
     if (address < 0 || address >= mem_size) return NULL;
     return mem[address];
 }
