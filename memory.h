@@ -1,7 +1,9 @@
 #ifndef STANDARDCPROJECT_MEMORY_H
 #define STANDARDCPROJECT_MEMORY_H
 
-#define mem_size 16
+// 256M = 8388608 Cells
+
+#define mem_size 64
 #define mem_cell_size 4
 
 typedef unsigned char Byte;
