@@ -47,29 +47,36 @@
 %%
 
 line:
-  | line exp EOL {}
+  | line EOL
+  | section
   ;
-exp:
-  | DIR_DATA EOL data_line {}
-  | DIR_TEXT EOL text_line {}
+section:
+  | DIR_DATA EOL data_section
+  | DIR_TEXT EOL text_section
   ;
-data_line:
-  | data_line expData EOL {}
+
+data_section:
+  | data_section expData EOL
+  ;
 expData:
-  | LABEL STORAGE_TYPE paramData {}
-  | DIR_TEXT EOL text_line       {}
+  | LABEL STORAGE_TYPE argData
+  | DIR_TEXT text_section EOL
   ;
-paramData: NUMBER
-  | NUMBER COMMA paramData
+argData: NUMBER
+  | NUMBER COMMA argData
   ;
-text_line:
-  | text_line expText EOL {}
+
+text_section:
+  | text_section expText EOL
   ;
 expText:
-  | OP paramText
+  | OP argText
+  | LABEL OP argText
+  | LABEL
   ;
-paramText: NUMBER;
-
+argText: NUMBER
+  | NUMBER COMMA argText
+  ;
 
 %%
 

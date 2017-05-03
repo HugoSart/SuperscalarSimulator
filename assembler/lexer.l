@@ -26,7 +26,7 @@
 ".space"       { yylval.d = ST_SPACE; return STORAGE_TYPE; }
 
 "$zero" | "$0"  { yylval.d = ZERO; return REG; }
-"$at"   | "$1"  { yylval.d = AT;  return REG; }
+"$at"   | "$1"  { yylval.d = AT; return REG; }
 "$v0"   | "$2"  { yylval.d = V0; return REG; }
 "$v1"   | "$3"  { yylval.d = V1; return REG; }
 "$a0"   | "$4"  { yylval.d = A0; return REG; }
