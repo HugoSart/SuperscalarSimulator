@@ -3,5 +3,5 @@ project(SuperscalarSimulator)
 
 set(CMAKE_C_STANDARD 99)
 
-set(SOURCE_FILES main.c)
+set(SOURCE_FILES main.c assembler/op_def.h)
 add_executable(SuperscalarSimulator ${SOURCE_FILES})
