@@ -66,25 +66,377 @@
    /* Put the tokens into the symbol table, so that GDB and other debuggers
       know about them.  */
    enum yytokentype {
-     VALUE = 258,
-     COMMA = 259,
-     COLON = 260,
-     OPCODE = 261,
-     EOL = 262,
-     QUOTE = 263,
-     ABS = 264,
-     ADD = 265
+     NUMBER = 258,
+     STR = 259,
+     COMMA = 260,
+     COLON = 261,
+     OPCODE = 262,
+     REGISTER = 263,
+     ADRESS = 264,
+     EOL = 265,
+     QUOTE = 266,
+     ABS = 267,
+     OP = 268,
+     ARG = 269,
+     LABEL = 270,
+     DIR_DATA = 271,
+     DIR_TEXT = 272,
+     DIR_GLOBL = 273,
+     MAIN = 274,
+     ST_BYTE = 275,
+     ST_SPACE = 276,
+     ST_WORD = 277,
+     STORAGE_TYPE = 278,
+     VALUE = 279,
+     ADDRESS = 280,
+     VAR = 281,
+     REG = 282,
+     ZERO = 283,
+     AT = 284,
+     V0 = 285,
+     V1 = 286,
+     A0 = 287,
+     A1 = 288,
+     A2 = 289,
+     A3 = 290,
+     T0 = 291,
+     T1 = 292,
+     T2 = 293,
+     T3 = 294,
+     T4 = 295,
+     T5 = 296,
+     T6 = 297,
+     T7 = 298,
+     S0 = 299,
+     S1 = 300,
+     S2 = 301,
+     S3 = 302,
+     S4 = 303,
+     S5 = 304,
+     S6 = 305,
+     S7 = 306,
+     T8 = 307,
+     T9 = 308,
+     K0 = 309,
+     K1 = 310,
+     GP = 311,
+     SP = 312,
+     FP = 313,
+     RA = 314,
+     ADD = 315,
+     ADDU = 316,
+     ADDI = 317,
+     ADDIU = 318,
+     AND = 319,
+     ANDI = 320,
+     CLO = 321,
+     CLZ = 322,
+     DIV = 323,
+     DIVU = 324,
+     MULT = 325,
+     MULTU = 326,
+     MUL = 327,
+     MULO = 328,
+     MULOU = 329,
+     MADD = 330,
+     MADDU = 331,
+     MSUB = 332,
+     NEG = 333,
+     NEGU = 334,
+     NOR = 335,
+     NOT = 336,
+     OR = 337,
+     ORI = 338,
+     REM = 339,
+     REMU = 340,
+     SLL = 341,
+     SLLV = 342,
+     SRA = 343,
+     SRAV = 344,
+     SRL = 345,
+     SRLV = 346,
+     ROL = 347,
+     ROR = 348,
+     SUB = 349,
+     SUBU = 350,
+     XOR = 351,
+     XORI = 352,
+     LUI = 353,
+     LI = 354,
+     SLT = 355,
+     SLTU = 356,
+     SLTI = 357,
+     SLTIU = 358,
+     SEQ = 359,
+     SGE = 360,
+     SGEU = 361,
+     SGT = 362,
+     SGTU = 363,
+     SLE = 364,
+     SLEU = 365,
+     SNE = 366,
+     B = 367,
+     BCLF = 368,
+     BCLT = 369,
+     BEQ = 370,
+     BGEZ = 371,
+     BGEZAL = 372,
+     BGTZ = 373,
+     BLEZ = 374,
+     BLTZAL = 375,
+     BLTZ = 376,
+     BNE = 377,
+     BEQZ = 378,
+     BGE = 379,
+     BGEU = 380,
+     BGT = 381,
+     BLE = 382,
+     BLEU = 383,
+     BLT = 384,
+     BLTU = 385,
+     BNEZ = 386,
+     J = 387,
+     JAL = 388,
+     JALR = 389,
+     JR = 390,
+     TEQ = 391,
+     TEQI = 392,
+     TGE = 393,
+     TGEU = 394,
+     TGEI = 395,
+     TGEIU = 396,
+     TLT = 397,
+     TLTU = 398,
+     TLTI = 399,
+     TLTIU = 400,
+     LA = 401,
+     LB = 402,
+     LBU = 403,
+     LH = 404,
+     LHU = 405,
+     LW = 406,
+     LWCL = 407,
+     LWL = 408,
+     LWR = 409,
+     LD = 410,
+     ULH = 411,
+     ULHU = 412,
+     ULW = 413,
+     LL = 414,
+     SB = 415,
+     SH = 416,
+     SW = 417,
+     SWCL = 418,
+     SDCL = 419,
+     SWL = 420,
+     SWR = 421,
+     SD = 422,
+     USH = 423,
+     USW = 424,
+     SC = 425,
+     MOVE = 426,
+     MFHI = 427,
+     MFLO = 428,
+     MTHI = 429,
+     MTLO = 430,
+     MFC0 = 431,
+     MFC1 = 432,
+     MTC0 = 433,
+     MTC1 = 434,
+     MOVN = 435,
+     MOVZ = 436,
+     MOVF = 437,
+     MOVT = 438,
+     SYSCALL = 439,
+     BREAK = 440,
+     NOP = 441
    };
 #endif
 /* Tokens.  */
-#define VALUE 258
-#define COMMA 259
-#define COLON 260
-#define OPCODE 261
-#define EOL 262
-#define QUOTE 263
-#define ABS 264
-#define ADD 265
+#define NUMBER 258
+#define STR 259
+#define COMMA 260
+#define COLON 261
+#define OPCODE 262
+#define REGISTER 263
+#define ADRESS 264
+#define EOL 265
+#define QUOTE 266
+#define ABS 267
+#define OP 268
+#define ARG 269
+#define LABEL 270
+#define DIR_DATA 271
+#define DIR_TEXT 272
+#define DIR_GLOBL 273
+#define MAIN 274
+#define ST_BYTE 275
+#define ST_SPACE 276
+#define ST_WORD 277
+#define STORAGE_TYPE 278
+#define VALUE 279
+#define ADDRESS 280
+#define VAR 281
+#define REG 282
+#define ZERO 283
+#define AT 284
+#define V0 285
+#define V1 286
+#define A0 287
+#define A1 288
+#define A2 289
+#define A3 290
+#define T0 291
+#define T1 292
+#define T2 293
+#define T3 294
+#define T4 295
+#define T5 296
+#define T6 297
+#define T7 298
+#define S0 299
+#define S1 300
+#define S2 301
+#define S3 302
+#define S4 303
+#define S5 304
+#define S6 305
+#define S7 306
+#define T8 307
+#define T9 308
+#define K0 309
+#define K1 310
+#define GP 311
+#define SP 312
+#define FP 313
+#define RA 314
+#define ADD 315
+#define ADDU 316
+#define ADDI 317
+#define ADDIU 318
+#define AND 319
+#define ANDI 320
+#define CLO 321
+#define CLZ 322
+#define DIV 323
+#define DIVU 324
+#define MULT 325
+#define MULTU 326
+#define MUL 327
+#define MULO 328
+#define MULOU 329
+#define MADD 330
+#define MADDU 331
+#define MSUB 332
+#define NEG 333
+#define NEGU 334
+#define NOR 335
+#define NOT 336
+#define OR 337
+#define ORI 338
+#define REM 339
+#define REMU 340
+#define SLL 341
+#define SLLV 342
+#define SRA 343
+#define SRAV 344
+#define SRL 345
+#define SRLV 346
+#define ROL 347
+#define ROR 348
+#define SUB 349
+#define SUBU 350
+#define XOR 351
+#define XORI 352
+#define LUI 353
+#define LI 354
+#define SLT 355
+#define SLTU 356
+#define SLTI 357
+#define SLTIU 358
+#define SEQ 359
+#define SGE 360
+#define SGEU 361
+#define SGT 362
+#define SGTU 363
+#define SLE 364
+#define SLEU 365
+#define SNE 366
+#define B 367
+#define BCLF 368
+#define BCLT 369
+#define BEQ 370
+#define BGEZ 371
+#define BGEZAL 372
+#define BGTZ 373
+#define BLEZ 374
+#define BLTZAL 375
+#define BLTZ 376
+#define BNE 377
+#define BEQZ 378
+#define BGE 379
+#define BGEU 380
+#define BGT 381
+#define BLE 382
+#define BLEU 383
+#define BLT 384
+#define BLTU 385
+#define BNEZ 386
+#define J 387
+#define JAL 388
+#define JALR 389
+#define JR 390
+#define TEQ 391
+#define TEQI 392
+#define TGE 393
+#define TGEU 394
+#define TGEI 395
+#define TGEIU 396
+#define TLT 397
+#define TLTU 398
+#define TLTI 399
+#define TLTIU 400
+#define LA 401
+#define LB 402
+#define LBU 403
+#define LH 404
+#define LHU 405
+#define LW 406
+#define LWCL 407
+#define LWL 408
+#define LWR 409
+#define LD 410
+#define ULH 411
+#define ULHU 412
+#define ULW 413
+#define LL 414
+#define SB 415
+#define SH 416
+#define SW 417
+#define SWCL 418
+#define SDCL 419
+#define SWL 420
+#define SWR 421
+#define SD 422
+#define USH 423
+#define USW 424
+#define SC 425
+#define MOVE 426
+#define MFHI 427
+#define MFLO 428
+#define MTHI 429
+#define MTLO 430
+#define MFC0 431
+#define MFC1 432
+#define MTC0 433
+#define MTC1 434
+#define MOVN 435
+#define MOVZ 436
+#define MOVF 437
+#define MOVT 438
+#define SYSCALL 439
+#define BREAK 440
+#define NOP 441
 
 
 
@@ -114,7 +466,15 @@
 #endif
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
+typedef union
+#line 6 "parser.y"
+yylval {
+	int d;
+    char s[20];
+}
+/* Line 187 of yacc.c.  */
+#line 477 "parser.tab.c"
+	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 # define YYSTYPE_IS_TRIVIAL 1
@@ -126,7 +486,7 @@ typedef int YYSTYPE;
 
 
 /* Line 216 of yacc.c.  */
-#line 130 "parser.tab.c"
+#line 490 "parser.tab.c"
 
 #ifdef short
 # undef short
@@ -341,20 +701,20 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  2
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   8
+#define YYLAST   20
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  11
+#define YYNTOKENS  187
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  5
+#define YYNNTS  9
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  9
+#define YYNRULES  18
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  13
+#define YYNSTATES  26
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   265
+#define YYMAXUTOK   441
 
 #define YYTRANSLATE(YYX)						\
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -388,7 +748,25 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5,     6,     7,     8,     9,    10
+       5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
+      15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
+      25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
+      35,    36,    37,    38,    39,    40,    41,    42,    43,    44,
+      45,    46,    47,    48,    49,    50,    51,    52,    53,    54,
+      55,    56,    57,    58,    59,    60,    61,    62,    63,    64,
+      65,    66,    67,    68,    69,    70,    71,    72,    73,    74,
+      75,    76,    77,    78,    79,    80,    81,    82,    83,    84,
+      85,    86,    87,    88,    89,    90,    91,    92,    93,    94,
+      95,    96,    97,    98,    99,   100,   101,   102,   103,   104,
+     105,   106,   107,   108,   109,   110,   111,   112,   113,   114,
+     115,   116,   117,   118,   119,   120,   121,   122,   123,   124,
+     125,   126,   127,   128,   129,   130,   131,   132,   133,   134,
+     135,   136,   137,   138,   139,   140,   141,   142,   143,   144,
+     145,   146,   147,   148,   149,   150,   151,   152,   153,   154,
+     155,   156,   157,   158,   159,   160,   161,   162,   163,   164,
+     165,   166,   167,   168,   169,   170,   171,   172,   173,   174,
+     175,   176,   177,   178,   179,   180,   181,   182,   183,   184,
+     185,   186
 };
 
 #if YYDEBUG
@@ -396,21 +774,25 @@ static const yytype_uint8 yytranslate[] =
    YYRHS.  */
 static const yytype_uint8 yyprhs[] =
 {
-       0,     0,     3,     4,     8,     9,    12,    14,    18,    20
+       0,     0,     3,     4,     7,     8,    12,    16,    17,    21,
+      22,    26,    30,    32,    36,    37,    41,    42,    45
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
-static const yytype_int8 yyrhs[] =
+static const yytype_int16 yyrhs[] =
 {
-      12,     0,    -1,    -1,    12,    13,     7,    -1,    -1,     6,
-      14,    -1,    15,    -1,    15,     4,    14,    -1,     3,    -1,
-       9,    15,    -1
+     188,     0,    -1,    -1,   188,   189,    -1,    -1,    16,    10,
+     190,    -1,    17,    10,   193,    -1,    -1,   190,   191,    10,
+      -1,    -1,    15,    23,   192,    -1,    17,    10,   193,    -1,
+       3,    -1,     3,     5,   192,    -1,    -1,   193,   194,    10,
+      -1,    -1,    13,   195,    -1,     3,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    16,    16,    17,    19,    20,    22,    23,    25,    26
+       0,    49,    49,    50,    52,    53,    54,    56,    57,    58,
+      59,    60,    62,    63,    65,    66,    68,    69,    71
 };
 #endif
 
@@ -419,9 +801,28 @@ static const yytype_uint8 yyrline[] =
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
 {
-  "$end", "error", "$undefined", "VALUE", "COMMA", "COLON", "OPCODE",
-  "EOL", "QUOTE", "ABS", "ADD", "$accept", "calclist", "opcode", "args",
-  "term", 0
+  "$end", "error", "$undefined", "NUMBER", "STR", "COMMA", "COLON",
+  "OPCODE", "REGISTER", "ADRESS", "EOL", "QUOTE", "ABS", "OP", "ARG",
+  "LABEL", "DIR_DATA", "DIR_TEXT", "DIR_GLOBL", "MAIN", "ST_BYTE",
+  "ST_SPACE", "ST_WORD", "STORAGE_TYPE", "VALUE", "ADDRESS", "VAR", "REG",
+  "ZERO", "AT", "V0", "V1", "A0", "A1", "A2", "A3", "T0", "T1", "T2", "T3",
+  "T4", "T5", "T6", "T7", "S0", "S1", "S2", "S3", "S4", "S5", "S6", "S7",
+  "T8", "T9", "K0", "K1", "GP", "SP", "FP", "RA", "ADD", "ADDU", "ADDI",
+  "ADDIU", "AND", "ANDI", "CLO", "CLZ", "DIV", "DIVU", "MULT", "MULTU",
+  "MUL", "MULO", "MULOU", "MADD", "MADDU", "MSUB", "NEG", "NEGU", "NOR",
+  "NOT", "OR", "ORI", "REM", "REMU", "SLL", "SLLV", "SRA", "SRAV", "SRL",
+  "SRLV", "ROL", "ROR", "SUB", "SUBU", "XOR", "XORI", "LUI", "LI", "SLT",
+  "SLTU", "SLTI", "SLTIU", "SEQ", "SGE", "SGEU", "SGT", "SGTU", "SLE",
+  "SLEU", "SNE", "B", "BCLF", "BCLT", "BEQ", "BGEZ", "BGEZAL", "BGTZ",
+  "BLEZ", "BLTZAL", "BLTZ", "BNE", "BEQZ", "BGE", "BGEU", "BGT", "BLE",
+  "BLEU", "BLT", "BLTU", "BNEZ", "J", "JAL", "JALR", "JR", "TEQ", "TEQI",
+  "TGE", "TGEU", "TGEI", "TGEIU", "TLT", "TLTU", "TLTI", "TLTIU", "LA",
+  "LB", "LBU", "LH", "LHU", "LW", "LWCL", "LWL", "LWR", "LD", "ULH",
+  "ULHU", "ULW", "LL", "SB", "SH", "SW", "SWCL", "SDCL", "SWL", "SWR",
+  "SD", "USH", "USW", "SC", "MOVE", "MFHI", "MFLO", "MTHI", "MTLO", "MFC0",
+  "MFC1", "MTC0", "MTC1", "MOVN", "MOVZ", "MOVF", "MOVT", "SYSCALL",
+  "BREAK", "NOP", "$accept", "line", "exp", "data_line", "expData",
+  "paramData", "text_line", "expText", "paramText", 0
 };
 #endif
 
@@ -431,20 +832,39 @@ static const char *const yytname[] =
 static const yytype_uint16 yytoknum[] =
 {
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
-     265
+     265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
+     275,   276,   277,   278,   279,   280,   281,   282,   283,   284,
+     285,   286,   287,   288,   289,   290,   291,   292,   293,   294,
+     295,   296,   297,   298,   299,   300,   301,   302,   303,   304,
+     305,   306,   307,   308,   309,   310,   311,   312,   313,   314,
+     315,   316,   317,   318,   319,   320,   321,   322,   323,   324,
+     325,   326,   327,   328,   329,   330,   331,   332,   333,   334,
+     335,   336,   337,   338,   339,   340,   341,   342,   343,   344,
+     345,   346,   347,   348,   349,   350,   351,   352,   353,   354,
+     355,   356,   357,   358,   359,   360,   361,   362,   363,   364,
+     365,   366,   367,   368,   369,   370,   371,   372,   373,   374,
+     375,   376,   377,   378,   379,   380,   381,   382,   383,   384,
+     385,   386,   387,   388,   389,   390,   391,   392,   393,   394,
+     395,   396,   397,   398,   399,   400,   401,   402,   403,   404,
+     405,   406,   407,   408,   409,   410,   411,   412,   413,   414,
+     415,   416,   417,   418,   419,   420,   421,   422,   423,   424,
+     425,   426,   427,   428,   429,   430,   431,   432,   433,   434,
+     435,   436,   437,   438,   439,   440,   441
 };
 # endif
 
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    11,    12,    12,    13,    13,    14,    14,    15,    15
+       0,   187,   188,   188,   189,   189,   189,   190,   190,   191,
+     191,   191,   192,   192,   193,   193,   194,   194,   195
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     0,     3,     0,     2,     1,     3,     1,     2
+       0,     2,     0,     2,     0,     3,     3,     0,     3,     0,
+       3,     3,     1,     3,     0,     3,     0,     2,     1
 };
 
 /* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
@@ -452,52 +872,59 @@ static const yytype_uint8 yyr2[] =
    means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       2,     4,     1,     0,     0,     8,     0,     5,     6,     3,
-       9,     0,     7
+       2,     0,     1,     0,     0,     3,     7,    14,     5,     6,
+       0,     0,     0,     0,     0,     0,    14,     8,    18,    17,
+      15,    12,    10,    11,     0,    13
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     1,     4,     7,     8
+      -1,     1,     5,     8,    12,    22,     9,    14,    19
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -8
+#define YYPACT_NINF -17
 static const yytype_int8 yypact[] =
 {
-      -8,     0,    -8,    -2,    -5,    -8,    -2,    -8,    -1,    -8,
-      -8,    -2,    -8
+     -17,     0,   -17,    -7,    -6,   -17,   -17,   -17,    -9,    -8,
+     -16,    -1,     1,     7,     2,    10,   -17,   -17,   -17,   -17,
+     -17,     9,   -17,     5,    10,   -17
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-      -8,    -8,    -8,    -7,     2
+     -17,   -17,   -17,   -17,   -17,    -5,     4,   -17,   -17
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
    positive, shift that token.  If negative, reduce the rule which
    number is the opposite.  If zero, do what YYDEFACT says.
    If YYTABLE_NINF, syntax error.  */
-#define YYTABLE_NINF -1
-static const yytype_uint8 yytable[] =
+#define YYTABLE_NINF -17
+static const yytype_int8 yytable[] =
 {
-       2,     5,     9,    11,    12,     0,     3,     6,    10
+       2,    -9,   -16,     6,     7,    13,    10,    15,    11,    16,
+      18,    17,    20,    21,    24,     0,     3,     4,    13,    25,
+      23
 };
 
 static const yytype_int8 yycheck[] =
 {
-       0,     3,     7,     4,    11,    -1,     6,     9,     6
+       0,    10,    10,    10,    10,    13,    15,    23,    17,    10,
+       3,    10,    10,     3,     5,    -1,    16,    17,    13,    24,
+      16
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
    symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,    12,     0,     6,    13,     3,     9,    14,    15,     7,
-      15,     4,    14
+       0,   188,     0,    16,    17,   189,    10,    10,   190,   193,
+      15,    17,   191,    13,   194,    23,    10,    10,     3,   195,
+      10,     3,   192,   193,     5,   192
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1312,23 +1739,43 @@ yyreduce:
   switch (yyn)
     {
         case 3:
-#line 17 "parser.y"
-    { printf("= %d\n", (yyvsp[(2) - (3)])); ;}
+#line 50 "parser.y"
+    {;}
     break;
 
-  case 7:
-#line 23 "parser.y"
-    { (yyval) = 3 ;}
+  case 5:
+#line 53 "parser.y"
+    {;}
     break;
 
-  case 9:
-#line 26 "parser.y"
-    { (yyval) = (yyvsp[(2) - (2)]) >= 0? (yyvsp[(2) - (2)]) : - (yyvsp[(2) - (2)]); ;}
+  case 6:
+#line 54 "parser.y"
+    {;}
+    break;
+
+  case 8:
+#line 57 "parser.y"
+    {;}
+    break;
+
+  case 10:
+#line 59 "parser.y"
+    {;}
+    break;
+
+  case 11:
+#line 60 "parser.y"
+    {;}
+    break;
+
+  case 15:
+#line 66 "parser.y"
+    {;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 1332 "parser.tab.c"
+#line 1779 "parser.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1542,7 +1989,7 @@ yyreturn:
 }
 
 
-#line 29 "parser.y"
+#line 74 "parser.y"
 
 
 int main(int argc, char **argv) {
