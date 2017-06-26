@@ -2,8 +2,8 @@
 
 %{
   #include <string.h>
-  #include "op_def.h"
   #include "parser.tab.h"
+  #include "op_def.h"
 %}
 
 %%
@@ -12,11 +12,12 @@
 "#".*
 ","	   { return COMMA; }
 [0-9]+ { yylval.d = atoi(yytext); return NUMBER; }
+0[xX][0-9a-fA-F]+ { yylval.d = strtol(yytext, NULL, 16); return NUMBER; }
 \n     { return EOL; }
 [ \t]  { /* ignore whitespace */ }
 \"	   { return QUOTE; }
 
-[a-zA-Z][a-zA-Z0-9]*":"  { return LABEL; }
+[a-zA-Z_][a-zA-Z0-9_]*":"  { return LABEL; }
 
 ".data"       { return DIR_DATA; }
 ".text"       { return DIR_TEXT; }
@@ -76,6 +77,8 @@
 "madd"   { yylval.d = MADD;  return OP_2; }
 "maddu"  { yylval.d = MADDU; return OP_2; }
 "msub"   { yylval.d = MSUB;  return OP_2; }
+"sra"    { yylval.d = SRA;   return OP_3S; }
+"srl"    { yylval.d = SRL;   return OP_3S; }
 
 .      { printf("Mystery character %c\n", *yytext); }
 
