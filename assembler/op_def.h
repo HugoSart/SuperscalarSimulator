@@ -11,23 +11,21 @@
 enum op {
     ADD, ADDU, ADDI, ADDIU, ANDI, AND,
     CLO, CLZ,
-    DIV, DIVU, DIV_3, DIVU_3,
-    MULT, MULTU, MUL, MULO, MULOU, MADD, MADDU, MSUB,
-    NEG, NEGU, NOR,
+    DIV, DIVU,
+    MULT, MULTU, MUL, MADD, MADDU, MSUB,
+    NOR,
     OR, ORI,
-    REM, REMU,
     SLL, SLLV, SRA, SRAV, SRL, SRLV,
-    ROL, ROR,
     SUB, SUBU,
     XOR, XORI,
-    LUI, LI,
-    SLT, SLTU, SLTI, SLTIU, SEQ, SGE, SGEU, SGT, SGTU, SLE, SLEU, SNE,
-    B, BCLF, BCLT, BEQ, BGEZ, BGEZAL, BGTZ, BLEZ, BLTZAL, BLTZ, BNE, BEQZ, BGE,
-    BGEU, BGT, BGTU, BLE, BLEU, BLT, BLTU, BNEZ,
-    J, JAL, JAIR, JR,
+    LUI,
+    SLT, SLTU, SLTI, SLTIU,
+    BCLF, BCLT, BEQ, BGEZ, BGEZAL, BGTZ, BLEZ, BLTZAL, BLTZ, BNE,
+    J, JAL, JALR, JR,
     TEQ, TEQI, TGE, TGEU, TGEI, TGEIU, TLT, TLTU, TLTI, TLTIU,
-    LA, LB, LBU, LH, LHU, LW, LWCL, LWL, LWR, LD, ULH, ULHU, ULW,
-    LL, SB, SH, SW, SWCL, SDCL
+    LB, LBU, LH, LHU, LW, LWCL, LWL, LWR, LL,
+    SB, SH, SW, SWCL, SDCL, SWL, SWR, SC,
+    MFHI, MFLO, MTHI, MTLO, MFC0, MFC1, MTC0, MTC1, MOVN, MOVZ, MOVF, MOVT
 };
 
 enum reg {
@@ -44,10 +42,8 @@ enum reg {
     RA
 };
 
-char *bsopcode(int id);
-
-char *bsfunc(int id);
-
+int opcode(unsigned int id);
+int func(unsigned int id);
 char *regcode(unsigned int id);
 
 #endif //SUPERSCALARSIMULATOR_OP_DEF_H

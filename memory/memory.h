@@ -14,20 +14,20 @@ typedef unsigned char BYTE;
 typedef BYTE *MEMORY;
 typedef BYTE WORD[WORD_SIZE];
 
-typedef struct {
+typedef struct mem_t {
     MEMORY mem;
     size_t size;
     size_t text_address;
-} mem_t;
+} Memory;
 
 // Type manipulation functions
-mem_t mem_create(size_t size, size_t text_address);
-void mem_destroy(mem_t *mem);
-void mem_print(mem_t *mem);
+Memory mem_create(size_t size, size_t text_address);
+void mem_destroy(Memory *mem);
+void mem_print(Memory *mem);
 
 // Data manipulation functions
-void mem_write(mem_t *mem, int address, BYTE byte);
-void mem_write_word(mem_t *mem, int address, WORD word);
-BYTE mem_read(mem_t *mem, int address);
+void mem_write(Memory *mem, int address, BYTE byte);
+void mem_write_word(Memory *mem, int address, WORD word);
+BYTE mem_read(Memory *mem, int address);
 
 #endif //STANDARDCPROJECT_MEMORY_H

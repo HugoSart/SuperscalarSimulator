@@ -1,12 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "memory/memory.h"
+#include "memory/cache.h"
 
 int main() {
 
-    mem_t mem = mem_create(512, 64);
-    WORD word = {255,255,255,255};
-    mem_write_word(&mem, 12, word);
+    printf("size: %zu\n", cache_create(CACHE_SIZE)->size);
 
     return EXIT_SUCCESS;
 }
