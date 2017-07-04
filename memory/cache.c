@@ -36,7 +36,7 @@ void cache_print(Cache *cache) {
     printf("---------- Cache<%zu Cells x %d Bytes> -----------\n\n", cache->size, WORD_SIZE);
 
     for (unsigned int l = 0; l < LINE_COUNT(cache->size); l++) {
-        printf("Line %u  \t--> ", l);
+        printf("Line %u \t--> %d\t", l, cache->line[l].tag);
         for (unsigned int i = 0; i < CACHE_BLOCK_WORD_COUNT; i++) {
             if (i != 0) printf("                ");
             printf("  [");
@@ -78,7 +78,7 @@ WORD cache_read(Cache *cache, unsigned int address) {
     printf("Cache Tag      : %d\n", cache->line[a.mapped_address.line].tag);
 
     if (a.mapped_address.tag != cache->line[a.mapped_address.line].tag) {
-        printf("INFO: Missssssss!\n\n");
+        printf("INFO: Miss!\n");
         BLOCK block = get_memory_block(cache->mem, address);
 
         for (unsigned int i = 0; i < CACHE_BLOCK_WORD_COUNT; i++) {
@@ -86,9 +86,11 @@ WORD cache_read(Cache *cache, unsigned int address) {
                 cache->line[a.mapped_address.line % (LINE_COUNT(cache->size))].block[i][j] = block[i][j];
             }
         }
-        printf("tag: %u\n", a.mapped_address.tag);
+        printf("Old Tag: %d\n", cache->line[a.mapped_address.line % (LINE_COUNT(cache->size))].tag);
         cache->line[a.mapped_address.line % (LINE_COUNT(cache->size))].tag = a.mapped_address.tag;
+        printf("New Tag: %d\n", a.mapped_address.tag);
     }
+    printf("\n");
     return cache->line[a.mapped_address.line].block[a.mapped_address.byte / CACHE_BLOCK_WORD_COUNT];
 
 }

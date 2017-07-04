@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <malloc.h>
 #include "memory.h"
+#include "cache.h"
 
 // Aux functions declarations
 int check_address(Memory*, unsigned int);
@@ -26,6 +27,7 @@ void mem_write(Memory *mem, unsigned int address, BYTE byte) {
 }
 
 void mem_write_word(Memory *mem, unsigned int address, WORD word) {
+    address = WORD_ADDRESS(address);
     if (!check_address(mem, address) || address % 4 != 0 && address + 3 >= mem->size) return;
     for (int i = 0; i < WORD_SIZE; i++) {
         mem_write(mem, address + i, word[i]);

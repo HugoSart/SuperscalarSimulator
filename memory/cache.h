@@ -18,8 +18,8 @@ typedef WORD *BLOCK;
 
 struct dec_t {
     unsigned int byte : 4;
-    unsigned int line : 1; // 11
-    unsigned int tag  : 7; // 14
+    unsigned int line : 2; // 11
+    unsigned int tag  : 8; // 14
 };
 
 typedef union dec_address {
