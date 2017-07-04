@@ -1,7 +1,7 @@
         .data
-var1:   .int -1,2,3,-485,5
-var2:   .int 1,2,3,4
-var3:   .int 20
+var1:   .int    -1,2,3,-485,5
+var2:   .int    1,2,3,4
+var3:   .int    20
 
         .text
 main:   add     $0, $0, $0
