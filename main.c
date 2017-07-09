@@ -24,6 +24,13 @@ int main() {
     cache_read(&cache, 64);
     cache_read(&cache, 90);
     cache_read(&cache, 128);
+    cache_read(&cache, 129);
+    cache_read(&cache, 133);
+    cache_write(&cache, 0, C_WORD{2,2,2,2});
+    cache_write(&cache, 7, C_WORD{2,7,2,2});
+    cache_write(&cache, 88, C_WORD{5,7,2,2});
+    cache_write(&cache, 92, C_WORD{5,8,2,2});
+    cache_write(&cache, 53, C_WORD{5,15,2,2});
     cache_print(&cache);
 
     return EXIT_SUCCESS;

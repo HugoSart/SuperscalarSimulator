@@ -10,6 +10,7 @@
 #define CACHE_BLOCK_WORD_COUNT 4
 
 #define WORD_ADDRESS(address)  address - (address % (WORD_SIZE))
+#define BLOCK_WORD_TAG(address)      (address / WORD_SIZE) % (WORD_SIZE)
 #define BLOCK_ADDRESS(address) address - (address % (WORD_SIZE * CACHE_BLOCK_WORD_COUNT))
 #define BLOCK_TAG(address)     address / (WORD_SIZE * CACHE_BLOCK_WORD_COUNT)
 #define LINE_COUNT(size)       size / ((WORD_SIZE) * CACHE_BLOCK_WORD_COUNT)
