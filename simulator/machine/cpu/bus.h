@@ -1,0 +1,10 @@
+//
+// Created by hsart on 10/07/17.
+//
+
+#ifndef SUPERSCALARSIMULATOR_CDB_H
+#define SUPERSCALARSIMULATOR_CDB_H
+
+
+
+#endif //SUPERSCALARSIMULATOR_CDB_H

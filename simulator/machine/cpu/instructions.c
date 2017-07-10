@@ -5,22 +5,22 @@
 #include <stdarg.h>
 #include "instructions.h"
 #include "registers.h"
-#include "alu.h"
+#include "cpu.h"
 
-#define VA_3(valist)    REGISTER *r1 = va_arg(valist, REGISTER*); \
-                        REGISTER *r2 = va_arg(valist, REGISTER*); \
-                        REGISTER *r3 = va_arg(valist, REGISTER*);
+#define VA_3(valist)    Register *r1 = va_arg(valist, Register*); \
+                        Register *r2 = va_arg(valist, Register*); \
+                        Register *r3 = va_arg(valist, Register*);
 
-#define VA_3I(valist)   REGISTER *r1 = va_arg(valist, REGISTER*); \
-                        REGISTER *r2 = va_arg(valist, REGISTER*); \
+#define VA_3I(valist)   Register *r1 = va_arg(valist, Register*); \
+                        Register *r2 = va_arg(valist, Register*); \
                         int imm      = va_arg(valist, int);
 
 #define VA_END  va_end(valist);
 
 // Instruction implementations
-void add   (ALU *alu, va_list valist) {
+void add   (CPU *cpu, va_list valist) {
     VA_3(valist)
-    r1->value = alu->operation[OP_ADD](r2->value, r3->value);
+    r1->value = cpu->alu.operation[OP_ADD](r2->value, r3->value);
 }
 void addu  (ALU *alu, va_list valist) {
 

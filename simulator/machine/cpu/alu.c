@@ -3,6 +3,8 @@
 //
 
 #include "alu.h"
+#include "cpu.h"
+#include "bus.h"
 
 int op_add      (int a, int b) {
    return a + b;
@@ -11,13 +13,13 @@ int op_subtract (int a, int b) {
     return a - b;
 }
 int op_and      (int a, int b) {
-    return a != 0 && b != 0;
+    return a & b;
 }
 int op_or       (int a, int b) {
-    return a != 0 || b != 0;
+    return a | b;
 }
 int op_nor      (int a, int b) {
-    return !(a != 0 || b != 0);
+    return ~(a | b);
 }
 int op_xor      (int a, int b) {
     return a ^ b;
@@ -29,7 +31,7 @@ int op_div      (int a, int b) {
     return a / b;
 }
 int op_zero     (int a, int b) {
-    return a != 0;
+     return ~a;
 }
 
 ALU alu_init() {
