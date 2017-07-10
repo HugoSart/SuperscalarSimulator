@@ -19,7 +19,7 @@ typedef struct mem_t {
 } Memory;
 
 // Type manipulation functions
-Memory mem_create(size_t size, size_t text_address);
+Memory mem_init(size_t size, size_t text_address);
 void mem_destroy(Memory *mem);
 void mem_print(Memory *mem);
 

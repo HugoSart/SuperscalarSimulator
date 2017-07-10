@@ -2,13 +2,13 @@
 #include <stdlib.h>
 #include <malloc.h>
 #include "memory.h"
-#include "cache.h"
+#include "../cpu/cache.h"
 
 // Aux functions declarations
 int check_address(Memory*, unsigned int);
 
-// Implementation of declarations in memory.h
-Memory mem_create(size_t size, size_t text_address) {
+// memory.h declarations implementations
+Memory mem_init(size_t size, size_t text_address) {
     Memory mem;
     mem.mem = calloc(size, sizeof(BYTE));
     mem.size = size;
@@ -66,7 +66,7 @@ void mem_print(Memory *mem) {
     printf("\n\n------------------------------------------------\n");
 }
 
-// Aux function
+// Aux functions
 int check_address(Memory *mem, unsigned int address) {
     if (address < 0 || address >= mem->size) return 0;
     else                                     return 1;

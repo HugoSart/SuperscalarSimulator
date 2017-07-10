@@ -4,6 +4,8 @@
     #include <stdlib.h>
     #include <string.h>
     #include "../op_def.h"
+    #include "../../simulator/machine/cpu/registers.h"
+    #include "../../simulator/machine/cpu/instructions.h"
 
     extern char *yytext;
 
@@ -37,11 +39,10 @@
 %token<d> NUMBER REG LABEL
 %token COMMA COLON 
 %token OPCODE
-%token REGISTER ADRESS
+%token ADRESS
 %token EOL QUOTE
 %token ABS
 
-%token<d> OP OP_3 OP_3I OP_3S OP_2 OP_2I OP_2S OP_2A OP_1 OP_1I OP_1S OP_1T
 %token ARG DIR_DATA DIR_TEXT DIR_GLOBL MAIN
 %token ST_BYTE ST_SPACE ST_WORD STORAGE_TYPE ST_INT
 

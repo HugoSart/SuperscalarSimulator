@@ -2,18 +2,18 @@
 #define SUPERSCALARSIMULATOR_CACHE_H
 
 #include <stdio.h>
-#include "memory.h"
+#include "../memory/memory.h"
 
 #define UNDEFINED_TAG -1
 
 #define CACHE_SIZE 64//32768 // 2048 blocos
 #define CACHE_BLOCK_WORD_COUNT 4
 
-#define WORD_ADDRESS(address)  address - (address % (WORD_SIZE))
-#define BLOCK_WORD_TAG(address)      (address / WORD_SIZE) % (WORD_SIZE)
-#define BLOCK_ADDRESS(address) address - (address % (WORD_SIZE * CACHE_BLOCK_WORD_COUNT))
-#define BLOCK_TAG(address)     address / (WORD_SIZE * CACHE_BLOCK_WORD_COUNT)
-#define LINE_COUNT(size)       size / ((WORD_SIZE) * CACHE_BLOCK_WORD_COUNT)
+#define WORD_ADDRESS(address)   address - (address % (WORD_SIZE))
+#define BLOCK_WORD_TAG(address) (address / WORD_SIZE) % (WORD_SIZE)
+#define BLOCK_ADDRESS(address)  address - (address % (WORD_SIZE * CACHE_BLOCK_WORD_COUNT))
+#define BLOCK_TAG(address)      address / (WORD_SIZE * CACHE_BLOCK_WORD_COUNT)
+#define LINE_COUNT(size)        size / ((WORD_SIZE) * CACHE_BLOCK_WORD_COUNT)
 
 typedef WORD *BLOCK;
 
@@ -36,11 +36,10 @@ typedef struct line_t {
 typedef struct cache_t {
     Memory *mem;
     Line *line;
-    size_t size; // in bits
+    size_t size; // in bytes
 } Cache;
 
-Cache cache_create(Memory *mem, size_t size);
-size_t cache_line_count(Cache *cache);
+Cache cache_init(Memory *mem, size_t size);
 void cache_print(Cache *cache);
 
 void cache_write(Cache *cache, unsigned int address, WORD value);

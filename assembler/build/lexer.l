@@ -4,6 +4,7 @@
   #include <string.h>
   #include "parser.tab.h"
   #include "../op_def.h"
+  #include "../../simulator/machine/cpu/registers.h"
 %}
 
 %%

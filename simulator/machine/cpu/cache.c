@@ -4,10 +4,8 @@
 
 void miss_handler(Cache *, unsigned int);
 BLOCK get_memory_block(Memory *, unsigned int);
-unsigned int block_address(Memory *, unsigned int);
-unsigned int block_tag(Memory *, unsigned int);
 
-Cache cache_create(Memory *mem, size_t size) {
+Cache cache_init(Memory *mem, size_t size) {
 
     if ((size % 4) != 0) {
         sprintf(stderr, "ERROR: cache size needs to be multiple of %d\n", CACHE_BLOCK_WORD_COUNT);
