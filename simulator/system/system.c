@@ -8,18 +8,19 @@
 #include "system.h"
 #include "../machine/memory/memory.h"
 #include "../machine/types.h"
+#include "../machine/memory/util.h"
 
 void so_load(Memory *mem, char *bfile_name) {
 
     FILE *file;
 
     if (!(file = fopen(bfile_name, "rb"))) {
-        sprintf(stderr, "ERROR: can't open file %s, or file doesn't exists.\n", bfile_name);
+        fprintf(stderr, "ERROR: can't open file %s, or file doesn't exists.\n", bfile_name);
         return;
     }
 
-    for (size_t i = mem->text_address; i < mem->text_address + 400; fread(&mem->mem[i], sizeof(BYTE), 1, file), i++);
-    for (size_t i = 0; i < mem->text_address; fread(&mem->mem[i], sizeof(BYTE), 1, file), i++);
+    for (size_t i = mem->text_address; i < mem->text_address + 400; fread(&mem->byte[i], sizeof(BYTE), 1, file), i++);
+    for (size_t i = 0; i < mem->text_address; fread(&mem->byte[i], sizeof(BYTE), 1, file), i++);
 
 }
 
@@ -51,11 +52,11 @@ void so_show(CPU *cpu) {
 
         if (i >= mem->text_address)  SET_COLOR(COLOR_CYAN);
         else                         SET_COLOR(COLOR_MAGENTA);
-        if (mem->mem[i] != 0)
+        if (mem->byte[i] != 0)
             if (i >= mem->text_address) SET_COLOR(COLOR_CYAN_BRIGHT);
             else                        SET_COLOR(COLOR_MAGENTA_BRIGHT);
 
-        printf("%02X ", mem->mem[i]);
+        printf("%02X ", mem->byte[i]);
 
         SET_COLOR(COLOR_NORMAL);
 
@@ -67,10 +68,10 @@ void so_show(CPU *cpu) {
             for (unsigned int j = 0; j < 4; j++) {
 
                 for (unsigned int b = 0; b < 4; b++) {
-                    if (cache.line[line].block[j][b] != 0) SET_COLOR(COLOR_MAGENTA_BRIGHT);
+                    if (cache.line[line].word[j].byte[b] != 0) SET_COLOR(COLOR_MAGENTA_BRIGHT);
                     else
                         SET_COLOR(COLOR_MAGENTA);
-                    printf("%02X ", cache.line[line].block[j][b]);
+                    printf("%02X ", cache.line[line].word[j].byte[b]);
                 }
             }
             line++;

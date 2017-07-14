@@ -11,16 +11,21 @@
 //#define MEM_TEXT_ADDRESS 49548387
 #define MEM_TEXT_ADDRESS 64
 
+typedef struct mem_t {
+    BYTE *byte;
+    size_t size;
+    size_t text_address;
+} Memory;
 
 // Type manipulation functions
 Memory mem_init(size_t size, size_t text_address);
 void mem_destroy(Memory *mem);
-void mem_print(Memory *mem, Cache *cache);
+//void mem_print(Memory *mem, Cache *cache);
 
 // Data manipulation functions
 void mem_write(Memory *mem, unsigned int address, BYTE byte);
-void mem_write_word(Memory *mem, unsigned int address, WORD word);
+void mem_write_word(Memory *mem, unsigned int address, Word word);
 BYTE mem_read(Memory *mem, unsigned int address);
-WORD mem_read_word(Memory *mem, unsigned int address);
+Word mem_read_word(Memory *mem, unsigned int address);
 
 #endif //STANDARDCPROJECT_MEMORY_H

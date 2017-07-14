@@ -5,10 +5,9 @@
 #include <stdarg.h>
 #include "instructions.h"
 #include "alu.h"
-#include "registers.h"
 #include "pipeline.h"
 #include "cache.h"
-#include "../types.h"
+#include "cpu.h"
 
 CPU cpu_init(Memory *mem) {
     CPU cpu = { .cache    = cache_init(mem, CACHE_SIZE),

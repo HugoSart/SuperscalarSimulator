@@ -20,6 +20,38 @@
 #define ARG_1S (unsigned int sham)
 #define ARG_1T (unsigned int target)
 
+enum instructions_type{
+    OP,
+    OP_3, OP_3I, OP_3S,
+    OP_2, OP_2I, OP_2S, OP_2A,
+    OP_1, OP_1I, OP_1S, OP_1T
+};
+
+typedef enum {
+    ADD, ADDU, ADDI, ADDIU, ANDI, AND,
+    CLO, CLZ,
+    DIV, DIVU,
+    MULT, MULTU, MUL, MADD, MADDU, MSUB,
+    NOR,
+    OR, ORI,
+    SLL, SLLV, SRA, SRAV, SRL, SRLV,
+    SUB, SUBU,
+    XOR, XORI,
+    LUI,
+    SLT, SLTU, SLTI, SLTIU,
+    BCLF, BCLT, BEQ, BGEZ, BGEZAL, BGTZ, BLEZ, BLTZAL, BLTZ, BNE,
+    J, JAL, JALR, JR,
+    TEQ, TEQI, TGE, TGEU, TGEI, TGEIU, TLT, TLTU, TLTI, TLTIU,
+    LB, LBU, LH, LHU, LW, LWCL, LWL, LWR, LL,
+    SB, SH, SW, SWCL, SDCL, SWL, SWR, SC,
+    MFHI, MFLO, MTHI, MTLO, MFC0, MFC1, MTC0, MTC1, MOVN, MOVZ, MOVF, MOVT,
+    INSTRUCTION_COUNT
+} EInstructions;
+
+typedef struct instruction_set_t {
+    void (*instruction[INSTRUCTION_COUNT])(va_list);
+} InstructionSet;
+
 InstructionSet inst_init();
 
 #endif //SUPERSCALARSIMULATOR_INSTRUCTIONS_H

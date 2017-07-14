@@ -3,18 +3,17 @@
 //
 
 #include "../types.h"
-
+#include "cpu.h"
 
 
 void pipe_fetch(CPU *cpu) {
-    cpu->pipeline.ri = cpu->pipeline.pc;
-    cpu->pipeline.pc += 4;
+    cpu->pipeline.ri = cpu->cache.mem->byte[cpu->pipeline.pc];
+    cpu->pipeline.pc += WORD_SIZE;
 }
 void pipe_decode(CPU *cpu) {
 
 
 
-    unsigned int opcode = cpu->cache.mem->mem[cpu->pipeline.ri];
 
 
 }
