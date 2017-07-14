@@ -5,7 +5,7 @@
 #ifndef SUPERSCALARSIMULATOR_REGISTERS_H
 #define SUPERSCALARSIMULATOR_REGISTERS_H
 
-#include "types.h"
+#include "../types.h"
 #include "../memory/util.h"
 
 RegistersSet reg_init();

@@ -53,12 +53,7 @@ WORD cache_read(Cache *cache, unsigned int address) {
     Address a;
     a.full_address = WORD_ADDRESS(address);
 
-    printf("Full Address   : %u\n", a.full_address);
-    printf("Mapped Address : %u %u %u\n", a.mapped_address.tag, a.mapped_address.line, a.mapped_address.byte);
-    printf("Cache Tag      : %d\n", cache->line[a.mapped_address.line].tag);
-
     if (a.mapped_address.tag != cache->line[a.mapped_address.line].tag) {
-        printf("INFO: Miss!\n");
         miss_handler(cache, address);
     }
     printf("\n");
@@ -71,17 +66,11 @@ void cache_write(Cache *cache, unsigned int address, WORD word) {
     Address a;
     a.full_address = WORD_ADDRESS(address);
 
-    printf("Full Address   : %u\n", a.full_address);
-    printf("Mapped Address : %u %u %u\n", a.mapped_address.tag, a.mapped_address.line, a.mapped_address.byte);
-    printf("Cache Tag      : %d\n", cache->line[a.mapped_address.line].tag);
-
     if (a.mapped_address.tag != cache->line[a.mapped_address.line].tag) {
-        printf("INFO: Write Miss!\n");
         miss_handler(cache, address);
     }
 
     for (unsigned int i = 0; i < WORD_SIZE; i++) {
-        printf("ADD: %u %% %u = %u\n", address, WORD_SIZE, BLOCK_WORD_TAG(address));
         cache->line[a.mapped_address.line].block[BLOCK_WORD_TAG(a.mapped_address.byte)][i] = word[i];
     }
 
@@ -110,7 +99,5 @@ void miss_handler(Cache *cache, unsigned int address) {
             cache->line[a.mapped_address.line % (LINE_COUNT(cache->size))].block[i][j] = block[i][j];
         }
     }
-    printf("Old Tag: %d\n", cache->line[a.mapped_address.line % (LINE_COUNT(cache->size))].tag);
     cache->line[a.mapped_address.line % (LINE_COUNT(cache->size))].tag = a.mapped_address.tag;
-    printf("New Tag: %d\n", a.mapped_address.tag);
 }

@@ -4,15 +4,14 @@
 
 #include <stdarg.h>
 #include "instructions.h"
-#include "registers.h"
-#include "cpu.h"
+#include "../types.h"
 
-#define VA_3(valist)    Register *r1 = va_arg(valist, Register*); \
-                        Register *r2 = va_arg(valist, Register*); \
-                        Register *r3 = va_arg(valist, Register*);
+#define VA_3(valist)    ERegisters R1 = va_arg(valist, ERegisters); \
+                        ERegisters R2 = va_arg(valist, ERegisters); \
+                        ERegisters R3 = va_arg(valist, ERegisters);
 
-#define VA_3I(valist)   Register *r1 = va_arg(valist, Register*); \
-                        Register *r2 = va_arg(valist, Register*); \
+#define VA_3I(valist)   ERegisters R1 = va_arg(valist, ERegisters); \
+                        ERegisters R2 = va_arg(valist, ERegisters); \
                         int imm      = va_arg(valist, int);
 
 #define VA_END  va_end(valist);
@@ -20,14 +19,13 @@
 // Instruction implementations
 void add   (CPU *cpu, va_list valist) {
     VA_3(valist)
-    r1->value = cpu->alu.operation[OP_ADD](r2->value, r3->value);
+    cpu->reg_set.reg[R1].value = cpu->alu.operation[OP_ADD](cpu->reg_set.reg[R2].value, cpu->reg_set.reg[R3].value);
 }
 void addu  (ALU *alu, va_list valist) {
 
 }
 void addi  (ALU *alu, va_list valist) {
-    VA_3I(valist);
-    r1->value = alu->operation[OP_ADD](r2->value, imm);
+
 }
 void addiu (va_list valist) {
 

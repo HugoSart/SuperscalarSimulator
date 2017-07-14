@@ -1,8 +1,24 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <malloc.h>
+#include <string.h>
 #include "memory.h"
 #include "../cpu/cache.h"
+
+
+
+const char *byte_to_binary(int x)
+{
+    static char b[9];
+    b[0] = '\0';
+
+    int z;
+    for (z = 128; z > 0; z >>= 1)
+    {
+        strcat(b, ((x & z) == z) ? "1" : "0");
+    }
+
+    return b;
+}
 
 // Aux functions declarations
 int check_address(Memory*, unsigned int);
@@ -51,20 +67,46 @@ WORD mem_read_word(Memory *mem, unsigned int address) {
 
 }
 
-void mem_print(Memory *mem) {
-    printf("--------- Memory<%zu Cells x %d Bytes> ----------\n", mem->size, WORD_SIZE);
+/*void mem_print(Memory *mem, Cache *cache) {
+    printf("======================= Memory <%zuB> =======================\n\n", mem->size, WORD_SIZE);
+    printf("%7c", ' ');
 
-    for(int i = 0; i < mem->size; i += WORD_SIZE) {
-        printf("\n  %d-%d   \t-> [", i, i + WORD_SIZE - 1);
-        for(int j = 0; j < WORD_SIZE; j++) {
-            printf("%d", mem->mem[i + j]);
-            if (j != WORD_SIZE - 1) printf(",");
-        }
-        printf("]");
+    for(int i = 0; i < 16; i++) {
+        printf("%s%02X%s ", COLOR_WHITE, i, COLOR_NORMAL);
     }
 
-    printf("\n\n------------------------------------------------\n");
-}
+    //printf("        ------------------------------------------------- ");
+    for(int i = 0; i < mem->size; i ++) {
+        //if (i != 0 && i % 16 == 0) printf("|");
+
+        if (i % 16 == 0) printf("\n  %s%04X%s ", COLOR_WHITE, i, COLOR_NORMAL);
+
+        if (i >= MEM_TEXT_ADDRESS)  SET_COLOR(COLOR_CYAN);
+        else                        SET_COLOR(COLOR_MAGENTA);
+        if (mem->mem[i] != 0)
+            if (i >= MEM_TEXT_ADDRESS) SET_COLOR(COLOR_CYAN_BRIGHT);
+            else                       SET_COLOR(COLOR_MAGENTA_BRIGHT);
+
+        printf("%02X", mem->mem[i]);
+
+        SET_COLOR(COLOR_NORMAL);
+
+        printf(" ");
+        if ((i % 16) == 15 && i < cache->size) {
+            for (int j = i; j < i + 16; j++) {
+                if (j % 16 == 0) printf("\n  %s%04X%s ", COLOR_WHITE, i, COLOR_NORMAL);
+                printf("%02X", cache->mem[i]);
+            }
+        }
+
+    }
+    //printf("|\n        -------------------------------------------------");
+
+    printf("\n\n=================================================================\n");
+    for(int i = 0; i < 16; i++) {
+        printf("%u ", mem->mem[0x00110 + i]);
+    }
+}*/
 
 // Aux functions
 int check_address(Memory *mem, unsigned int address) {

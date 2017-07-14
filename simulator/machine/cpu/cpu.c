@@ -7,6 +7,8 @@
 #include "alu.h"
 #include "registers.h"
 #include "pipeline.h"
+#include "cache.h"
+#include "../types.h"
 
 CPU cpu_init(Memory *mem) {
     CPU cpu = { .cache    = cache_init(mem, CACHE_SIZE),
@@ -21,6 +23,10 @@ CPU cpu_init(Memory *mem) {
 void cpu_exec(CPU *cpu, EInstructions e, ...) {
     va_list valist;
     va_start(valist, 5);
-    cpu->inst_set.instruction[e](&cpu->alu, valist);
+    cpu->inst_set.instruction[e](cpu, valist);
     va_end(valist);
+}
+
+void cpu_set_reg(CPU *cpu, ERegisters r, int value) {
+    cpu->reg_set.reg[r].value = value;
 }

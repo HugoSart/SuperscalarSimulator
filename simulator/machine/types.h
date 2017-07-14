@@ -5,14 +5,45 @@
 #ifndef SUPERSCALARSIMULATOR_CPU_PIPELINE_H_H
 #define SUPERSCALARSIMULATOR_CPU_PIPELINE_H_H
 
-#include "cache.h"
+#include <stdio.h>
+#include "memory/util.h"
+
+// Memory definitions
+typedef unsigned char BYTE;
+typedef BYTE *MEMORY;
+typedef struct mem_t {
+    MEMORY mem;
+    size_t size;
+    size_t text_address;
+} Memory;
+
+// Cache definitions
+typedef WORD *BLOCK;
+struct dec_t {
+    unsigned int byte : 4;
+    unsigned int line : 2; // 11
+    unsigned int tag  : 5; // 14
+};
+typedef union dec_address {
+    unsigned int full_address;
+    struct dec_t mapped_address;
+} Address;
+typedef struct line_t {
+    int tag;
+    BLOCK block;
+} Line;
+typedef struct cache_t {
+    Memory *mem;
+    Line *line;
+    size_t size; // in bytes
+} Cache;
 
 // Registers definitions
 typedef union {
     BYTE byte[4];
     int value;
 } Register;
-enum reg_e {
+typedef enum reg_e {
     ZERO,
     AT,
     V0, V1,
@@ -25,7 +56,7 @@ enum reg_e {
     S8, FP = S8,
     RA,
     REG_COUNT
-};
+} ERegisters;
 typedef struct {
     Register reg[32];
 } RegistersSet;
@@ -47,16 +78,6 @@ typedef enum {
 typedef struct alu_t {
     int (*operation[OPERATIONS_COUNTER])(int, int);
 } ALU;
-
-// Pipeline definitions
-enum stages_e {
-    FETCH, DECODE, EXEC, MEM_ACCESS, WRITE_BACK,
-    STAGE_COUNT
-} EStage;
-typedef struct {
-    int pc, ri;
-    void (*stage[STAGE_COUNT])(unsigned int);
-} Pipeline;
 
 // InstructionsSet
 typedef struct cpu_t CPU;
@@ -89,6 +110,16 @@ typedef enum {
 typedef struct instruction_set_t {
     void (*instruction[INSTRUCTION_COUNT])(CPU *cpu, va_list);
 } InstructionSet;
+
+// Pipeline definitions
+enum stages_e {
+    FETCH, DECODE, EXEC, MEM_ACCESS, WRITE_BACK,
+    STAGE_COUNT
+} EStage;
+typedef struct {
+    int pc, ri;
+    void (*stage[STAGE_COUNT])(unsigned int);
+} Pipeline;
 
 // CPU definitions
 struct cpu_t {

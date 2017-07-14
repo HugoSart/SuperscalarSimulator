@@ -5,7 +5,7 @@
 #ifndef SUPERSCALARSIMULATOR_ALU_H
 #define SUPERSCALARSIMULATOR_ALU_H
 
-#include "types.h"
+#include "../types.h"
 
 ALU alu_init();
 

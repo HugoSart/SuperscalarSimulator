@@ -6,7 +6,7 @@
 #define SUPERSCALARSIMULATOR_INSTRUCTIONS_H
 
 #include <stdarg.h>
-#include "types.h"
+#include "../types.h"
 
 #define ARG_3  (REGISTER *rd, REGISTER *rs, REGISTER *rt)
 #define ARG_3I (REGISTER *r1, REGISTER *r2, int imm)

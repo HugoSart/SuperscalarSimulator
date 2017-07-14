@@ -5,23 +5,17 @@
 
 #include <stdio.h>
 #include "util.h"
+#include "../types.h"
 
-#define MEM_SIZE 256
+#define MEM_SIZE 512
 //#define MEM_TEXT_ADDRESS 49548387
-#define MEM_TEXT_ADDRESS 64000000
+#define MEM_TEXT_ADDRESS 64
 
-typedef BYTE *MEMORY;
-
-typedef struct mem_t {
-    MEMORY mem;
-    size_t size;
-    size_t text_address;
-} Memory;
 
 // Type manipulation functions
 Memory mem_init(size_t size, size_t text_address);
 void mem_destroy(Memory *mem);
-void mem_print(Memory *mem);
+void mem_print(Memory *mem, Cache *cache);
 
 // Data manipulation functions
 void mem_write(Memory *mem, unsigned int address, BYTE byte);

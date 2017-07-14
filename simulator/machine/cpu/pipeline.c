@@ -2,25 +2,19 @@
 // Created by hsart on 10/07/17.
 //
 
-#include "types.h"
+#include "../types.h"
 
-struct dec_code {
-    int opcode : 6;
-    int funct : 6;
-};
 
-void pipe_fetch(CPU *cpu, unsigned int code) {
-    cpu->pipeline.ri =
+
+void pipe_fetch(CPU *cpu) {
+    cpu->pipeline.ri = cpu->pipeline.pc;
     cpu->pipeline.pc += 4;
 }
-void pipe_decode(CPU *cpu, unsigned int code) {
+void pipe_decode(CPU *cpu) {
 
-    EInstructions inst;
-    struct dec_code dec = { .opcode = code };
 
-    if (code == 0) {
 
-    }
+    unsigned int opcode = cpu->cache.mem->mem[cpu->pipeline.ri];
 
 
 }

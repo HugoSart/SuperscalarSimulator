@@ -8,7 +8,10 @@
 #define WORD_SIZE 4
 
 typedef unsigned char BYTE;
-typedef BYTE *WORD;
+typedef union {
+    BYTE byte[WORD_SIZE];
+    unsigned int value;
+} Word;
 
 #define C_WORD (BYTE[WORD_SIZE])
 #define M_WORD(word, a, b, c, d) \
