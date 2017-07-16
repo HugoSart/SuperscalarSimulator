@@ -30,7 +30,7 @@ int opcode(unsigned int id) {
         case MULTU:
             return 0x0;
         case MUL:
-            return 0x0;
+            return 0x1c;
         case MADD:
             return 0x1c;
         case MADDU:
@@ -163,23 +163,9 @@ int opcode(unsigned int id) {
             return 0;
         case MTHI:
             return 0;
-        case MTLO:
-            return 0;
-        case MFC0:
-            return 0x10;
-        case MFC1:
-            return 0x11;
-        case MTC0:
-            return 0x10;
-        case MTC1:
-            return 0x11;
         case MOVN:
             return 0;
         case MOVZ:
-            return 0;
-        case MOVF:
-            return 0;
-        case MOVT:
             return 0;
         default:
             printf("ERROR: ID not found.\n");
@@ -265,24 +251,10 @@ int func(unsigned int id) {
             return 0x12;
         case MTHI:
             return 0x11;
-        case MTLO:
-            return 0x13;
-        case MFC0:
-            return 0x0;
-        case MFC1:
-            return 0x0;
-        case MTC0:
-            return 0x0;
-        case MTC1:
-            return 0x0;
         case MOVN:
             return 0xb;
         case MOVZ:
             return 0xa;
-        case MOVF:
-            return 0x1;
-        case MOVT:
-            return 0x1;
         default:
             printf("ERROR: ID not found.\n");
             return NOT_FOUND;

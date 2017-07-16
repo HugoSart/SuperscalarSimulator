@@ -5,11 +5,12 @@
 #ifndef SUPERSCALARSIMULATOR_PIPELINE_H
 #define SUPERSCALARSIMULATOR_PIPELINE_H
 
-#include "../types.h"
+#include "types.h"
 
 // Pipeline struct defiened in cpu_pipeline.h
 
 Pipeline pipe_init();
-void pipe_decode(CPU *, unsigned int);
+void pipe_fetch(CPU *);
+void pipe_decode(CPU *);
 
 #endif //SUPERSCALARSIMULATOR_PIPELINE_H

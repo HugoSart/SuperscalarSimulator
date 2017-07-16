@@ -3,7 +3,7 @@
 #include <string.h>
 #include "memory.h"
 #include "../cpu/cache.h"
-#include "util.h"
+#include "../util.h"
 
 
 const char *byte_to_binary(int x) {

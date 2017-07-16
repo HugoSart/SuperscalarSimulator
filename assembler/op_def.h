@@ -7,7 +7,7 @@
 
 #include <stdio.h>
 #include "bop.h"
-#include "../simulator/machine/cpu/instructions.h"
+#include "../source/simulator/machine/cpu/instructions.h"
 
 int opcode(unsigned int id);
 int func(unsigned int id);

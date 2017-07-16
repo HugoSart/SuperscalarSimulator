@@ -4,10 +4,9 @@
     #include <stdlib.h>
     #include <string.h>
     #include "../op_def.h"
-    #include "../../simulator/machine/cpu/registers.h"
-    #include "../../simulator/machine/cpu/instructions.h"
+    #include "../list.h"
 
-    extern char *yytext;
+    extern char *yytext;//
 
     char yybuffer[200];
 
@@ -23,20 +22,29 @@
     void inc_inst() {
       if (!inst_count) {
         char num[400] = {0};
-        fwrite(num, sizeof(char), 400 - ftell(file), file);
+        fwrite(num, sizeof(char), 400 - ftell(file), file);//adas
       }
       inst_count++;
     }
 
+    union word {
+        unsigned char byte[4];
+        int value;
+    };
+
+    extern List varList;
+
 %}
 
-%union yylval {
-	int d;
-    char *bin;
+%union {
+    int d;
+    char *str;
 }
 
 /* declare tokens */
-%token<d> NUMBER REG LABEL
+%token<d> NUMBER REG
+%token<str> LABEL VAR
+%token<d> OP_3 OP_3I OP_3S OP_2 OP_2I OP_2A OP_1 OP_1T
 %token COMMA COLON 
 %token OPCODE
 %token ADRESS
@@ -45,6 +53,8 @@
 
 %token ARG DIR_DATA DIR_TEXT DIR_GLOBL MAIN
 %token ST_BYTE ST_SPACE ST_WORD STORAGE_TYPE ST_INT
+
+%type<d> value
 
 %%
 
@@ -60,9 +70,10 @@ data_line:
 expData:
   | LABEL STORAGE_TYPE argData {
 
+    list_add(&varList, $1, ftell(file));
+    list_print(&varList);
     for (int i = array_size - 1; i >= 0; i--) {
-        printf("num[%d]: %d\n", array_size - 1 - i, array[i]);
-        printf("hex: %08x\n", array[i]);
+        printf("aaa %d\n", array[i]);
         fwrite(&array[i], sizeof(int), 1, file);
     }
     printf("\n");
@@ -124,7 +135,7 @@ argText: OP_3 REG COMMA REG COMMA REG {
     fwrite(&bi, 4, 1, file);
 
   }
-  | OP_3I REG COMMA REG COMMA NUMBER {
+  | OP_3I REG COMMA REG COMMA value {
 
     inc_inst();
 
@@ -149,7 +160,7 @@ argText: OP_3 REG COMMA REG COMMA REG {
     fwrite(&bi, 4, 1, file);
 
   }
-  | OP_3S REG COMMA REG COMMA NUMBER {
+  | OP_3S REG COMMA REG COMMA value {
 
     inc_inst();
 
@@ -202,7 +213,7 @@ argText: OP_3 REG COMMA REG COMMA REG {
     fwrite(&bi, 4, 1, file);
 
   }
-  | OP_2I REG COMMA NUMBER {
+  | OP_2I REG COMMA value {
 
     inc_inst();
 
@@ -224,7 +235,7 @@ argText: OP_3 REG COMMA REG COMMA REG {
     fwrite(&bi, 4, 1, file);
 
   }
-  | OP_2A REG COMMA NUMBER {
+  | OP_2A REG COMMA value {
 
     inc_inst();
 
@@ -233,7 +244,7 @@ argText: OP_3 REG COMMA REG COMMA REG {
     int op = $1, r1 = $2, num = $4;
 
     strcat(yybuffer, itbs(6, opcode(op)));
-    strcat(yybuffer, itbs(5, 0));
+    strcat(yybuffer, itbs(5, 0));//kojhv
     strcat(yybuffer, itbs(5, r1));
     strcat(yybuffer, itbs(16, num));
 
@@ -250,7 +261,7 @@ argText: OP_3 REG COMMA REG COMMA REG {
 
     inc_inst();
 
-    yybuffer[0] = '\0';
+    yybuffer[0] = '\0';//dsa
 
     int op = $1, reg = $2;
 
@@ -269,7 +280,7 @@ argText: OP_3 REG COMMA REG COMMA REG {
     fwrite(&bi, 4, 1, file);
 
   }
-  | OP_1T NUMBER {
+  | OP_1T value {
 
     inc_inst();
 
@@ -290,12 +301,35 @@ argText: OP_3 REG COMMA REG COMMA REG {
 
   }
   ;
+value: NUMBER { $$ = $1 };
+  | VAR {
+      printf("Teste: %s\n", $1);
+      Node *var = list_get(&varList, $1);
+      if (var == NULL) {
+        yyerror("Variable undefined");
+      }
+
+      union word aux = {0};
+
+      unsigned int return_offset = ftell(file);
+      fseek(file, var->offset, SEEK_SET);
+      fread(&(aux.byte[0]), 1, 1, file);
+      fread(&(aux.byte[1]), 1, 1, file);
+      fread(&(aux.byte[2]), 1, 1, file);
+      fread(&(aux.byte[3]), 1, 1, file);
+      fseek(file, return_offset, SEEK_SET);
+
+      printf("aux.value: %d\n", aux.value);
+      $$ = aux.value;
+
+  }
+  ;
 
 %%
 
 int main(int argc, char **argv) {
 
-    if ((file = fopen("output", "w")) == NULL) return 1;
+    if ((file = fopen("output", "w+b")) == NULL) return 1;
 
 	yyparse();
 

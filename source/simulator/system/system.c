@@ -3,12 +3,7 @@
 //
 
 #include <stdio.h>
-#include <stdio_ext.h>
-#include <stdlib.h>
 #include "system.h"
-#include "../machine/memory/memory.h"
-#include "../machine/types.h"
-#include "../machine/memory/util.h"
 
 void so_load(Memory *mem, char *bfile_name) {
 
@@ -40,7 +35,7 @@ void so_show(CPU *cpu) {
     for(int i = 0; i < 16; i++) {
         printf("%s%02d%s ", COLOR_WHITE, i, COLOR_NORMAL);
     }
-    printf("  %sRegister %s$%u%s %*c: %s%u", COLOR_YELLOW, COLOR_YELLOW_BRIGHT, 0, COLOR_YELLOW, 2, ' ', COLOR_NORMAL, cpu->reg_set.reg[0].value);
+    printf("  %sRegister %s$%u%s %*c: %s%d", COLOR_YELLOW, COLOR_YELLOW_BRIGHT, 0, COLOR_YELLOW, 2, ' ', COLOR_NORMAL, cpu_reg_get(cpu, 0));
     int line = 0, line2 = 1;
     //printf("        ------------------------------------------------- ");
     for(unsigned int i = 0; i < mem->size; i ++) {
@@ -80,7 +75,7 @@ void so_show(CPU *cpu) {
             if (i >= cache.size) printf("%55c", ' ');
             int space = 1;
             if (line2 < 10) space = 2;
-            printf("  %sRegister %s$%u%s %*c: %s%u", COLOR_YELLOW, COLOR_YELLOW_BRIGHT, line2, COLOR_YELLOW, space, ' ', COLOR_NORMAL, cpu->reg_set.reg[line2].value);
+            printf("  %sRegister %s$%u%s %*c: %s%d", COLOR_YELLOW, COLOR_YELLOW_BRIGHT, line2, COLOR_YELLOW, space, ' ', COLOR_NORMAL, cpu_reg_get(cpu, line2));
             line2++;
         }
 

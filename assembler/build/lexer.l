@@ -4,7 +4,10 @@
   #include <string.h>
   #include "parser.tab.h"
   #include "../op_def.h"
-  #include "../../simulator/machine/cpu/registers.h"
+  #include "../list.h"
+
+  extern List varList;
+
 %}
 
 %%
@@ -18,7 +21,7 @@
 [ \t]  { /* ignore whitespace */ }
 \"	   { return QUOTE; }
 
-[a-zA-Z_][a-zA-Z0-9_]*":"  { return LABEL; }
+[a-zA-Z_][a-zA-Z0-9_]+":"  { yylval.str = strdup(yytext); yylval.str[strlen(yylval.str) - 1] = '\0'; return LABEL; }
 
 ".data"        { return DIR_DATA; }
 ".text"        { return DIR_TEXT; }
@@ -142,17 +145,12 @@
 "mfhi"   { yylval.d = MFHI;  return OP_1; }
 "mflo"   { yylval.d = MFLO;  return OP_1; }
 "mthi"   { yylval.d = MTHI;  return OP_1; }
-"mtlo"   { yylval.d = MTLO;  return OP_1; }
-"mfc0"   { yylval.d = MFC0;  return OP_2; }
-"mfc1"   { yylval.d = MFC1;  return OP_2; }
-"mtc0"   { yylval.d = MTC0;  return OP_2; }
-"mtc1"   { yylval.d = MTC1;  return OP_2; }
 "movn"   { yylval.d = MOVN;  return OP_3; }
 "movz"   { yylval.d = MOVZ;  return OP_3; }
-"movf"   { yylval.d = MOVF;  return OP_3; }
-"movt"   { yylval.d = MOVT;  return OP_3; }
 
-.        { printf("Mystery character %c\n", *yytext); }
+[a-zA-Z_][a-zA-Z0-9_]+ {yylval.str = strdup(yytext); return VAR; }
+
+.        { printf("Mystery chracter %c\n", *yytext); }
 
 %%
 

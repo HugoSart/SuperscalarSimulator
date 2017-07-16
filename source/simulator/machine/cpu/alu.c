@@ -44,6 +44,7 @@ ALU alu_init() {
                 .operation[OP_DIV]      = &op_zero};
     return alu;
 }
-void alu_exec(ALU *alu, EOperations e, int *ret, int a, int b) {
-    *ret = alu->operation[e](a, b);
+
+int alu_exec(ALU *alu, EOperations e, int a, int b) {
+    return alu->operation[e](a, b);
 }

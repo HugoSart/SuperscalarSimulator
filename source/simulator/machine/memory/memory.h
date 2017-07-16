@@ -4,8 +4,7 @@
 // 256M = 8388608 Cells
 
 #include <stdio.h>
-#include "util.h"
-#include "../types.h"
+#include "../util.h"
 
 #define MEM_SIZE 512
 //#define MEM_TEXT_ADDRESS 49548387

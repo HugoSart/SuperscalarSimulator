@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "cache.h"
-#include "../memory/util.h"
+#include "../util.h"
 
 void miss_handler(Cache *, unsigned int);
 Line get_memory_block(Memory *, unsigned int);
