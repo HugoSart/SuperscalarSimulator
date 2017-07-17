@@ -2,6 +2,7 @@
 // Created by hsart on 09/07/17.
 //
 
+#include <string.h>
 #include "instructions.h"
 #include "cpu.h"
 
@@ -9,7 +10,7 @@
 
 // VER MOVF E BRANCHES
 
-void inst_add(InstructionSet *set, void *, size_t m, size_t n);
+void inst_add(InstructionSet *set, void *, char *, size_t m, size_t n);
 
 // Instruction implementations
 void add     (PARAM_STANDARD) {
@@ -148,94 +149,95 @@ void err     (PARAM_STANDARD) {
 
 InstructionSet inst_init() {
 
-    InstructionSet instructionSet = {&err};
+    InstructionSet instructionSet = {0};
 
-    inst_add(&instructionSet, &sll,     COLUMN_FUNCT1, 0); //
-    inst_add(&instructionSet, &slr,     COLUMN_FUNCT1, 2);
-    inst_add(&instructionSet, &sra,     COLUMN_FUNCT1, 3);
-    inst_add(&instructionSet, &sllv,    COLUMN_FUNCT1, 4); //
-    inst_add(&instructionSet, &srlv,    COLUMN_FUNCT1, 6);
-    inst_add(&instructionSet, &srav,    COLUMN_FUNCT1, 7);
-    inst_add(&instructionSet, &jr,      COLUMN_FUNCT1, 8);
-    inst_add(&instructionSet, &jalr,    COLUMN_FUNCT1, 9);
-    inst_add(&instructionSet, &movz,    COLUMN_FUNCT1, 10);
-    inst_add(&instructionSet, &movn,    COLUMN_FUNCT1, 11);
-    inst_add(&instructionSet, &syscall, COLUMN_FUNCT1, 12);
-    inst_add(&instructionSet, &_break,  COLUMN_FUNCT1, 13); //
-    inst_add(&instructionSet, &sync,    COLUMN_FUNCT1, 16);
-    inst_add(&instructionSet, &mfhi,    COLUMN_FUNCT1, 17);
-    inst_add(&instructionSet, &mthi,    COLUMN_FUNCT1, 18);
-    inst_add(&instructionSet, &mflo,    COLUMN_FUNCT1, 19); //;
-    inst_add(&instructionSet, &mult,    COLUMN_FUNCT1, 24);
-    inst_add(&instructionSet, &multu,   COLUMN_FUNCT1, 25);
-    inst_add(&instructionSet, &div,     COLUMN_FUNCT1, 26);
-    inst_add(&instructionSet, &divu,    COLUMN_FUNCT1, 27); //
-    inst_add(&instructionSet, &add,     COLUMN_FUNCT1, 32);
-    inst_add(&instructionSet, &addu,    COLUMN_FUNCT1, 33);
-    inst_add(&instructionSet, &sub,     COLUMN_FUNCT1, 34);
-    inst_add(&instructionSet, &subu,    COLUMN_FUNCT1, 35);
-    inst_add(&instructionSet, &and,     COLUMN_FUNCT1, 36);
-    inst_add(&instructionSet, &or,      COLUMN_FUNCT1, 37);
-    inst_add(&instructionSet, &xor,     COLUMN_FUNCT1, 38);
-    inst_add(&instructionSet, &nor,     COLUMN_FUNCT1, 39);
-    inst_add(&instructionSet, &slt,     COLUMN_FUNCT1, 42);
-    inst_add(&instructionSet, &sltu,    COLUMN_FUNCT1, 43); //
-    inst_add(&instructionSet, &tge,     COLUMN_FUNCT1, 48);
-    inst_add(&instructionSet, &tgeu,    COLUMN_FUNCT1, 49);
-    inst_add(&instructionSet, &tlt,     COLUMN_FUNCT1, 50);
-    inst_add(&instructionSet, &tltu,    COLUMN_FUNCT1, 51);
-    inst_add(&instructionSet, &teq,     COLUMN_FUNCT1, 52);
-    inst_add(&instructionSet, &tne,     COLUMN_FUNCT1, 54);
+    inst_add(&instructionSet, &sll,     "sll",    COLUMN_FUNCT1, 0); //
+    inst_add(&instructionSet, &slr,     "slr",    COLUMN_FUNCT1, 2);
+    inst_add(&instructionSet, &sra,     "sra",    COLUMN_FUNCT1, 3);
+    inst_add(&instructionSet, &sllv,    "sllv",   COLUMN_FUNCT1, 4); //
+    inst_add(&instructionSet, &srlv,    "srlv",   COLUMN_FUNCT1, 6);
+    inst_add(&instructionSet, &srav,    "srav",   COLUMN_FUNCT1, 7);
+    inst_add(&instructionSet, &jr,      "jr",     COLUMN_FUNCT1, 8);
+    inst_add(&instructionSet, &jalr,    "jalr",   COLUMN_FUNCT1, 9);
+    inst_add(&instructionSet, &movz,    "movz",   COLUMN_FUNCT1, 10);
+    inst_add(&instructionSet, &movn,    "movn",   COLUMN_FUNCT1, 11);
+    inst_add(&instructionSet, &syscall, "syscall",COLUMN_FUNCT1, 12);
+    inst_add(&instructionSet, &_break,  "break",  COLUMN_FUNCT1, 13); //
+    inst_add(&instructionSet, &sync,    "sync",   COLUMN_FUNCT1, 16);
+    inst_add(&instructionSet, &mfhi,    "mfhi",   COLUMN_FUNCT1, 17);
+    inst_add(&instructionSet, &mthi,    "mthi",   COLUMN_FUNCT1, 18);
+    inst_add(&instructionSet, &mflo,    "mflo",   COLUMN_FUNCT1, 19); //;
+    inst_add(&instructionSet, &mult,    "mult",   COLUMN_FUNCT1, 24);
+    inst_add(&instructionSet, &multu,   "multu",  COLUMN_FUNCT1, 25);
+    inst_add(&instructionSet, &div,     "div",    COLUMN_FUNCT1, 26);
+    inst_add(&instructionSet, &divu,    "divu",   COLUMN_FUNCT1, 27); //
+    inst_add(&instructionSet, &add,     "add",    COLUMN_FUNCT1, 32);
+    inst_add(&instructionSet, &addu,    "addu",   COLUMN_FUNCT1, 33);
+    inst_add(&instructionSet, &sub,     "sub",    COLUMN_FUNCT1, 34);
+    inst_add(&instructionSet, &subu,    "subu",   COLUMN_FUNCT1, 35);
+    inst_add(&instructionSet, &and,     "and",    COLUMN_FUNCT1, 36);
+    inst_add(&instructionSet, &or,      "or",     COLUMN_FUNCT1, 37);
+    inst_add(&instructionSet, &xor,     "xor",    COLUMN_FUNCT1, 38);
+    inst_add(&instructionSet, &nor,     "nor",    COLUMN_FUNCT1, 39);
+    inst_add(&instructionSet, &slt,     "slt",    COLUMN_FUNCT1, 42);
+    inst_add(&instructionSet, &sltu,    "sltu",   COLUMN_FUNCT1, 43); //
+    inst_add(&instructionSet, &tge,     "tge",    COLUMN_FUNCT1, 48);
+    inst_add(&instructionSet, &tgeu,    "tgeu",   COLUMN_FUNCT1, 49);
+    inst_add(&instructionSet, &tlt,     "tlt",    COLUMN_FUNCT1, 50);
+    inst_add(&instructionSet, &tltu,    "tltu",   COLUMN_FUNCT1, 51);
+    inst_add(&instructionSet, &teq,     "teq",    COLUMN_FUNCT1, 52);
+    inst_add(&instructionSet, &tne,     "tne",    COLUMN_FUNCT1, 54);
 
-    inst_add(&instructionSet, &madd,    COLUMN_FUNCT2, 0);
-    inst_add(&instructionSet, &maddu,   COLUMN_FUNCT2, 1);
-    inst_add(&instructionSet, &mul,     COLUMN_FUNCT2, 2); //
-    inst_add(&instructionSet, &msub,    COLUMN_FUNCT2, 4);
-    inst_add(&instructionSet, &msubu,   COLUMN_FUNCT2, 5);
-    inst_add(&instructionSet, &clz,     COLUMN_FUNCT2, 32);
-    inst_add(&instructionSet, &clo,     COLUMN_FUNCT2, 33);
+    inst_add(&instructionSet, &madd,    "madd",   COLUMN_FUNCT2, 0);
+    inst_add(&instructionSet, &maddu,   "maddu",  COLUMN_FUNCT2, 1);
+    inst_add(&instructionSet, &mul,     "mul",    COLUMN_FUNCT2, 2); //
+    inst_add(&instructionSet, &msub,    "msub",   COLUMN_FUNCT2, 4);
+    inst_add(&instructionSet, &msubu,   "msubu",  COLUMN_FUNCT2, 5);
+    inst_add(&instructionSet, &clz,     "clz",    COLUMN_FUNCT2, 32);
+    inst_add(&instructionSet, &clo,     "clo",    COLUMN_FUNCT2, 33);
 
-    inst_add(&instructionSet, &bltz,    COLUMN_RT, 0);
-    inst_add(&instructionSet, &bgez,    COLUMN_RT, 1);
-    inst_add(&instructionSet, &bltzl,   COLUMN_RT, 2);
-    inst_add(&instructionSet, &bgzel,   COLUMN_RT, 3);
-    inst_add(&instructionSet, &tgei,    COLUMN_RT, 8);
-    inst_add(&instructionSet, &tgeiu,   COLUMN_RT, 9);
-    inst_add(&instructionSet, &tlti,    COLUMN_RT, 10);
-    inst_add(&instructionSet, &tltiu,   COLUMN_RT, 11);
-    inst_add(&instructionSet, &tegi,    COLUMN_RT, 12);
-    inst_add(&instructionSet, &tnei,    COLUMN_RT, 14);
-    inst_add(&instructionSet, &bltzal,  COLUMN_RT, 16);
-    inst_add(&instructionSet, &bgezal,  COLUMN_RT, 17);
-    inst_add(&instructionSet, &bltzall, COLUMN_RT, 18);
-    inst_add(&instructionSet, &bgczall, COLUMN_RT, 19);
+    inst_add(&instructionSet, &bltz,    "bltz",   COLUMN_RT, 0);
+    inst_add(&instructionSet, &bgez,    "bgez",   COLUMN_RT, 1);
+    inst_add(&instructionSet, &bltzl,   "bltzl",  COLUMN_RT, 2);
+    inst_add(&instructionSet, &bgzel,   "bgzel",  COLUMN_RT, 3);
+    inst_add(&instructionSet, &tgei,    "tgei",   COLUMN_RT, 8);
+    inst_add(&instructionSet, &tgeiu,   "tgeiu",  COLUMN_RT, 9);
+    inst_add(&instructionSet, &tlti,    "tlti",   COLUMN_RT, 10);
+    inst_add(&instructionSet, &tltiu,   "tltiu",  COLUMN_RT, 11);
+    inst_add(&instructionSet, &tegi,    "tegi",   COLUMN_RT, 12);
+    inst_add(&instructionSet, &tnei,    "tnei",   COLUMN_RT, 14);
+    inst_add(&instructionSet, &bltzal,  "bltzal", COLUMN_RT, 16);
+    inst_add(&instructionSet, &bgezal,  "bgezal", COLUMN_RT, 17);
+    inst_add(&instructionSet, &bltzall, "bltzall",COLUMN_RT, 18);
+    inst_add(&instructionSet, &bgczall, "bgczall",COLUMN_RT, 19);
 
-    inst_add(&instructionSet, &j,       COLUMN_OP, 2);
-    inst_add(&instructionSet, &jal,     COLUMN_OP, 3);
-    inst_add(&instructionSet, &beq,     COLUMN_OP, 4);
-    inst_add(&instructionSet, &bne,     COLUMN_OP, 5);
-    inst_add(&instructionSet, &blez,    COLUMN_OP, 6);
-    inst_add(&instructionSet, &bgtz,    COLUMN_OP, 7);
-    inst_add(&instructionSet, &addi,    COLUMN_OP, 8);
-    inst_add(&instructionSet, &addu,    COLUMN_OP, 9);
-    inst_add(&instructionSet, &slti,    COLUMN_OP, 10);
-    inst_add(&instructionSet, &sltiu,   COLUMN_OP, 11);
-    inst_add(&instructionSet, &andi,    COLUMN_OP, 12);
-    inst_add(&instructionSet, &ori,     COLUMN_OP, 13);
-    inst_add(&instructionSet, &xori,    COLUMN_OP, 14);
-    inst_add(&instructionSet, &lui,     COLUMN_OP, 15);
-    inst_add(&instructionSet, &benql,   COLUMN_OP, 20);
-    inst_add(&instructionSet, &bnel,    COLUMN_OP, 21);
-    inst_add(&instructionSet, &blezl,   COLUMN_OP, 22);
-    inst_add(&instructionSet, &bgtzl,   COLUMN_OP, 23);
-    inst_add(&instructionSet, &lb,      COLUMN_OP, 32);
-    inst_add(&instructionSet, &lh,      COLUMN_OP, 33);
-    inst_add(&instructionSet, &lwl,     COLUMN_OP, 34);
-    inst_add(&instructionSet, &lw,      COLUMN_OP, 35);
+    inst_add(&instructionSet, &j,       "j",      COLUMN_OP, 2);
+    inst_add(&instructionSet, &jal,     "jal",    COLUMN_OP, 3);
+    inst_add(&instructionSet, &beq,     "beq",    COLUMN_OP, 4);
+    inst_add(&instructionSet, &bne,     "bne",    COLUMN_OP, 5);
+    inst_add(&instructionSet, &blez,    "blez",   COLUMN_OP, 6);
+    inst_add(&instructionSet, &bgtz,    "bgtz",   COLUMN_OP, 7);
+    inst_add(&instructionSet, &addi,    "addi",   COLUMN_OP, 8);
+    inst_add(&instructionSet, &addu,    "addu",   COLUMN_OP, 9);
+    inst_add(&instructionSet, &slti,    "slti",   COLUMN_OP, 10);
+    inst_add(&instructionSet, &sltiu,   "sltiu",  COLUMN_OP, 11);
+    inst_add(&instructionSet, &andi,    "andi",   COLUMN_OP, 12);
+    inst_add(&instructionSet, &ori,     "ori",    COLUMN_OP, 13);
+    inst_add(&instructionSet, &xori,    "xori",   COLUMN_OP, 14);
+    inst_add(&instructionSet, &lui,     "lui",    COLUMN_OP, 15);
+    inst_add(&instructionSet, &benql,   "benql",  COLUMN_OP, 20);
+    inst_add(&instructionSet, &bnel,    "bnel",   COLUMN_OP, 21);
+    inst_add(&instructionSet, &blezl,   "blezl",  COLUMN_OP, 22);
+    inst_add(&instructionSet, &bgtzl,   "bgtzl",  COLUMN_OP, 23);
+    inst_add(&instructionSet, &lb,      "lb",     COLUMN_OP, 32);
+    inst_add(&instructionSet, &lh,      "lh",     COLUMN_OP, 33);
+    inst_add(&instructionSet, &lwl,     "lwl",    COLUMN_OP, 34);
+    inst_add(&instructionSet, &lw,      "lw",     COLUMN_OP, 35);
 
     return instructionSet;
 }
 
-void inst_add(InstructionSet *set, void *function, size_t m, size_t n) {
-    set->table[m][n] = function;
+void inst_add(InstructionSet *set, void *function, char *mnemonic, size_t m, size_t n) {
+    set->table[m][n].mnemonic = strdup(mnemonic);
+    set->table[m][n].realization = function;
 }

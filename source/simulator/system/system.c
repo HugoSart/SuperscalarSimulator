@@ -3,7 +3,11 @@
 //
 
 #include <stdio.h>
+#include <string.h>
 #include "system.h"
+#include "../machine/cpu/rstation.h"
+#include "../machine/cpu/types.h"
+#include "../machine/cpu/structures/fifo.h"
 
 void so_load(Memory *mem, char *bfile_name) {
 
@@ -19,12 +23,12 @@ void so_load(Memory *mem, char *bfile_name) {
 
 }
 
-void so_show(CPU *cpu) {
+void so_show_rcr(CPU *cpu) {
 
     Memory *mem = cpu->cache.mem;
     Cache cache = cpu->cache;
 
-    printf("\n%23cRAM MEMORY%45cCACHE MEMORY%26cREGISTERS\n\n", ' ', ' ', ' ');
+    printf("\n%s%23cRAM MEMORY%45cCACHE MEMORY%26cREGISTERS%s\n\n", COLOR_WHITE_BRIGHT, ' ', ' ', ' ', COLOR_WHITE_BRIGHT);
 
     printf("%7c", ' ');
 
@@ -84,5 +88,66 @@ void so_show(CPU *cpu) {
     //printf("|\n        -------------------------------------------------");
 
 
+}
+
+void so_show_rrf(CPU *cpu) {
+
+    printf("\n%s%8cREGISTERS%25cRESERVATION STATIONS%s\n\n", COLOR_WHITE_BRIGHT, ' ', ' ', COLOR_WHITE_BRIGHT);
+
+    for (int i = 0; i < 32; i++) {
+        int space = 1;
+        if (i < 10) space = 2;
+        printf("%4c%sRegister %s$%u%s %*c: %s%d\t", ' ', COLOR_YELLOW, COLOR_YELLOW_BRIGHT, i, COLOR_YELLOW, \
+               space, ' ', COLOR_NORMAL, cpu_reg_get(cpu, i));
+
+        Node *current = cpu->pipeline.queue.first;
+        if (i == 0) printf("%10c%sNAME  BUSY    OP   Vj  Vk  Qj  Qk  A%s ", ' ', COLOR_CYAN, COLOR_NORMAL);
+
+        size_t size = fifo_size(&cpu->pipeline.queue);
+        int i2 = i - 1;
+        if (i2 < 5 && i2 >= 0) {
+            printf("%10c", ' ');
+            char name[10];
+            switch (cpu->rstation[i2].type) {
+                case RS_ADD:
+                    strcpy(name, "ADDI");
+                    break;
+                case RS_MUL:
+                    strcpy(name, "MULT");
+                    break;
+                case RS_LOAD:
+                    strcpy(name, "LOAD");
+                    break;
+                case RS_STORE:
+                    strcpy(name, "STOR");
+                    break;
+                default:
+                    strcpy(name, "????");
+            }
+            printf("%s  ", name);
+
+            if (cpu->rstation[i2].busy == true) printf("%sYes%s", COLOR_RED, COLOR_NORMAL);
+            else                                printf("%sNo %s", COLOR_GREEN, COLOR_NORMAL);
+
+            if (cpu->rstation[i2].op.realization == NULL) printf("          ");
+
+            if (cpu->rstation[i2].vj != RS_UNDEFINED) printf("%02d ", cpu->rstation[i2].vj);
+            else                                      printf("    ");
+            if (cpu->rstation[i2].vj != RS_UNDEFINED) printf("%02d ", cpu->rstation[i2].vk);
+            else                                      printf("    ");
+            if (cpu->rstation[i2].vj != RS_UNDEFINED) printf("%02d ", cpu->rstation[i2].qj);
+            else                                      printf("    ");
+            if (cpu->rstation[i2].vj != RS_UNDEFINED) printf("%02d ", cpu->rstation[i2].qk);
+            else                                      printf("    ");
+
+        }
+
+        if (i == 7) {
+            printf("%10c%sInstruction Queue -> %s", ' ', COLOR_BLUE_BRIGHT, COLOR_NORMAL);
+            fifo_print(&cpu->pipeline.queue);
+        }
+
+        printf("\n");
+    }
 }
 

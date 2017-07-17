@@ -3,16 +3,29 @@
 //
 
 #include "instructions.h"
+#include "rstation.h"
 #include "pipeline.h"
-#include "../util.h"
 
 CPU cpu_init(Memory *mem) {
     CPU cpu = { .cache    = cache_init(mem, CACHE_SIZE),
-                .inst_set = inst_init(),
-                .reg      = {{0}},
-                .alu      = alu_init(),
-                .cdb      = {0},
-                .pipeline = pipe_init()};
+            .inst_set = inst_init(),
+            .alu      = alu_init(),
+            .cdb      = {0},
+            .pipeline = pipe_init(),
+            .rstation = {{0}}};
+    cpu.rstation[0].type = RS_ADD;
+    cpu.rstation[1].type = RS_ADD;
+    cpu.rstation[2].type = RS_MUL;
+    cpu.rstation[3].type = RS_LOAD;
+    cpu.rstation[4].type = RS_STORE;
+
+    for (int i = 0; i < 5; i++) {
+        cpu.rstation[i].vj = RS_UNDEFINED;
+        cpu.rstation[i].vk = RS_UNDEFINED;
+        cpu.rstation[i].qj = RS_UNDEFINED;
+        cpu.rstation[i].qk = RS_UNDEFINED;
+    }
+
     return cpu;
 }
 

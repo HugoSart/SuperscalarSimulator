@@ -24,9 +24,9 @@ set(SOURCE_FILES
         source/simulator/machine/cpu/cpu.h
         source/simulator/machine/cpu/structures/fifo.c
         source/simulator/machine/cpu/structures/fifo.h
-        source/simulator/machine/cpu/restation.c
-        source/simulator/machine/cpu/restation.h
+        source/simulator/machine/cpu/rstation.c
+        source/simulator/machine/cpu/rstation.h
         source/simulator/machine/cpu/register.c
-        source/simulator/machine/cpu/register.h)
+        source/simulator/machine/cpu/register.h source/simulator/machine/motherboard/mobo.c source/simulator/machine/motherboard/mobo.h)
 
 add_executable(SuperscalarSimulator ${SOURCE_FILES})

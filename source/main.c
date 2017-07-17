@@ -20,7 +20,8 @@ int main() {
     pipe_fetch(&cpu);
     pipe_decode(&cpu);
 
-    so_show(&cpu);
+    so_show_rcr(&cpu);
+    so_show_rrf(&cpu);
 
     return EXIT_SUCCESS;
 }

@@ -14,7 +14,7 @@
 struct dec_t {
     unsigned int byte : 4;
     unsigned int line : 2; // 11
-    unsigned int tag  : 5; // 14
+    unsigned int tag  : 3// 14
 };
 typedef union dec_address {
     unsigned int full_address;
@@ -82,13 +82,17 @@ typedef enum {
 typedef enum {
     TYPE_R, TYPE_RI, TYPE_J, TYPE_UNKNOWN
 } EType;
+typedef struct instruction_ref_t {
+    char *mnemonic;
+    void (*realization)(CPU *cpu, unsigned int opcode);
+} InstructionRef;
 typedef struct instruction_t {
     Opcode code;
     EType type;
-    void *realization;
+    InstructionRef ref;
 } Instruction;
 typedef struct instruction_set_t {
-    void (*table[4][64])(CPU *cpu, unsigned int opcode);
+    InstructionRef table[4][64];
 } InstructionSet;
 
 // FIFO declarations
@@ -124,12 +128,16 @@ typedef struct alu_t {
 } ALU;
 
 // ReservationStation declarations
-typedef struct {
+typedef enum rstation_e {
+    RS_ADD, RS_MUL, RS_LOAD, RS_STORE
+} ERStation;
+typedef struct rstation_t {
     bool busy;
-    unsigned int op;
+    InstructionRef op;
     unsigned int qj, qk;
     unsigned int vj, vk;
     unsigned int A;
+    ERStation type;
 } ReservationStation;
 
 // Register declarations
@@ -157,6 +165,7 @@ typedef struct cpu_t {
     Cache cache;
     ALU alu;
     Register reg[32];
+    ReservationStation rstation[5];
     Pipeline pipeline;
     InstructionSet inst_set;
     Word cdb;

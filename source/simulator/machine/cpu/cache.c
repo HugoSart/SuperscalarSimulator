@@ -78,7 +78,7 @@ Line get_memory_block(Memory *mem, unsigned int address) {
     Address a = {.full_address = address};
     Line line = {.tag = a.mapped_address.tag};
     for (unsigned int i = 0; i < CACHE_BLOCK_WORD_COUNT; i++) {
-        line.word[i] = mem_read_word(mem, address);
+        line.word[i] = mem_read_word(mem, address + WORD_SIZE*i);
     }
     // ver se ta certo
 

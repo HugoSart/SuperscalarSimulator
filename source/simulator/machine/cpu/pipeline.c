@@ -4,10 +4,11 @@
 
 #include "types.h"
 #include "structures/fifo.h"
+#include "cache.h"
 
 void pipe_fetch(CPU *cpu) {
 
-    cpu->pipeline.ri = mem_read_word(cpu->cache.mem, cpu->pipeline.pc.decimal);
+    cpu->pipeline.ri = cache_read(&cpu->cache, cpu->pipeline.pc.decimal);
     cpu->pipeline.pc.decimal += WORD_SIZE;
 
 }
@@ -15,7 +16,6 @@ void pipe_fetch(CPU *cpu) {
 void pipe_decode(CPU *cpu) {
 
     Opcode opcode = { .opcode = cpu->pipeline.ri.decimal };
-    void (*realization)(CPU *, unsigned int);
     EType type = TYPE_UNKNOWN;
 
     size_t m = 0, n = 0;
@@ -27,9 +27,10 @@ void pipe_decode(CPU *cpu) {
     else if (m == COLUMN_RT)                           n = opcode.r.rt;
     else                                               n = opcode.r.op;
 
-    realization = cpu->inst_set.table[m][n];
-    fifo_add(&cpu->pipeline.queue, opcode, type, realization);
+    InstructionRef ref = cpu->inst_set.table[m][n];
+    fifo_add(&cpu->pipeline.queue, opcode, type, ref);
     fifo_print(&cpu->pipeline.queue);
+    //ref.realization(cpu, opcode.opcode);
     //instruction(cpu, cpu->pipeline.ri.decimal);
 
 }
