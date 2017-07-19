@@ -18,5 +18,6 @@ typedef struct mobo_t {
 Mobo mobo_init(CPU *cpu, Memory *mem) {
     return (Mobo){ .cpu = cpu, .mem = mem, .address_bus = {0}, .control_bus = {0}, .data_bus = {0} };
 }
+Mobo mobo_clock(Mobo *mobo);
 
 #endif //SUPERSCALARSIMULATOR_MOBO_H

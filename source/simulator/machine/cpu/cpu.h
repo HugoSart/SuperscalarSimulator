@@ -13,10 +13,11 @@
 typedef struct cpu_t CPU;
 
 CPU cpu_init(Memory *mem);
+void cpu_clock(CPU *);
 void cpu_exec(CPU *, EInstructions, ...);
 void cpu_reg_set(CPU *, ERegisters, int value);
 int cpu_reg_get(CPU *, ERegisters);
-int cpu_reg_index(CPU *cpu, ERegisters);
+int cpu_reg_index(CPU *cpu, Register *);
 ReservationStation *cpu_reg_busy(CPU *, ERegisters);
 
 #endif //SUPERSCALARSIMULATOR_CPU_H

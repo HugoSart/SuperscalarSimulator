@@ -6,7 +6,7 @@
 #include "instructions.h"
 #include "cpu.h"
 
-#define PARAM_STANDARD CPU *cpu, unsigned int opcode
+#define PARAM_STANDARD CPU *cpu, ...
 
 // VER MOVF E BRANCHES
 
@@ -14,18 +14,18 @@ void inst_add(InstructionSet *set, void *, char *, EType, size_t m, size_t n);
 
 // Instruction implementations
 void add     (PARAM_STANDARD) {
-    Opcode code = {.opcode = opcode};
-    cpu->cdb.value = cpu->alu.operation[OP_ADD](cpu_reg_get(cpu, code.r.rs), cpu_reg_get(cpu, code.r.rt));
-    cpu_reg_set(cpu, code.r.rd, cpu->cdb.value);
+    va_list va;
+    va_start(va, 3);
+    Register *rd = va_arg(va, Register*);
+    Register *rs = va_arg(va, Register*);
+    Register *rt = va_arg(va, Register*);
 
 }
 void addu    (PARAM_STANDARD) {
 
 }
 void addi    (PARAM_STANDARD) {
-    Opcode code = {.opcode = opcode};
-    cpu_reg_set(cpu, code.ri.rt, cpu->alu.operation[OP_ADD](code.ri.rs, code.ri.imm));
-    //cpu->reg[code.ri.rt].value = cpu->reg[code.ri.rs].value + code.ri.imm;
+
 }
 void addiu   (PARAM_STANDARD) {
 
@@ -54,12 +54,7 @@ void multu   (PARAM_STANDARD) {
 
 }
 void mul     (PARAM_STANDARD) {
-    Opcode code = {.opcode = opcode};
-    Word *rd = &cpu->reg[code.r.rd],
-            *rs = &cpu->reg[code.r.rs],
-            *rt = &cpu->reg[code.r.rt];
-    cpu->cdb.value = cpu->alu.operation[OP_MULT](rs->value, rt->value);
-    rd->value = cpu->cdb.value;
+
 }
 void madd    (PARAM_STANDARD) {
 
@@ -139,8 +134,7 @@ void lb      (PARAM_STANDARD) {}
 void lh      (PARAM_STANDARD) {}
 void lwl     (PARAM_STANDARD) {}
 void lw      (PARAM_STANDARD) {
-    Opcode code = {.opcode = opcode};
-    cpu_reg_set(cpu, code.ri.rt, mem_read_word(cpu->cache.mem, code.ri.imm).value);
+
 }
 
 void err     (PARAM_STANDARD) {

@@ -123,15 +123,15 @@
 "tlti"   { yylval.d = TLTI;  return OP_2I; }
 "tltiu"  { yylval.d = TLTIU; return OP_2I; }
 
-"lb"     { yylval.d = LB;    return OP_2A; }
-"lbu"    { yylval.d = LBU;   return OP_2A; }
-"lh"     { yylval.d = LH;    return OP_2A; }
-"lhu"    { yylval.d = LHU;   return OP_2A; }
-"lw"     { yylval.d = LW;    return OP_2A; }
-"lwcl"   { yylval.d = LWCL;  return OP_2A; }
-"lwl"    { yylval.d = LWL;   return OP_2A; }
-"lwr"    { yylval.d = LWR;   return OP_2A; }
-"ll"     { yylval.d = LL;    return OP_2A; }
+"lb"     { yylval.d = LB;    return OP_3I; }
+"lbu"    { yylval.d = LBU;   return OP_3I; }
+"lh"     { yylval.d = LH;    return OP_3I; }
+"lhu"    { yylval.d = LHU;   return OP_3I; }
+"lw"     { yylval.d = LW;    return OP_3I; }
+"lwcl"   { yylval.d = LWCL;  return OP_3I; }
+"lwl"    { yylval.d = LWL;   return OP_3I; }
+"lwr"    { yylval.d = LWR;   return OP_3I; }
+"ll"     { yylval.d = LL;    return OP_3I; }
 
 "sb"     { yylval.d = SB;    return OP_2A; }
 "sh"     { yylval.d = SH;    return OP_2A; }

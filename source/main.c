@@ -13,12 +13,9 @@ int main() {
     CPU cpu = cpu_init(&mem);
     so_load(&mem, "/home/hsart/Documentos/CLion Workspace/SuperscalarSimulator/assembler/build/output");
 
-    pipe_fetch(&cpu);
-    pipe_decode(&cpu);
-    pipe_fetch(&cpu);
-    pipe_decode(&cpu);
-    pipe_fetch(&cpu);
-    pipe_decode(&cpu);
+    cpu_clock(&cpu);
+    //cpu_clock(&cpu);
+    //cpu_clock(&cpu);
 
     so_show_rcr(&cpu);
     so_show_rrf(&cpu);

@@ -8,6 +8,7 @@
 #include "../machine/cpu/rstation.h"
 #include "../machine/cpu/types.h"
 #include "../machine/cpu/structures/fifo.h"
+#include "../machine/cpu/register.h"
 
 void so_load(Memory *mem, char *bfile_name) {
 
@@ -101,14 +102,14 @@ void so_show_rrf(CPU *cpu) {
                space, ' ', COLOR_NORMAL, cpu_reg_get(cpu, i));
 
         Node *current = cpu->pipeline.queue.first;
-        if (i == 0) printf("%10c%sNAME  BUSY    OP   Vj  Vk  Qj  Qk  A%s ", ' ', COLOR_CYAN, COLOR_NORMAL);
+        if (i == 0) printf("%10c%sNAME  BUSY  MNEMONIC  Vj  Vk  Qj  Qk  A%s ", ' ', COLOR_CYAN, COLOR_NORMAL);
 
         size_t size = fifo_size(&cpu->pipeline.queue);
         int i2 = i - 1;
         if (i2 < 7 && i2 >= 0) {
             printf("%10c", ' ');
             char name[10];
-            switch (cpu->rstation[i2].type) {
+            switch (cpu->pipeline.rstation[i2].type) {
                 case RS_ADD:
                     strcpy(name, "ADDI");
                     break;
@@ -123,19 +124,20 @@ void so_show_rrf(CPU *cpu) {
             }
             printf("%s  ", name);
 
-            if (cpu->rstation[i2].busy == true) printf("%sYes%s", COLOR_RED, COLOR_NORMAL);
-            else                                printf("%sNo %s", COLOR_GREEN, COLOR_NORMAL);
+            if (cpu->pipeline.rstation[i2].busy > 0) printf("%sYes%s", COLOR_RED, COLOR_NORMAL);
+            else                            printf("%sNo %s", COLOR_GREEN, COLOR_NORMAL);
 
-            if (cpu->rstation[i2].op.realization == NULL) printf("          ");
+            if (cpu->pipeline.rstation[i2].op == NULL) printf("");
+            else                                           printf("   %s%*c  ", cpu->pipeline.rstation[i2].op->mnemonic, 8 - strlen(cpu->pipeline.rstation[i2].op->mnemonic), ' ');
 
-            if (cpu->rstation[i2].vj != RS_UNDEFINED) printf("%02d  ", cpu->rstation[i2].vj);
-            else                                      printf("     ");
-            if (cpu->rstation[i2].vk != RS_UNDEFINED) printf("%02d  ", cpu->rstation[i2].vk);
-            else                                      printf("     ");
-            if (cpu->rstation[i2].qj != RS_UNDEFINED) printf("%02d  ", cpu->rstation[i2].qj);
-            else                                      printf("     ");
-            if (cpu->rstation[i2].qk != RS_UNDEFINED) printf("%02d  ", cpu->rstation[i2].qk);
-            else                                      printf("     ");
+            if (cpu->pipeline.rstation[i2].vj != REG_UNKNOWN) printf("%02d  ", cpu->pipeline.rstation[i2].vj);
+            else                                     printf("    ");
+            if (cpu->pipeline.rstation[i2].vk != REG_UNKNOWN) printf("%02d  ", cpu->pipeline.rstation[i2].vk);
+            else                                     printf("    ");
+            if (cpu->pipeline.rstation[i2].qj != REG_UNKNOWN) printf("%02d  ", cpu->pipeline.rstation[i2].qj);
+            else                                     printf("    ");
+            if (cpu->pipeline.rstation[i2].qk != REG_UNKNOWN) printf("%02d  ", cpu->pipeline.rstation[i2].qk);
+            else                                     printf("    ");
 
         }
 

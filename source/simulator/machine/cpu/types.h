@@ -90,7 +90,7 @@ typedef enum {
 typedef struct instruction_ref_t {
     char *mnemonic;
     EType type;
-    void (*realization)(CPU *cpu, unsigned int opcode);
+    void (*realization)(CPU *cpu, ...);
 } InstructionRef;
 typedef struct instruction_t {
     Opcode code;
@@ -110,15 +110,30 @@ typedef struct fifo {
     Node *first;
 } FIFO;
 
+// ReservationStation declarations
+typedef enum rstation_e {
+    RS_ADD, RS_MUL, RS_LOAD, RS_STORE,
+    RS_COUNT, RS_UNKNOWN
+} ERStation;
+typedef struct rstation_t {
+    int busy;
+    InstructionRef *op;
+    unsigned int qj, qk;
+    unsigned int vj, vk;
+    unsigned int A;
+    ERStation type;
+} ReservationStation;
+
 // Pipeline declarations
 enum stages_e {
-    FETCH, DECODE, EXEC, MEM_ACCESS, WRITE_BACK,
+    FETCH, DECODE, ISSUE, EXEC, MEM_ACCESS, WRITE_BACK,
     STAGE_COUNT
 } EStage;
 typedef struct {
     Word pc, ri;
     FIFO queue;
-    void (*stage[STAGE_COUNT])(unsigned int);
+    ReservationStation rstation[7];
+    void (*stage[STAGE_COUNT])(CPU *);
 } Pipeline;
 
 // ALU declarations
@@ -132,20 +147,6 @@ typedef enum {
 typedef struct alu_t {
     int (*operation[OPERATIONS_COUNTER])(int, int);
 } ALU;
-
-// ReservationStation declarations
-typedef enum rstation_e {
-    RS_ADD, RS_MUL, RS_LOAD, RS_STORE,
-    RS_COUNT, RS_UNKNOWN
-} ERStation;
-typedef struct rstation_t {
-    int busy;
-    InstructionRef op;
-    unsigned int qj, qk;
-    unsigned int vj, vk;
-    unsigned int A;
-    ERStation type;
-} ReservationStation;
 
 // Register declarations
 typedef enum reg_e {
@@ -172,7 +173,6 @@ typedef struct cpu_t {
     Cache cache;
     ALU alu;
     Register reg[32];
-    ReservationStation rstation[7];
     Pipeline pipeline;
     InstructionSet inst_set;
     Word cdb;

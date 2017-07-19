@@ -12,5 +12,7 @@
 Pipeline pipe_init();
 void pipe_fetch(CPU *);
 void pipe_decode(CPU *);
+void pipe_issue(CPU *);
+void pipe_exec(CPU *);
 
 #endif //SUPERSCALARSIMULATOR_PIPELINE_H

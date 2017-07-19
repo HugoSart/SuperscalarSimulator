@@ -6,7 +6,7 @@
     #include "../op_def.h"
     #include "../list.h"
 
-    extern char *yytext;//
+    extern char *yytext;//dds
 
     char yybuffer[200];
 
@@ -304,7 +304,7 @@ argText: OP_3 REG COMMA REG COMMA REG {
 value: NUMBER { $$ = $1 };
   | VAR {
       printf("Teste: %s\n", $1);
-      Node *var = list_get(&varList, $1);
+      LNode *var = list_get(&varList, $1);
       if (var == NULL) {
         yyerror("Variable undefined");
       }

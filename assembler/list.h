@@ -9,15 +9,15 @@ typedef struct label_node {
     unsigned int offset;
     char *label;
     struct label_node *next;
-} Node;
+} LNode;
 
 typedef struct list {
-    Node *first;
+    LNode *first;
 } List;
 
 void list_add(List *list, char *label, unsigned int offset);
 
-Node *list_get(List *list, char *label);
+LNode *list_get(List *list, char *label);
 
 void list_print(List *list);
 
