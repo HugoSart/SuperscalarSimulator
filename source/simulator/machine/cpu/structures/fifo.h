@@ -10,7 +10,7 @@
 
 FIFO fifo_init();
 
-void fifo_add(FIFO *fifo, Opcode code, EType type, InstructionRef ref);
+void fifo_add(FIFO *fifo, Opcode code, ERType type, InstructionRef *ref);
 Instruction fifo_remove(FIFO *fifo);
 void fifo_print(FIFO *fifo);
 size_t fifo_size(FIFO *fifo);

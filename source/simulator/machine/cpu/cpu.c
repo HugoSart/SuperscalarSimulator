@@ -15,11 +15,13 @@ CPU cpu_init(Memory *mem) {
             .rstation = {{0}}};
     cpu.rstation[0].type = RS_ADD;
     cpu.rstation[1].type = RS_ADD;
-    cpu.rstation[2].type = RS_MUL;
-    cpu.rstation[3].type = RS_LOAD;
-    cpu.rstation[4].type = RS_STORE;
+    cpu.rstation[2].type = RS_ADD;
+    cpu.rstation[3].type = RS_MUL;
+    cpu.rstation[4].type = RS_MUL;
+    cpu.rstation[5].type = RS_LOAD;
+    cpu.rstation[6].type = RS_LOAD;
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 7; i++) {
         cpu.rstation[i].vj = RS_UNDEFINED;
         cpu.rstation[i].vk = RS_UNDEFINED;
         cpu.rstation[i].qj = RS_UNDEFINED;
@@ -39,6 +41,13 @@ void cpu_reg_set(CPU *cpu, ERegisters e, int value) {
 
 int cpu_reg_get(CPU *cpu, ERegisters e) {
     return cpu->reg[e].content.value;
+}
+
+int cpu_reg_index(CPU *cpu, Register *r) {
+    for (int i = 0; i < REG_COUNT; i++) {
+        if (&cpu->reg[i] == r) return i;
+    }
+    return -1;
 }
 
 ReservationStation *cpu_reg_busy(CPU * cpu, ERegisters e) {

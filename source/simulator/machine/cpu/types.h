@@ -80,16 +80,22 @@ typedef enum {
     INSTRUCTION_COUNT
 } EInstructions;
 typedef enum {
-    TYPE_R, TYPE_RI, TYPE_J, TYPE_UNKNOWN
+    RTYPE_R, RTYPE_RI, RTYPE_J, RTYPE_UNKNOWN
+} ERType;
+typedef enum {
+    TYPE_ARITHMETIC, TYPE_SHIFT, TYPE_LOGICAL, TYPE_IF,
+    TYPE_MULT, TYPE_ACUMULATOR, TYPE_JMP, TYPE_LOAD,
+    TYPE_COUNT, TYPE_UNKNOWN
 } EType;
 typedef struct instruction_ref_t {
     char *mnemonic;
+    EType type;
     void (*realization)(CPU *cpu, unsigned int opcode);
 } InstructionRef;
 typedef struct instruction_t {
     Opcode code;
-    EType type;
-    InstructionRef ref;
+    ERType rtype;
+    InstructionRef *ref;
 } Instruction;
 typedef struct instruction_set_t {
     InstructionRef table[4][64];
@@ -129,10 +135,11 @@ typedef struct alu_t {
 
 // ReservationStation declarations
 typedef enum rstation_e {
-    RS_ADD, RS_MUL, RS_LOAD, RS_STORE
+    RS_ADD, RS_MUL, RS_LOAD, RS_STORE,
+    RS_COUNT, RS_UNKNOWN
 } ERStation;
 typedef struct rstation_t {
-    bool busy;
+    int busy;
     InstructionRef op;
     unsigned int qj, qk;
     unsigned int vj, vk;
@@ -165,7 +172,7 @@ typedef struct cpu_t {
     Cache cache;
     ALU alu;
     Register reg[32];
-    ReservationStation rstation[5];
+    ReservationStation rstation[7];
     Pipeline pipeline;
     InstructionSet inst_set;
     Word cdb;

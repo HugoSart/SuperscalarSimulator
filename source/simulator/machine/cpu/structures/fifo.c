@@ -9,11 +9,11 @@ FIFO fifo_init() {
     return fifo;
 }
 
-void fifo_add(FIFO *fifo, Opcode code, EType type, InstructionRef ref) {
+void fifo_add(FIFO *fifo, Opcode code, ERType type, InstructionRef *ref) {
 
     Node *node = malloc(sizeof(Node));
     node->instruction.code = code;
-    node->instruction.type = type;
+    node->instruction.rtype = type;
     node->instruction.ref = ref;
     node->next = NULL;
 
@@ -33,9 +33,10 @@ Instruction fifo_remove(FIFO *fifo) {
 
     if (fifo->first == NULL) {
         instruction.code.opcode = 0;
-        instruction.type = TYPE_UNKNOWN;
-        instruction.ref.realization = NULL;
-        instruction.ref.mnemonic = NULL;
+        instruction.rtype = RTYPE_UNKNOWN;
+        instruction.ref->realization = NULL;
+        instruction.ref->mnemonic = NULL;
+        instruction.ref->type = NULL;
     } else {
         instruction = fifo->first->instruction;
         Node *aux = fifo->first;
@@ -56,7 +57,7 @@ size_t fifo_size(FIFO *fifo) {
 
 void fifo_print(FIFO *fifo) {
     for (Node *node = fifo->first; node != NULL; node = node->next) {
-        printf("%s", node->instruction.ref.mnemonic);
+        printf("%s", node->instruction.ref->mnemonic);
         if (node->next != NULL) printf(", ");
     }
 }

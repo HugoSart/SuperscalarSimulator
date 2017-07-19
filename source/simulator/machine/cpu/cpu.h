@@ -16,6 +16,7 @@ CPU cpu_init(Memory *mem);
 void cpu_exec(CPU *, EInstructions, ...);
 void cpu_reg_set(CPU *, ERegisters, int value);
 int cpu_reg_get(CPU *, ERegisters);
+int cpu_reg_index(CPU *cpu, ERegisters);
 ReservationStation *cpu_reg_busy(CPU *, ERegisters);
 
 #endif //SUPERSCALARSIMULATOR_CPU_H

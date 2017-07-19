@@ -92,7 +92,7 @@ void so_show_rcr(CPU *cpu) {
 
 void so_show_rrf(CPU *cpu) {
 
-    printf("\n%s%8cREGISTERS%25cRESERVATION STATIONS%s\n\n", COLOR_WHITE_BRIGHT, ' ', ' ', COLOR_WHITE_BRIGHT);
+    printf("\n%s%8cREGISTERS%s%25cRESERVATION STATIONS%s\n\n", COLOR_WHITE_BRIGHT, ' ', COLOR_NORMAL, ' ', COLOR_WHITE_BRIGHT);
 
     for (int i = 0; i < 32; i++) {
         int space = 1;
@@ -105,7 +105,7 @@ void so_show_rrf(CPU *cpu) {
 
         size_t size = fifo_size(&cpu->pipeline.queue);
         int i2 = i - 1;
-        if (i2 < 5 && i2 >= 0) {
+        if (i2 < 7 && i2 >= 0) {
             printf("%10c", ' ');
             char name[10];
             switch (cpu->rstation[i2].type) {
@@ -118,9 +118,6 @@ void so_show_rrf(CPU *cpu) {
                 case RS_LOAD:
                     strcpy(name, "LOAD");
                     break;
-                case RS_STORE:
-                    strcpy(name, "STOR");
-                    break;
                 default:
                     strcpy(name, "????");
             }
@@ -131,18 +128,18 @@ void so_show_rrf(CPU *cpu) {
 
             if (cpu->rstation[i2].op.realization == NULL) printf("          ");
 
-            if (cpu->rstation[i2].vj != RS_UNDEFINED) printf("%02d ", cpu->rstation[i2].vj);
-            else                                      printf("    ");
-            if (cpu->rstation[i2].vj != RS_UNDEFINED) printf("%02d ", cpu->rstation[i2].vk);
-            else                                      printf("    ");
-            if (cpu->rstation[i2].vj != RS_UNDEFINED) printf("%02d ", cpu->rstation[i2].qj);
-            else                                      printf("    ");
-            if (cpu->rstation[i2].vj != RS_UNDEFINED) printf("%02d ", cpu->rstation[i2].qk);
-            else                                      printf("    ");
+            if (cpu->rstation[i2].vj != RS_UNDEFINED) printf("%02d  ", cpu->rstation[i2].vj);
+            else                                      printf("     ");
+            if (cpu->rstation[i2].vk != RS_UNDEFINED) printf("%02d  ", cpu->rstation[i2].vk);
+            else                                      printf("     ");
+            if (cpu->rstation[i2].qj != RS_UNDEFINED) printf("%02d  ", cpu->rstation[i2].qj);
+            else                                      printf("     ");
+            if (cpu->rstation[i2].qk != RS_UNDEFINED) printf("%02d  ", cpu->rstation[i2].qk);
+            else                                      printf("     ");
 
         }
 
-        if (i == 7) {
+        if (i == 9) {
             printf("%10c%sInstruction Queue -> %s", ' ', COLOR_BLUE_BRIGHT, COLOR_NORMAL);
             fifo_print(&cpu->pipeline.queue);
         }
