@@ -5,6 +5,7 @@
 #include "simulator/machine/cpu/pipeline.h"
 #include "simulator/machine/cpu/structures/fifo.h"
 #include "simulator/machine/cpu/types.h"
+#include "simulator/machine/util.h"
 
 
 int main() {
@@ -13,12 +14,17 @@ int main() {
     CPU cpu = cpu_init(&mem);
     so_load(&mem, "/home/hsart/Documentos/CLion Workspace/SuperscalarSimulator/assembler/build/output");
 
-    cpu_clock(&cpu);
-    //cpu_clock(&cpu);
-    //cpu_clock(&cpu);
+    for (int i = 0; i < 32; i++) {
+        cpu.reg[i].content.value = i;
+    }
 
     so_show_rcr(&cpu);
-    so_show_rrf(&cpu);
 
+    while(true) {
+ //       system("clear");
+        so_show_rrf(&cpu);
+        getchar();
+        cpu_clock(&cpu);
+    }
     return EXIT_SUCCESS;
 }

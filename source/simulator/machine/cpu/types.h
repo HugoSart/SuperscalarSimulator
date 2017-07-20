@@ -14,7 +14,7 @@
 struct dec_t {
     unsigned int byte : 4;
     unsigned int line : 2; // 11
-    unsigned int tag  : 3// 14
+    unsigned int tag  : 3;// 14
 };
 typedef union dec_address {
     unsigned int full_address;
@@ -110,23 +110,53 @@ typedef struct fifo {
     Node *first;
 } FIFO;
 
+// Register declarations
+typedef struct rstation_t ReservationStation;
+typedef enum reg_e {
+    ZERO,
+    AT,
+    V0, V1,
+    A0, A1, A2, A3,
+    T0, T1, T2, T3, T4, T5, T6, T7,
+    S0, S1, S2, S3, S4, S5, S6, S7,
+    T8, T9,
+    K0, K1,
+    GP, SP,
+    S8, FP = S8,
+    RA,
+    REG_COUNT
+} ERegisters;
+typedef struct register_t {
+    Word content;
+    ReservationStation *rstation;
+} Register;
+
 // ReservationStation declarations
+typedef enum rstation_type_e {
+    RS_TYPE_ADD, RS_TYPE_MUL, RS_TYPE_LOAD, RS_TYPE_STORE,
+    RS_TYPE_COUNT
+#define RS_TYPE_UNKNOWN RS_TYPE_COUNT
+} ERStationType;
 typedef enum rstation_e {
-    RS_ADD, RS_MUL, RS_LOAD, RS_STORE,
-    RS_COUNT, RS_UNKNOWN
+    RS_ADD1, RS_ADD2, RS_ADD3,
+    RS_MUL1, RS_MUL2,
+    RS_LOAD1, RS_LOAD2,
+    RS_COUNT
+#define RS_UNKNOWN RS_COUNT
 } ERStation;
 typedef struct rstation_t {
     int busy;
-    InstructionRef *op;
-    unsigned int qj, qk;
-    unsigned int vj, vk;
-    unsigned int A;
-    ERStation type;
+    Instruction instruction;
+    int qj, qk;
+    int vj, vk;
+    int A;
+    ERStationType type;
+    Register buffer;
 } ReservationStation;
 
 // Pipeline declarations
 enum stages_e {
-    FETCH, DECODE, ISSUE, EXEC, MEM_ACCESS, WRITE_BACK,
+    FETCH, DECODE, ISSUE, EXEC, WRITE_RESULT,
     STAGE_COUNT
 } EStage;
 typedef struct {
@@ -147,26 +177,6 @@ typedef enum {
 typedef struct alu_t {
     int (*operation[OPERATIONS_COUNTER])(int, int);
 } ALU;
-
-// Register declarations
-typedef enum reg_e {
-    ZERO,
-    AT,
-    V0, V1,
-    A0, A1, A2, A3,
-    T0, T1, T2, T3, T4, T5, T6, T7,
-    S0, S1, S2, S3, S4, S5, S6, S7,
-    T8, T9,
-    K0, K1,
-    GP, SP,
-    S8, FP = S8,
-    RA,
-    REG_COUNT
-} ERegisters;
-typedef struct register_t {
-    Word content;
-    ReservationStation *rstation;
-} Register;
 
 // CPU declarations
 typedef struct cpu_t {

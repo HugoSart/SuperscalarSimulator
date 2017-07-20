@@ -9,6 +9,7 @@
 #include "../machine/cpu/types.h"
 #include "../machine/cpu/structures/fifo.h"
 #include "../machine/cpu/register.h"
+#include "../machine/util.h"
 
 void so_load(Memory *mem, char *bfile_name) {
 
@@ -40,7 +41,7 @@ void so_show_rcr(CPU *cpu) {
     for(int i = 0; i < 16; i++) {
         printf("%s%02d%s ", COLOR_WHITE, i, COLOR_NORMAL);
     }
-    printf("  %sRegister %s$%u%s %*c: %s%d", COLOR_YELLOW, COLOR_YELLOW_BRIGHT, 0, COLOR_YELLOW, 2, ' ', COLOR_NORMAL, cpu_reg_get(cpu, 0));
+    printf("  %sRegister %s$%u%s %*c: %s%d", COLOR_YELLOW, COLOR_YELLOW_BRIGHT, 0, COLOR_YELLOW, 2, ' ', COLOR_NORMAL, cpu_reg_get(cpu, 0)->content.value);
     int line = 0, line2 = 1;
     //printf("        ------------------------------------------------- ");
     for(unsigned int i = 0; i < mem->size; i ++) {
@@ -80,7 +81,7 @@ void so_show_rcr(CPU *cpu) {
             if (i >= cache.size) printf("%55c", ' ');
             int space = 1;
             if (line2 < 10) space = 2;
-            printf("  %sRegister %s$%u%s %*c: %s%d", COLOR_YELLOW, COLOR_YELLOW_BRIGHT, line2, COLOR_YELLOW, space, ' ', COLOR_NORMAL, cpu_reg_get(cpu, line2));
+            printf("  %sRegister %s$%u%s %*c: %s%d", COLOR_YELLOW, COLOR_YELLOW_BRIGHT, line2, COLOR_YELLOW, space, ' ', COLOR_NORMAL, cpu_reg_get(cpu, line2)->content.value);
             line2++;
         }
 
@@ -98,8 +99,11 @@ void so_show_rrf(CPU *cpu) {
     for (int i = 0; i < 32; i++) {
         int space = 1;
         if (i < 10) space = 2;
-        printf("%4c%sRegister %s$%u%s %*c: %s%d\t", ' ', COLOR_YELLOW, COLOR_YELLOW_BRIGHT, i, COLOR_YELLOW, \
-               space, ' ', COLOR_NORMAL, cpu_reg_get(cpu, i));
+        printf("%2c", ' ');
+        if (cpu->reg[i].rstation != NULL) printf("%s[%02d]%s", COLOR_RED, rstation_index(cpu, cpu->reg[i].rstation), COLOR_NORMAL);
+        else printf("    ");
+        printf(" %sRegister %s$%u%s %*c: %s%d\t", COLOR_YELLOW, COLOR_YELLOW_BRIGHT, i, COLOR_YELLOW, \
+               space, ' ', COLOR_NORMAL, cpu_reg_get(cpu, i)->content.value);
 
         Node *current = cpu->pipeline.queue.first;
         if (i == 0) printf("%10c%sNAME  BUSY  MNEMONIC  Vj  Vk  Qj  Qk  A%s ", ' ', COLOR_CYAN, COLOR_NORMAL);
@@ -110,13 +114,13 @@ void so_show_rrf(CPU *cpu) {
             printf("%10c", ' ');
             char name[10];
             switch (cpu->pipeline.rstation[i2].type) {
-                case RS_ADD:
+                case RS_TYPE_ADD:
                     strcpy(name, "ADDI");
                     break;
-                case RS_MUL:
+                case RS_TYPE_MUL:
                     strcpy(name, "MULT");
                     break;
-                case RS_LOAD:
+                case RS_TYPE_LOAD:
                     strcpy(name, "LOAD");
                     break;
                 default:
@@ -124,11 +128,11 @@ void so_show_rrf(CPU *cpu) {
             }
             printf("%s  ", name);
 
-            if (cpu->pipeline.rstation[i2].busy > 0) printf("%sYes%s", COLOR_RED, COLOR_NORMAL);
-            else                            printf("%sNo %s", COLOR_GREEN, COLOR_NORMAL);
+            if (cpu->pipeline.rstation[i2].busy != NOT_BUSY)    printf("%s%02d%s", COLOR_RED, cpu->pipeline.rstation[i2].busy, COLOR_NORMAL);
+            else                                                printf("%sNo%s", COLOR_GREEN, COLOR_NORMAL);
 
-            if (cpu->pipeline.rstation[i2].op == NULL) printf("");
-            else                                           printf("   %s%*c  ", cpu->pipeline.rstation[i2].op->mnemonic, 8 - strlen(cpu->pipeline.rstation[i2].op->mnemonic), ' ');
+            if (cpu->pipeline.rstation[i2].instruction.ref == NULL) printf("              ");
+            else                                                    printf("    %s%*c  ", cpu->pipeline.rstation[i2].instruction.ref->mnemonic, 8 - strlen(cpu->pipeline.rstation[i2].instruction.ref->mnemonic), ' ');
 
             if (cpu->pipeline.rstation[i2].vj != REG_UNKNOWN) printf("%02d  ", cpu->pipeline.rstation[i2].vj);
             else                                     printf("    ");

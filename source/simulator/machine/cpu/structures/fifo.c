@@ -34,9 +34,7 @@ Instruction fifo_remove(FIFO *fifo) {
     if (fifo->first == NULL) {
         instruction.code.opcode = 0;
         instruction.rtype = RTYPE_UNKNOWN;
-        instruction.ref->realization = NULL;
-        instruction.ref->mnemonic = NULL;
-        instruction.ref->type = TYPE_UNKNOWN;
+        instruction.ref = NULL;
     } else {
         instruction = fifo->first->instruction;
         Node *aux = fifo->first;

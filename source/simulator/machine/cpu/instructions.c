@@ -5,6 +5,7 @@
 #include <string.h>
 #include "instructions.h"
 #include "cpu.h"
+#include "../util.h"
 
 #define PARAM_STANDARD CPU *cpu, ...
 
@@ -54,6 +55,13 @@ void multu   (PARAM_STANDARD) {
 
 }
 void mul     (PARAM_STANDARD) {
+    va_list va;
+    va_start(va, 3);
+    Register *buffer = va_arg(va, Register*);
+    int rs = va_arg(va, int);
+    int rt = va_arg(va, int);
+
+    buffer->content.value = cpu->alu.operation[OP_MULT](cpu_reg_get(cpu, rs), cpu_reg_get(cpu, rt));
 
 }
 void madd    (PARAM_STANDARD) {

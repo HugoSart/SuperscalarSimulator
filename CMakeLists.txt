@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.7)
 project(SuperscalarSimulator)
 
-set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_FLAGS "-lpthread")
 
+set(CMAKE_C_STANDARD 99)
 set(SOURCE_FILES
         source/main.c
         assembler/bop.h

@@ -5,6 +5,8 @@ var3:   .int    20
 end3:   .int    0x40
 
         .text
-main:   lw      $1, $9, 50
+main:   add      $0, $1, $2
+        add      $3, $4, $5
+
 
 
