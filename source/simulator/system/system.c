@@ -94,7 +94,7 @@ void so_show_rcr(CPU *cpu) {
 
 void so_show_rrf(CPU *cpu) {
 
-    printf("\n%s%8cREGISTERS%s%25cRESERVATION STATIONS%s\n\n", COLOR_WHITE_BRIGHT, ' ', COLOR_NORMAL, ' ', COLOR_WHITE_BRIGHT);
+    printf("\n%s%11cREGISTERS%s%27cRESERVATION STATIONS%s\n\n", COLOR_WHITE_BRIGHT, ' ', COLOR_NORMAL, ' ', COLOR_WHITE_BRIGHT);
 
     for (int i = 0; i < 32; i++) {
         int space = 1;
@@ -142,6 +142,7 @@ void so_show_rrf(CPU *cpu) {
             else                                     printf("    ");
             if (cpu->pipeline.rstation[i2].qk != REG_UNKNOWN) printf("%02d  ", cpu->pipeline.rstation[i2].qk);
             else                                     printf("    ");
+            if (cpu->pipeline.rstation[i2].A != 0)   printf("%d  ", cpu->pipeline.rstation[i2].A);
 
         }
 

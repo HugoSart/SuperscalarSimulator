@@ -5,6 +5,7 @@
     #include <string.h>
     #include "../op_def.h"
     #include "../list.h"
+    #include "../../source/simulator/machine/cpu/types.h"
 
     extern char *yytext;//dds
 
@@ -218,7 +219,7 @@ argText: OP_3 REG COMMA REG COMMA REG {
     inc_inst();
 
     yybuffer[0] = '\0';
-
+    printf("aaaaaaadssaddas\n\dwddasasasd\n");
     int op = $1, r1 = $2, num = $4;
 
     strcat(yybuffer, itbs(6, opcode(op)));
@@ -244,7 +245,7 @@ argText: OP_3 REG COMMA REG COMMA REG {
     int op = $1, r1 = $2, num = $4;
 
     strcat(yybuffer, itbs(6, opcode(op)));
-    strcat(yybuffer, itbs(5, 0));//kojhv
+    strcat(yybuffer, itbs(5, 0));
     strcat(yybuffer, itbs(5, r1));
     strcat(yybuffer, itbs(16, num));
 
@@ -332,6 +333,9 @@ int main(int argc, char **argv) {
     if ((file = fopen("output", "w+b")) == NULL) return 1;
 
 	yyparse();
+
+    int end = -1;
+    fwrite(&end, sizeof(end), 1, file);
 
 	fclose(file);
 	return 0;

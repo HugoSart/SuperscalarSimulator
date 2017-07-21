@@ -60,6 +60,7 @@ int cpu_rstation_index(CPU *cpu, ReservationStation *rstation) {
     return RS_UNKNOWN;
 }
 
+
 ReservationStation *cpu_reg_busy(CPU * cpu, ERegisters e) {
     return cpu->reg->rstation;
 }

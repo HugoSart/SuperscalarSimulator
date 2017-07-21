@@ -31,6 +31,7 @@ typedef struct cache_t {
 } Cache;
 
 // Instruction declarations
+typedef struct rstation_t ReservationStation;
 typedef struct cpu_t CPU;
 typedef struct r_t {
     unsigned int func : 6;
@@ -84,13 +85,14 @@ typedef enum {
 } ERType;
 typedef enum {
     TYPE_ARITHMETIC, TYPE_SHIFT, TYPE_LOGICAL, TYPE_IF,
-    TYPE_MULT, TYPE_ACUMULATOR, TYPE_JMP, TYPE_LOAD,
-    TYPE_COUNT, TYPE_UNKNOWN
+    TYPE_MULT, TYPE_ACUMULATOR, TYPE_JMP, TYPE_LOAD, TYPE_STORE,
+    TYPE_COUNT
+#define TYPE_UNKNOWN TYPE_COUNT
 } EType;
 typedef struct instruction_ref_t {
     char *mnemonic;
     EType type;
-    void (*realization)(CPU *cpu, ...);
+    void (*realization)(CPU *cpu, ReservationStation*);
 } InstructionRef;
 typedef struct instruction_t {
     Opcode code;
@@ -125,6 +127,7 @@ typedef enum reg_e {
     S8, FP = S8,
     RA,
     REG_COUNT
+#define REG_UNKNOWN REG_COUNT
 } ERegisters;
 typedef struct register_t {
     Word content;
@@ -133,7 +136,7 @@ typedef struct register_t {
 
 // ReservationStation declarations
 typedef enum rstation_type_e {
-    RS_TYPE_ADD, RS_TYPE_MUL, RS_TYPE_LOAD, RS_TYPE_STORE,
+    RS_TYPE_ADD, RS_TYPE_MUL, RS_TYPE_LOAD,
     RS_TYPE_COUNT
 #define RS_TYPE_UNKNOWN RS_TYPE_COUNT
 } ERStationType;
@@ -152,7 +155,7 @@ typedef struct rstation_t {
     int A;
     ERStationType type;
     Register buffer;
-} ReservationStation;
+};
 
 // Pipeline declarations
 enum stages_e {
