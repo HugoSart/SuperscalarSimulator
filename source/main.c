@@ -25,6 +25,7 @@ int main() {
         so_show_rrf(&cpu);
         getchar();
         cpu_clock(&cpu);
+        so_show_rcr(&cpu);
     }
     return EXIT_SUCCESS;
 }

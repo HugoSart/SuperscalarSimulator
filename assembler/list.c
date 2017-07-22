@@ -13,7 +13,6 @@ void list_add(List *list, char *label, unsigned int offset) {
     newNode->label = strdup(label);
     newNode->next = list->first;
     list->first = newNode;
-    printf("Label %s added.\n", label);
 }
 
 LNode *list_get(List *list, char *label) {

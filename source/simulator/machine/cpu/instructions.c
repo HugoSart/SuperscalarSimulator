@@ -16,61 +16,29 @@ void inst_add(InstructionSet *, void *, char *, EType, size_t, size_t);
 // Instruction implementations
 void add     (PARAM_STANDARD) {
     rs->buffer.content.value = cpu_reg_get(cpu, rs->vk)->content.value + cpu_reg_get(cpu, rs->vj)->content.value;
-
 }
-void addu    (PARAM_STANDARD) {
-
-}
+void addu    (PARAM_STANDARD) {}
 void addi    (PARAM_STANDARD) {
-
+    rs->buffer.content.value = cpu_reg_get(cpu, rs->vj)->content.value + rs->A;
 }
-void addiu   (PARAM_STANDARD) {
-
-}
-void andi    (PARAM_STANDARD) {
-
-}
-void and     (PARAM_STANDARD) {
-
-}
-void clo     (PARAM_STANDARD) {
-
-}
-void clz     (PARAM_STANDARD) {
-
-}
-void _div    (PARAM_STANDARD) {
-}
-void divu    (PARAM_STANDARD) {
-
-}
-void mult    (PARAM_STANDARD) {
-
-}
-void multu   (PARAM_STANDARD) {
-
-}
+void addiu   (PARAM_STANDARD) {}
+void andi    (PARAM_STANDARD) {}
+void and     (PARAM_STANDARD) {}
+void clo     (PARAM_STANDARD) {}
+void clz     (PARAM_STANDARD) {}
+void _div    (PARAM_STANDARD) {}
+void divu    (PARAM_STANDARD) {}
+void mult    (PARAM_STANDARD) {}
+void multu   (PARAM_STANDARD) {}
 void mul     (PARAM_STANDARD) {
     rs->buffer.content.value = cpu_reg_get(cpu, rs->vk)->content.value * cpu_reg_get(cpu, rs->vj)->content.value;
 }
-void madd    (PARAM_STANDARD) {
-
-}
-void maddu   (PARAM_STANDARD) {
-
-}
-void msub    (PARAM_STANDARD) {
-
-}
-void nor     (PARAM_STANDARD) {
-
-}
-void or      (PARAM_STANDARD) {
-
-}
-void ori     (PARAM_STANDARD) {
-
-}
+void madd    (PARAM_STANDARD) {}
+void maddu   (PARAM_STANDARD) {}
+void msub    (PARAM_STANDARD) {}
+void nor     (PARAM_STANDARD) {}
+void or      (PARAM_STANDARD) {}
+void ori     (PARAM_STANDARD) {}
 void syscall (PARAM_STANDARD) {}
 void sync    (PARAM_STANDARD) {}
 void slr     (PARAM_STANDARD) {}
@@ -131,7 +99,7 @@ void lb      (PARAM_STANDARD) {}
 void lh      (PARAM_STANDARD) {}
 void lwl     (PARAM_STANDARD) {}
 void lw      (PARAM_STANDARD) {
-
+    rs->buffer.content = cache_read(&cpu->cache, rs->A);
 }
 void lbu     (PARAM_STANDARD) {}
 void lhu     (PARAM_STANDARD) {}
@@ -139,7 +107,9 @@ void lwr     (PARAM_STANDARD) {}
 void sb      (PARAM_STANDARD) {}
 void sh      (PARAM_STANDARD) {}
 void swl     (PARAM_STANDARD) {}
-void sw      (PARAM_STANDARD) {}
+void sw      (PARAM_STANDARD) {
+    rs->buffer.content.value = rs->vk;
+}
 
 void nop     (PARAM_STANDARD) {}
 

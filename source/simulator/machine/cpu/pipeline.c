@@ -33,6 +33,7 @@ int clock(EType e) {
         case TYPE_ACUMULATOR:   return CLOCK_ACUMULATOR;
         case TYPE_JMP:          return CLOCK_JMP;
         case TYPE_LOAD:         return CLOCK_LOAD;
+        case TYPE_STORE:        return CLOCK_LOAD;
         default:                return CLOCK_UNKNOWN;
     }
 }
@@ -58,6 +59,7 @@ void pipe_decode(CPU *cpu) {
     if      (opcode.r.op == 0x00) { m = COLUMN_FUNCT1; type = RTYPE_R;  }
     else if (opcode.r.op == 0x1c) { m = COLUMN_FUNCT2; type = RTYPE_R;  }
     else if (opcode.r.op == 0x01) { m = COLUMN_RT;     type = RTYPE_RI; }
+    else                                               type = RTYPE_RI;
 
     if      (m == COLUMN_FUNCT1 || m == COLUMN_FUNCT2) n = opcode.r.func;
     else if (m == COLUMN_RT)                           n = opcode.r.rt;
@@ -97,7 +99,7 @@ void pipe_issue(CPU *cpu) {
         if (cpu_rstation(cpu, (ERStation)r)->type != check_type(instruction->ref->type)) continue;
         if (cpu_rstation(cpu, (ERStation)r)->busy != NOT_BUSY)                           continue;
 
-        if (cpu_rstation(cpu, (ERStation)r)->type != RS_TYPE_LOAD) {
+        if (cpu_rstation(cpu, (ERStation)r)->type != RS_TYPE_LOAD && instruction->rtype != RTYPE_RI) {
 
             if (rs->rstation != NULL) {
                 cpu_rstation(cpu, (ERStation) r)->qj = cpu_rstation_index(cpu, rs->rstation);
@@ -113,7 +115,6 @@ void pipe_issue(CPU *cpu) {
                 cpu_rstation(cpu, (ERStation) r)->qk = REG_UNKNOWN;
             }
 
-            cpu_rstation(cpu, (ERStation) r)->busy = clock(instruction->ref->type);
             rd->rstation = cpu_rstation(cpu, (ERStation) r);
 
         } else {
@@ -124,10 +125,9 @@ void pipe_issue(CPU *cpu) {
                 cpu_rstation(cpu, (ERStation) r)->vj = cpu_reg_index(cpu, rs);
                 cpu_rstation(cpu, (ERStation) r)->qj = REG_UNKNOWN;
             }
-
             cpu_rstation(cpu, (ERStation)r)->A = imm;
 
-            if (instruction->ref->type == TYPE_LOAD) {
+            if (instruction->ref->type != TYPE_STORE && (instruction->ref->type == TYPE_LOAD || instruction->rtype == RTYPE_RI)) {
                 rt->rstation = cpu_rstation(cpu, (ERStation)r);
             } else {
                 if (rt->rstation != NULL) {
@@ -174,34 +174,28 @@ void pipe_write_result(CPU *cpu) {
 
     for (int r = 0; r < RS_COUNT; r++) {
         if (cpu_rstation(cpu, (ERStation)r)->busy == 0) {
-            for (int x = 0; x < REG_COUNT; x++) {
-                if (cpu_reg_get(cpu, x)->rstation == cpu_rstation(cpu, r)) {
-                    printf("Value: %d\n", cpu_rstation(cpu, r)->buffer.content.value);
-                    cpu_reg_get(cpu, x)->content.value = cpu_rstation(cpu, r)->buffer.content.value;
-                    cpu_reg_get(cpu, x)->rstation = NULL;
-                }
-            }
-            for (int x = 0; x < REG_COUNT; x++) {
-                if (cpu_rstation(cpu, x)->qj == r) {
-                    cpu_rstation(cpu, x)->vj = cpu_rstation(cpu, r)->buffer.content.value;
-                    cpu_rstation(cpu, x)->qj = REG_UNKNOWN;
-                }
-            }
-            for (int x = 0; x < REG_COUNT; x++) {
-                if (cpu_rstation(cpu, x)->qk == r) {
-                    cpu_rstation(cpu, x)->vk = cpu_rstation(cpu, r)->buffer.content.value;
-                    cpu_rstation(cpu, x)->qk = REG_UNKNOWN;
-                }
+            if (cpu_rstation(cpu, (ERStation) r)->instruction.ref->type != TYPE_STORE) {
+                for (int x = 0; x < REG_COUNT; x++)
+                    if (cpu_reg_get(cpu, x)->rstation == cpu_rstation(cpu, r)) {
+                        cpu_reg_get(cpu, x)->content.value = cpu_rstation(cpu, r)->buffer.content.value;
+                        cpu_reg_get(cpu, x)->rstation = NULL;
+                    }
+                for (int x = 0; x < REG_COUNT; x++)
+                    if (cpu_rstation(cpu, x)->qj == r) {
+                        cpu_rstation(cpu, x)->vj = cpu_rstation(cpu, r)->buffer.content.value;
+                        cpu_rstation(cpu, x)->qj = REG_UNKNOWN;
+                    }
+                for (int x = 0; x < REG_COUNT; x++)
+                    if (cpu_rstation(cpu, x)->qk == r) {
+                        cpu_rstation(cpu, x)->vk = cpu_rstation(cpu, r)->buffer.content.value;
+                        cpu_rstation(cpu, x)->qk = REG_UNKNOWN;
+                    }
+            } else {
+                cache_write(&cpu->cache, cpu_rstation(cpu, r)->A, (Word){.value = cpu_rstation(cpu, r)->vk} );
             }
             rstation_clean(cpu_rstation(cpu, r));
         }
     }
-
-    // TODO: Implementar Store
-
-}
-
-void pipe_write_back(CPU *cpu) {
 
 }
 

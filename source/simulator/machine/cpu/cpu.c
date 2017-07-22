@@ -12,7 +12,7 @@ CPU cpu_init(Memory *mem) {
     CPU cpu = { .cache    = cache_init(mem, CACHE_SIZE),
             .inst_set = inst_init(),
             .alu      = alu_init(),
-            .cdb      = {0},
+            .cdb      = {{0}},
             .pipeline = pipe_init()};
 
 

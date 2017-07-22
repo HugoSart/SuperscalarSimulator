@@ -7,13 +7,16 @@
     #include "../list.h"
     #include "../../source/simulator/machine/cpu/types.h"
 
+#define YYDEBUG 1
+
     extern char *yytext;//dds
+    extern FILE *yyin;
 
     char yybuffer[200];
 
     const int zero = 0;
 
-    FILE *file;
+    FILE *file_in, *file_out;
 
     int *array;
     int array_size = 0;
@@ -23,7 +26,7 @@
     void inc_inst() {
       if (!inst_count) {
         char num[400] = {0};
-        fwrite(num, sizeof(char), 400 - ftell(file), file);//adas
+        fwrite(num, sizeof(char), 400 - ftell(file_out), file_out);//adas
       }
       inst_count++;
     }
@@ -34,6 +37,9 @@
     };
 
     extern List varList;
+    List labelList;
+
+    int line_count;
 
 %}
 
@@ -43,7 +49,8 @@
 }
 
 /* declare tokens */
-%token<d> NUMBER REG
+%token CP
+%token<d> NUMBER DISP REG
 %token<str> LABEL VAR
 %token<d> OP_3 OP_3I OP_3S OP_2 OP_2I OP_2A OP_1 OP_1T
 %token COMMA COLON 
@@ -71,11 +78,11 @@ data_line:
 expData:
   | LABEL STORAGE_TYPE argData {
 
-    list_add(&varList, $1, ftell(file));
+    list_add(&varList, $1, ftell(file_out));
     list_print(&varList);
     for (int i = array_size - 1; i >= 0; i--) {
         printf("aaa %d\n", array[i]);
-        fwrite(&array[i], sizeof(int), 1, file);
+        fwrite(&array[i], sizeof(int), 1, file_out);
     }
     printf("\n");
     free(array);
@@ -133,7 +140,7 @@ argText: OP_3 REG COMMA REG COMMA REG {
     printf("bin: %s\n", yybuffer);
     printf("hex: %08x\n", bi);
     printf("dec: %u\n\n", bi);
-    fwrite(&bi, 4, 1, file);
+    fwrite(&bi, 4, 1, file_out);
 
   }
   | OP_3I REG COMMA REG COMMA value {
@@ -158,7 +165,7 @@ argText: OP_3 REG COMMA REG COMMA REG {
     printf("bin: %s\n", yybuffer);
     printf("hex: %08x\n", bi);
     printf("dec: %u\n\n", bi);
-    fwrite(&bi, 4, 1, file);
+    fwrite(&bi, 4, 1, file_out);
 
   }
   | OP_3S REG COMMA REG COMMA value {
@@ -185,7 +192,7 @@ argText: OP_3 REG COMMA REG COMMA REG {
     printf("bin: %s\n", yybuffer);
     printf("hex: %08x\n", bi);
     printf("dec: %u\n\n", bi);
-    fwrite(&bi, 4, 1, file);
+    fwrite(&bi, 4, 1, file_out);
 
   }
   | OP_2 REG COMMA REG {
@@ -211,7 +218,7 @@ argText: OP_3 REG COMMA REG COMMA REG {
     printf("bin: %s\n", yybuffer);
     printf("hex: %08x\n", bi);
     printf("dec: %u\n\n", bi);
-    fwrite(&bi, 4, 1, file);
+    fwrite(&bi, 4, 1, file_out);
 
   }
   | OP_2I REG COMMA value {
@@ -233,7 +240,7 @@ argText: OP_3 REG COMMA REG COMMA REG {
     printf("bin: %s\n", yybuffer);
     printf("hex: %08x\n", bi);
     printf("dec: %u\n\n", bi);
-    fwrite(&bi, 4, 1, file);
+    fwrite(&bi, 4, 1, file_out);
 
   }
   | OP_2A REG COMMA value {
@@ -255,7 +262,7 @@ argText: OP_3 REG COMMA REG COMMA REG {
     printf("bin: %s\n", yybuffer);
     printf("hex: %08x\n", bi);
     printf("dec: %u\n\n", bi);
-    fwrite(&bi, 4, 1, file);
+    fwrite(&bi, 4, 1, file_out);
 
   }
   | OP_1 REG {
@@ -278,7 +285,7 @@ argText: OP_3 REG COMMA REG COMMA REG {
     printf("bin: %s\n", yybuffer);
     printf("hex: %08x\n", bi);
     printf("dec: %u\n\n", bi);
-    fwrite(&bi, 4, 1, file);
+    fwrite(&bi, 4, 1, file_out);
 
   }
   | OP_1T value {
@@ -298,7 +305,7 @@ argText: OP_3 REG COMMA REG COMMA REG {
     printf("bin: %s\n", yybuffer);
     printf("hex: %08x08x\n", bi);
     printf("dec: %u\n\n", bi);
-    fwrite(&bi, 4, 1, file);
+    fwrite(&bi, 4, 1, file_out);
 
   }
   ;
@@ -306,22 +313,45 @@ value: NUMBER { $$ = $1 };
   | VAR {
       printf("Teste: %s\n", $1);
       LNode *var = list_get(&varList, $1);
+      if (var == NULL) var = list_get(&labelList, $1);
       if (var == NULL) {
         yyerror("Variable undefined");
       }
 
       union word aux = {0};
 
-      unsigned int return_offset = ftell(file);
-      fseek(file, var->offset, SEEK_SET);
-      fread(&(aux.byte[0]), 1, 1, file);
-      fread(&(aux.byte[1]), 1, 1, file);
-      fread(&(aux.byte[2]), 1, 1, file);
-      fread(&(aux.byte[3]), 1, 1, file);
-      fseek(file, return_offset, SEEK_SET);
+      unsigned int return_offset = ftell(file_out);
+      fseek(file_out, var->offset, SEEK_SET);
+      fread(&(aux.byte[0]), 1, 1, file_out);
+      fread(&(aux.byte[1]), 1, 1, file_out);
+      fread(&(aux.byte[2]), 1, 1, file_out);
+      fread(&(aux.byte[3]), 1, 1, file_out);
+      fseek(file_out, return_offset, SEEK_SET);
 
       printf("aux.value: %d\n", aux.value);
-      $$ = aux.value;
+      $$ = var->offset;
+
+  }
+  | DISP VAR CP {
+    printf("Teste: %s\n", $2);
+    LNode *var = list_get(&varList, $2);
+    if (var == NULL) var = list_get(&labelList, $2);
+    if (var == NULL) {
+        yyerror("Variable undefined");
+    }
+
+    union word aux = {0};
+
+    unsigned int return_offset = ftell(file_out);
+    fseek(file_out, var->offset + $1, SEEK_SET);
+    fread(&(aux.byte[0]), 1, 1, file_out);
+    fread(&(aux.byte[1]), 1, 1, file_out);
+    fread(&(aux.byte[2]), 1, 1, file_out);
+    fread(&(aux.byte[3]), 1, 1, file_out);
+    fseek(file_out, return_offset, SEEK_SET);
+
+    printf("aux.value: %d\n", aux.value);
+    $$ = aux.value;
 
   }
   ;
@@ -330,14 +360,63 @@ value: NUMBER { $$ = $1 };
 
 int main(int argc, char **argv) {
 
-    if ((file = fopen("output", "w+b")) == NULL) return 1;
+    char *input_name, *out_name;
 
+    if (argc >= 3 && !strcmp(argv[1], "-c")) {
+        input_name = strdup(argv[2]);
+        out_name = strdup(argv[3]);
+    } else if (argc == 2 && (!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help"))) {
+        printf("----------------------------- Assembler Helper -----------------------------\n\n");
+        printf("  -c \"input_file\" \"output_file\"\t\t\t-> Compile the input_file and generate the output_file\n");
+        printf("\n");
+    } else {
+        printf("Wrong parameters.\n");
+        return 1;
+    }
+
+    //yydebug = 1;
+
+    if ((file_in  = fopen(input_name, "r"))  == NULL) return 1;
+    if ((file_out = fopen(out_name,   "w+b")) == NULL) return 1;
+
+    char buffer[500], buffer2[500];
+    fscanf(file_in, "%s", buffer);
+    while (strcmp(buffer, ".text")) {
+        fscanf(file_in, "%s", buffer);
+    }
+    //a
+    while (fscanf(file_in, "%s %[^\n]", buffer, buffer2) != EOF) {
+
+        int foi = 0;
+        for (int i = 0; i < strlen(buffer2); i++) {
+            if (buffer2[i] != ' ' || buffer2[i] != '\n') {
+                foi = 1;
+            }
+        }
+        if (foi) line_count++;
+
+        if (buffer[strlen(buffer) - 1] == ':') {
+            buffer[strlen(buffer) - 1] = '\0';
+            if (list_get(&labelList, buffer) == NULL)
+                list_add(&labelList, buffer, (line_count - 1) * WORD_SIZE);
+            else {
+                printf("FAILED: Label \"%s\" already defined.\n", list_get(&labelList, buffer)->label);
+                exit(1);
+            }
+        }
+    }
+
+    list_print(&labelList);
+
+    rewind(file_in);
+    yyin = file_in;
 	yyparse();
 
     int end = -1;
-    fwrite(&end, sizeof(end), 1, file);
+    fwrite(&end, sizeof(end), 1, file_out);
 
-	fclose(file);
+	fclose(file_out);
+    //fclose(file_in);
 	return 0;
 }
 

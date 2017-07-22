@@ -181,6 +181,11 @@ typedef struct alu_t {
     int (*operation[OPERATIONS_COUNTER])(int, int);
 } ALU;
 
+typedef struct bus_t {
+    Word data;
+    int busy;
+} Bus;
+
 // CPU declarations
 typedef struct cpu_t {
     Cache cache;
@@ -188,7 +193,7 @@ typedef struct cpu_t {
     Register reg[32];
     Pipeline pipeline;
     InstructionSet inst_set;
-    Word cdb;
+    Bus cdb;
 } CPU;
 
 #endif //SUPERSCALARSIMULATOR_CPU_PIPELINE_H_H

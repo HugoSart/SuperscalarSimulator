@@ -15,6 +15,8 @@
 "|"	   { return ABS; }
 "#".*
 ","	   { return COMMA; }
+")"    { return CP;}
+[0-9]*"(" { yytext[strlen(yytext) - 1] = '\0'; yylval.d = atoi(yytext); return DISP;}
 [0-9]+|[-][0-9]+ { yylval.d = atoi(yytext); return NUMBER; }
 0[xX][0-9a-fA-F]+ { yylval.d = strtol(yytext, NULL, 16); return NUMBER; }
 \n     { return EOL; }
