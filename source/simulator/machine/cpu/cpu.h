@@ -22,4 +22,7 @@ int cpu_rstation_index(CPU *cpu, ReservationStation *);
 int cpu_reg_index(CPU *cpu, Register *);
 ReservationStation *cpu_reg_busy(CPU *, ERegisters);
 
+void cpu_cdb_put(CPU *cpu, ERStation tag, ERegisters destination, Word data);
+void cpu_cdb_write(CPU *cpu);
+
 #endif //SUPERSCALARSIMULATOR_CPU_H

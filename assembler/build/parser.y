@@ -52,7 +52,7 @@
 %token CP
 %token<d> NUMBER DISP REG
 %token<str> LABEL VAR
-%token<d> OP_3 OP_3I OP_3S OP_2 OP_2I OP_2A OP_1 OP_1T
+%token<d> OP_3 OP_3I OP_3S OP_2 OP_2I OP_2A OP_1 OP_1T OP_1S NOP
 %token COMMA COLON 
 %token OPCODE
 %token ADRESS
@@ -78,10 +78,9 @@ data_line:
 expData:
   | LABEL STORAGE_TYPE argData {
 
-    list_add(&varList, $1, ftell(file_out));
-    list_print(&varList);
+    list_add(&varList, $1, ftell(file_out) + MEM_TEXT_ADDRESS);
+
     for (int i = array_size - 1; i >= 0; i--) {
-        printf("aaa %d\n", array[i]);
         fwrite(&array[i], sizeof(int), 1, file_out);
     }
     printf("\n");
@@ -136,10 +135,7 @@ argText: OP_3 REG COMMA REG COMMA REG {
 
     unsigned int bi = bsti(yybuffer);
 
-    printf("operation: %d\n", op);
-    printf("bin: %s\n", yybuffer);
-    printf("hex: %08x\n", bi);
-    printf("dec: %u\n\n", bi);
+    printf("opcode : %s\n", yybuffer);
     fwrite(&bi, 4, 1, file_out);
 
   }
@@ -161,10 +157,7 @@ argText: OP_3 REG COMMA REG COMMA REG {
 
     unsigned int bi = bsti(yybuffer);
 
-    printf("operation: %d\n", op);
-    printf("bin: %s\n", yybuffer);
-    printf("hex: %08x\n", bi);
-    printf("dec: %u\n\n", bi);
+    printf("opcode : %s\n", yybuffer);
     fwrite(&bi, 4, 1, file_out);
 
   }
@@ -183,15 +176,12 @@ argText: OP_3 REG COMMA REG COMMA REG {
     strcat(yybuffer, zero);
     strcat(yybuffer, rt);
     strcat(yybuffer, rd);
-    strcat(yybuffer, zero);
+    strcat(yybuffer, shamt);
     strcat(yybuffer, funcs);
 
     unsigned int bi = bsti(yybuffer);
 
-    printf("operation: %d\n", op);
-    printf("bin: %s\n", yybuffer);
-    printf("hex: %08x\n", bi);
-    printf("dec: %u\n\n", bi);
+    printf("opcode : %s\n", yybuffer);
     fwrite(&bi, 4, 1, file_out);
 
   }
@@ -214,10 +204,7 @@ argText: OP_3 REG COMMA REG COMMA REG {
 
     unsigned int bi = bsti(yybuffer);
 
-    printf("operation: %d\n", op);
-    printf("bin: %s\n", yybuffer);
-    printf("hex: %08x\n", bi);
-    printf("dec: %u\n\n", bi);
+    printf("opcode : %s\n", yybuffer);
     fwrite(&bi, 4, 1, file_out);
 
   }
@@ -226,7 +213,7 @@ argText: OP_3 REG COMMA REG COMMA REG {
     inc_inst();
 
     yybuffer[0] = '\0';
-    printf("aaaaaaadssaddas\n\dwddasasasd\n");
+
     int op = $1, r1 = $2, num = $4;
 
     strcat(yybuffer, itbs(6, opcode(op)));
@@ -236,10 +223,7 @@ argText: OP_3 REG COMMA REG COMMA REG {
 
     unsigned int bi = bsti(yybuffer);
 
-    printf("operation: %d\n", op);
-    printf("bin: %s\n", yybuffer);
-    printf("hex: %08x\n", bi);
-    printf("dec: %u\n\n", bi);
+    printf("opcode : %s\n", yybuffer);
     fwrite(&bi, 4, 1, file_out);
 
   }
@@ -258,10 +242,7 @@ argText: OP_3 REG COMMA REG COMMA REG {
 
     unsigned int bi = bsti(yybuffer);
 
-    printf("operation: %d\n", op);
-    printf("bin: %s\n", yybuffer);
-    printf("hex: %08x\n", bi);
-    printf("dec: %u\n\n", bi);
+    printf("opcode : %s\n", yybuffer);
     fwrite(&bi, 4, 1, file_out);
 
   }
@@ -281,10 +262,7 @@ argText: OP_3 REG COMMA REG COMMA REG {
 
     unsigned int bi = bsti(yybuffer);
 
-    printf("operation: %d\n", op);
-    printf("bin: %s\n", yybuffer);
-    printf("hex: %08x\n", bi);
-    printf("dec: %u\n\n", bi);
+    printf("opcode : %s\n", yybuffer);
     fwrite(&bi, 4, 1, file_out);
 
   }
@@ -301,17 +279,43 @@ argText: OP_3 REG COMMA REG COMMA REG {
 
     unsigned int bi = bsti(yybuffer);
 
-    printf("operation: %d\n", op);
-    printf("bin: %s\n", yybuffer);
-    printf("hex: %08x08x\n", bi);
-    printf("dec: %u\n\n", bi);
+    printf("opcode : %s\n", yybuffer);
+    fwrite(&bi, 4, 1, file_out);
+
+  }
+  | OP_1S {
+
+    inc_inst();
+
+    yybuffer[0] = '\0';
+
+    strcat(yybuffer, itbs(26, 0));
+    strcat(yybuffer, itbs(6, 0xc));
+
+    unsigned int bi = bsti(yybuffer);
+
+    printf("syscall: %s\n", yybuffer);
+    fwrite(&bi, 4, 1, file_out);
+
+  }
+  | NOP {
+
+    inc_inst();
+
+    yybuffer[0] = '\0';
+
+    strcat(yybuffer, itbs(32, 0));
+
+    unsigned int bi = bsti(yybuffer);
+
+    printf("NOP    : %s\n", yybuffer);
     fwrite(&bi, 4, 1, file_out);
 
   }
   ;
 value: NUMBER { $$ = $1 };
   | VAR {
-      printf("Teste: %s\n", $1);
+
       LNode *var = list_get(&varList, $1);
       if (var == NULL) var = list_get(&labelList, $1);
       if (var == NULL) {
@@ -328,12 +332,11 @@ value: NUMBER { $$ = $1 };
       fread(&(aux.byte[3]), 1, 1, file_out);
       fseek(file_out, return_offset, SEEK_SET);
 
-      printf("aux.value: %d\n", aux.value);
       $$ = var->offset;
 
   }
   | DISP VAR CP {
-    printf("Teste: %s\n", $2);
+
     LNode *var = list_get(&varList, $2);
     if (var == NULL) var = list_get(&labelList, $2);
     if (var == NULL) {
@@ -350,7 +353,6 @@ value: NUMBER { $$ = $1 };
     fread(&(aux.byte[3]), 1, 1, file_out);
     fseek(file_out, return_offset, SEEK_SET);
 
-    printf("aux.value: %d\n", aux.value);
     $$ = aux.value;
 
   }
@@ -406,7 +408,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    list_print(&labelList);
+    //list_print(&labelList);
 
     rewind(file_in);
     yyin = file_in;
@@ -416,7 +418,7 @@ int main(int argc, char **argv) {
     fwrite(&end, sizeof(end), 1, file_out);
 
 	fclose(file_out);
-    //fclose(file_in);
+    fclose(file_in);
 	return 0;
 }
 

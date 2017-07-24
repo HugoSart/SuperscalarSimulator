@@ -2,16 +2,16 @@
 // Created by hsart on 16/07/17.
 //
 
-#include "fifo.h"
+#include "inst_fifo.h"
 
-FIFO fifo_init() {
-    FIFO fifo = { .first = NULL };
+IFIFO ififo_init() {
+    IFIFO fifo = { .first = NULL };
     return fifo;
 }
 
-void fifo_add(FIFO *fifo, Opcode code, ERType type, InstructionRef *ref) {
+void ififo_add(IFIFO *fifo, Opcode code, ERType type, InstructionRef *ref) {
 
-    Node *node = malloc(sizeof(Node));
+    INode *node = malloc(sizeof(INode));
     node->instruction.code = code;
     node->instruction.rtype = type;
     node->instruction.ref = ref;
@@ -20,14 +20,14 @@ void fifo_add(FIFO *fifo, Opcode code, ERType type, InstructionRef *ref) {
     if (fifo->first == NULL) {
         fifo->first = node;
     } else {
-        Node *aux;
+        INode *aux;
         for (aux = fifo->first; aux->next != NULL; aux = aux->next);
         aux->next = node;
     }
 
 }
 
-Instruction fifo_remove(FIFO *fifo) {
+Instruction ififo_remove(IFIFO *fifo) {
 
     Instruction instruction;
 
@@ -37,7 +37,7 @@ Instruction fifo_remove(FIFO *fifo) {
         instruction.ref = NULL;
     } else {
         instruction = fifo->first->instruction;
-        Node *aux = fifo->first;
+        INode *aux = fifo->first;
         fifo->first = fifo->first->next;
         free(aux);
     }
@@ -45,16 +45,16 @@ Instruction fifo_remove(FIFO *fifo) {
 
 }
 
-size_t fifo_size(FIFO *fifo) {
+size_t ififo_size(IFIFO *fifo) {
 
     size_t size = 0;
-    for (Node *node = fifo->first; node != NULL; node = node->next, size++);
+    for (INode *node = fifo->first; node != NULL; node = node->next, size++);
     return size;
 
 }
 
-void fifo_print(FIFO *fifo) {
-    for (Node *node = fifo->first; node != NULL; node = node->next) {
+void ififo_print(IFIFO *fifo) {
+    for (INode *node = fifo->first; node != NULL; node = node->next) {
         printf("%s", node->instruction.ref->mnemonic);
         if (node->next != NULL) printf(", ");
     }

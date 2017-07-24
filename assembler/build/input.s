@@ -1,8 +1,6 @@
         .data
-var1:   .int    9,2,3,-485,5
-var2:   .int    3,2,3,4
-var3:   .int    20
-end3:   .int    0x40
+code:   .int    1
+value:  .int    27000
 
         .text
-main:    addi $1, $1, 4(var2)
+main:   xori $0, $2, 10

@@ -24,13 +24,13 @@ set(SOURCE_FILES
         source/simulator/machine/cpu/pipeline.h
         source/simulator/machine/cpu/cpu.c
         source/simulator/machine/cpu/cpu.h
-        source/simulator/machine/cpu/structures/fifo.c
-        source/simulator/machine/cpu/structures/fifo.h
+        source/simulator/machine/cpu/structures/inst_fifo.c
+        source/simulator/machine/cpu/structures/inst_fifo.h
         source/simulator/machine/cpu/rstation.c
         source/simulator/machine/cpu/rstation.h
         source/simulator/machine/cpu/register.c
         source/simulator/machine/cpu/register.h
         source/simulator/machine/motherboard/mobo.c
-        source/simulator/machine/motherboard/mobo.h)
+        source/simulator/machine/motherboard/mobo.h source/simulator/machine/cpu/structures/cdb_fifo.c source/simulator/machine/cpu/structures/cdb_fifo.h)
 
 add_executable(SuperscalarSimulator ${SOURCE_FILES})

@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include "list.h"
+#include "../source/simulator/machine/memory/memory.h"
 
 List varList = {0};
 

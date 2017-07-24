@@ -21,7 +21,7 @@ void rstation_clean(ReservationStation *rstation) {
     rstation->vj = REG_UNKNOWN;
     rstation->qk = REG_UNKNOWN;
     rstation->qj = REG_UNKNOWN;
-    rstation->buffer.content.value = 0;
+    rstation->result.content.value = 0;
     rstation->instruction.ref = NULL;
     rstation->instruction.code.opcode = 0;
     rstation->instruction.rtype = RTYPE_UNKNOWN;

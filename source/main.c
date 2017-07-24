@@ -3,7 +3,7 @@
 #include "simulator/machine/cpu/cpu.h"
 #include "simulator/system/system.h"
 #include "simulator/machine/cpu/pipeline.h"
-#include "simulator/machine/cpu/structures/fifo.h"
+#include "simulator/machine/cpu/structures/inst_fifo.h"
 #include "simulator/machine/cpu/types.h"
 #include "simulator/machine/util.h"
 
@@ -15,7 +15,7 @@ int main() {
     so_load(&mem, "/home/hsart/Documentos/CLion Workspace/SuperscalarSimulator/assembler/build/output");
 
     for (int i = 0; i < 32; i++) {
-        cpu.reg[i].content.value = i;
+        cpu.reg[i].content.value = i*2;
     }
 
     so_show_rcr(&cpu);
@@ -25,7 +25,7 @@ int main() {
         so_show_rrf(&cpu);
         getchar();
         cpu_clock(&cpu);
-        so_show_rcr(&cpu);
+        //so_show_rcr(&cpu);
     }
     return EXIT_SUCCESS;
 }

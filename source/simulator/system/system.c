@@ -7,9 +7,18 @@
 #include "system.h"
 #include "../machine/cpu/rstation.h"
 #include "../machine/cpu/types.h"
-#include "../machine/cpu/structures/fifo.h"
+#include "../machine/cpu/structures/inst_fifo.h"
 #include "../machine/cpu/register.h"
 #include "../machine/util.h"
+#include "../machine/cpu/structures/cdb_fifo.h"
+
+void so_print_int(CPU *cpu) {
+    printf("%d\n", cpu_reg_get(cpu, A0)->content.value);
+}
+
+void so_exit(CPU *cpu) {
+    exit(EXIT_SUCCESS);
+}
 
 void so_load(Memory *mem, char *bfile_name) {
 
@@ -100,15 +109,16 @@ void so_show_rrf(CPU *cpu) {
         int space = 1;
         if (i < 10) space = 2;
         printf("%2c", ' ');
-        if (cpu->reg[i].rstation != NULL) printf("%s[%02d]%s", COLOR_RED, rstation_index(cpu, cpu->reg[i].rstation), COLOR_NORMAL);
+        if (cpu->cdb.destination == cpu_reg_index(cpu, cpu_reg_get(cpu, i))) printf("%s [C]%s", COLOR_RED, COLOR_NORMAL);
+        else if (cpu->reg[i].rstation != NULL) printf("%s [%d]%s", COLOR_RED, rstation_index(cpu, cpu->reg[i].rstation), COLOR_NORMAL);
         else printf("    ");
         printf(" %sRegister %s$%u%s %*c: %s%d\t", COLOR_YELLOW, COLOR_YELLOW_BRIGHT, i, COLOR_YELLOW, \
                space, ' ', COLOR_NORMAL, cpu_reg_get(cpu, i)->content.value);
 
-        Node *current = cpu->pipeline.queue.first;
+        INode *current = cpu->pipeline.queue.first;
         if (i == 0) printf("%10c%sNAME  BUSY  MNEMONIC  Vj  Vk  Qj  Qk  A%s ", ' ', COLOR_CYAN, COLOR_NORMAL);
 
-        size_t size = fifo_size(&cpu->pipeline.queue);
+        size_t size = ififo_size(&cpu->pipeline.queue);
         int i2 = i - 1;
         if (i2 < 7 && i2 >= 0) {
             printf("%10c", ' ');
@@ -148,7 +158,24 @@ void so_show_rrf(CPU *cpu) {
 
         if (i == 9) {
             printf("%10c%sInstruction Queue -> %s", ' ', COLOR_BLUE_BRIGHT, COLOR_NORMAL);
-            fifo_print(&cpu->pipeline.queue);
+            ififo_print(&cpu->pipeline.queue);
+        }
+
+        if (i == 11) {
+            printf("%10c%sCDB Queue -> %s", ' ', COLOR_BLUE_BRIGHT, COLOR_NORMAL);
+            cdbfifo_print(&cpu->cdb.queue);
+        }
+
+        if (i == 12) {
+            printf("%10c%sTag  : %s%d", ' ', COLOR_BLUE, COLOR_NORMAL, cpu->cdb.tag);
+        }
+
+        if (i == 13) {
+            printf("%10c%sDest : %s%d", ' ', COLOR_BLUE, COLOR_NORMAL, cpu->cdb.destination);
+        }
+
+        if (i == 14) {
+            printf("%10c%sData : %s%d", ' ', COLOR_BLUE, COLOR_NORMAL, cpu->cdb.data.value);
         }
 
         printf("\n");

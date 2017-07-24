@@ -2,14 +2,16 @@
 // Created by hsart on 10/07/17.
 //
 
+#include <string.h>
 #include "types.h"
-#include "structures/fifo.h"
+#include "structures/inst_fifo.h"
 #include "cache.h"
 #include "instructions.h"
 #include "cpu.h"
 #include "register.h"
 #include "../util.h"
 #include "rstation.h"
+#include "../../system/system.h"
 
 ERStationType check_type(EType e) {
     if (e == TYPE_ARITHMETIC || e == TYPE_LOGICAL || e == TYPE_IF || e == TYPE_SHIFT || e == TYPE_JMP) {
@@ -66,9 +68,9 @@ void pipe_decode(CPU *cpu) {
     else                                               n = opcode.r.op;
 
     if (opcode.opcode == 0)
-        fifo_add(&cpu->pipeline.queue, opcode, type, &cpu->inst_set.table[COLUMN_FUNCT2][63]);
+        ififo_add(&cpu->pipeline.queue, opcode, type, &cpu->inst_set.table[COLUMN_FUNCT2][63]);
     else
-        fifo_add(&cpu->pipeline.queue, opcode, type, &cpu->inst_set.table[m][n]);
+        ififo_add(&cpu->pipeline.queue, opcode, type, &cpu->inst_set.table[m][n]);
     //ref.realization(cpu, opcode.opcode);
     //instruction(cpu, cpu->pipeline.ri.decimal);
 
@@ -83,14 +85,28 @@ void pipe_issue(CPU *cpu) {
 
     if (instruction == NULL) return;
     if (instruction->code.opcode == 0) {
-        fifo_remove(&cpu->pipeline.queue);
+        ififo_remove(&cpu->pipeline.queue);
+        return;
+    }
+
+    if (instruction->ref->type == TYPE_JMP) {
+        cpu->pipeline.pc.value = instruction->code.j.target;
+        ififo_remove(&cpu->pipeline.queue);
+        return;
+    }
+
+    if (instruction->code.opcode == 0xC) {
+        //cpu_reg_get(cpu, V0)->content.value = SYSCALL_PRINT_INT;
+        cpu->inst_set.table[COLUMN_FUNCT1][12].realization(cpu, NULL);
+        ififo_remove(&cpu->pipeline.queue);
         return;
     }
 
     Register *rs = cpu_reg_get(cpu, (ERegisters)instruction->code.r.rs),
             *rt = cpu_reg_get(cpu, (ERegisters)instruction->code.r.rt),
             *rd = cpu_reg_get(cpu, (ERegisters)instruction->code.r.rd);
-    int imm = instruction->code.ri.imm;
+    int imm = instruction->code.ri.imm,
+        shamt = instruction->code.r.z;
 
     // TODO: Descobrir o que acontece com FP Operation com immediato
 
@@ -104,14 +120,16 @@ void pipe_issue(CPU *cpu) {
             if (rs->rstation != NULL) {
                 cpu_rstation(cpu, (ERStation) r)->qj = cpu_rstation_index(cpu, rs->rstation);
             } else {
-                cpu_rstation(cpu, (ERStation) r)->vj = cpu_reg_index(cpu, rs);
+                if (!strcpy(instruction->ref->mnemonic, "sll") || !strcpy(instruction->ref->mnemonic, "sra") || !strcpy(instruction->ref->mnemonic, "srl"))
+                    cpu_rstation(cpu, (ERStation) r)->vj = shamt;
+                else cpu_rstation(cpu, (ERStation) r)->vj = rs->content.value;
                 cpu_rstation(cpu, (ERStation) r)->qj = REG_UNKNOWN;
             }
 
             if (rt->rstation != NULL) {
                 cpu_rstation(cpu, (ERStation) r)->qk = cpu_rstation_index(cpu, rt->rstation);
             } else {
-                cpu_rstation(cpu, (ERStation) r)->vk = cpu_reg_index(cpu, rt);
+                cpu_rstation(cpu, (ERStation) r)->vk = rt->content.value;
                 cpu_rstation(cpu, (ERStation) r)->qk = REG_UNKNOWN;
             }
 
@@ -122,7 +140,7 @@ void pipe_issue(CPU *cpu) {
             if (rs->rstation != NULL) {
                 cpu_rstation(cpu, (ERStation) r)->qj = cpu_rstation_index(cpu, rs->rstation);
             } else {
-                cpu_rstation(cpu, (ERStation) r)->vj = cpu_reg_index(cpu, rs);
+                cpu_rstation(cpu, (ERStation) r)->vj = rs->content.value;
                 cpu_rstation(cpu, (ERStation) r)->qj = REG_UNKNOWN;
             }
             cpu_rstation(cpu, (ERStation)r)->A = imm;
@@ -133,14 +151,14 @@ void pipe_issue(CPU *cpu) {
                 if (rt->rstation != NULL) {
                     cpu_rstation(cpu, (ERStation)r)->qk = cpu_rstation_index(cpu, rs->rstation);
                 } else {
-                    cpu_rstation(cpu, (ERStation)r)->vk = cpu_reg_index(cpu, rt);
+                    cpu_rstation(cpu, (ERStation)r)->vk = rt->content.value;
                     cpu_rstation(cpu, (ERStation)r)->qk = REG_UNKNOWN;
                 }
             }
 
         }
 
-        cpu_rstation(cpu, (ERStation)r)->instruction = fifo_remove(&cpu->pipeline.queue);
+        cpu_rstation(cpu, (ERStation)r)->instruction = ififo_remove(&cpu->pipeline.queue);
         cpu_rstation(cpu, (ERStation)r)->busy = clock(instruction->ref->type);
         break;
 
@@ -152,13 +170,15 @@ void pipe_exec(CPU *cpu) {
 
     for (int r = 0; r < RS_COUNT; r++) {
 
-        if (cpu_rstation(cpu, (ERStation)r)->qj == REG_UNKNOWN && cpu_rstation(cpu, (ERStation)r)->qk == REG_UNKNOWN) {
+        ReservationStation *rs = cpu_rstation(cpu, (ERStation) r);
 
-            if (cpu_rstation(cpu, (ERStation)r)->busy == 1) {
-                cpu_rstation(cpu, (ERStation) r)->instruction.ref->realization(cpu, cpu_rstation(cpu, (ERStation) r));
-                cpu_rstation(cpu, (ERStation) r)->busy--;
-            } else if (cpu_rstation(cpu, (ERStation)r)->busy > 0) {
-                cpu_rstation(cpu, (ERStation) r)->busy--;
+        if (rs->qj == REG_UNKNOWN && rs->qk == REG_UNKNOWN) {
+
+            if (rs->busy == 1) {
+                rs->instruction.ref->realization(cpu, &rs->result, rs->vj, rs->vk, rs->A);
+                rs->busy--;
+            } else if (rs->busy > 1) {
+                rs->busy--;
             }
 
         }
@@ -177,20 +197,21 @@ void pipe_write_result(CPU *cpu) {
             if (cpu_rstation(cpu, (ERStation) r)->instruction.ref->type != TYPE_STORE) {
                 for (int x = 0; x < REG_COUNT; x++)
                     if (cpu_reg_get(cpu, x)->rstation == cpu_rstation(cpu, r)) {
-                        cpu_reg_get(cpu, x)->content.value = cpu_rstation(cpu, r)->buffer.content.value;
-                        cpu_reg_get(cpu, x)->rstation = NULL;
+                        cpu_cdb_put(cpu, r, x, cpu_rstation(cpu, r)->result.content);
+                        //cpu_reg_get(cpu, x)->content.value = cpu_rstation(cpu, r)->result.content.value;
                     }
                 for (int x = 0; x < REG_COUNT; x++)
                     if (cpu_rstation(cpu, x)->qj == r) {
-                        cpu_rstation(cpu, x)->vj = cpu_rstation(cpu, r)->buffer.content.value;
+                        cpu_rstation(cpu, x)->vj = cpu_rstation(cpu, r)->result.content.value;
                         cpu_rstation(cpu, x)->qj = REG_UNKNOWN;
                     }
                 for (int x = 0; x < REG_COUNT; x++)
                     if (cpu_rstation(cpu, x)->qk == r) {
-                        cpu_rstation(cpu, x)->vk = cpu_rstation(cpu, r)->buffer.content.value;
+                        cpu_rstation(cpu, x)->vk = cpu_rstation(cpu, r)->result.content.value;
                         cpu_rstation(cpu, x)->qk = REG_UNKNOWN;
                     }
             } else {
+                // TODO: Atenção barramento
                 cache_write(&cpu->cache, cpu_rstation(cpu, r)->A, (Word){.value = cpu_rstation(cpu, r)->vk} );
             }
             rstation_clean(cpu_rstation(cpu, r));
@@ -200,7 +221,7 @@ void pipe_write_result(CPU *cpu) {
 }
 
 Pipeline pipe_init() {
-    Pipeline pipeline = { .pc = {0}, .ri = {0}, .queue = fifo_init(),
+    Pipeline pipeline = { .pc = {0}, .ri = {0}, .queue = ififo_init(),
             .stage[FETCH]       = &pipe_fetch,
             .stage[DECODE]      = &pipe_decode,
             .stage[ISSUE]       = &pipe_issue,
@@ -215,7 +236,7 @@ Pipeline pipe_init() {
         else            pipeline.rstation[i].type = RS_TYPE_UNKNOWN;
 
         pipeline.rstation[i].busy = NOT_BUSY;
-        pipeline.rstation[i].buffer.rstation = NULL;
+        pipeline.rstation[i].result.rstation = NULL;
 
     }
 

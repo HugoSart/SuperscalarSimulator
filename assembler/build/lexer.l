@@ -150,6 +150,10 @@
 "movn"   { yylval.d = MOVN;  return OP_3; }
 "movz"   { yylval.d = MOVZ;  return OP_3; }
 
+"NOP"    { return NOP; }
+
+"syscall" { return OP_1S; }
+
 [a-zA-Z_][a-zA-Z0-9_]+ {yylval.str = strdup(yytext); return VAR; }
 
 .        { printf("Mystery chracter %c\n", *yytext); }

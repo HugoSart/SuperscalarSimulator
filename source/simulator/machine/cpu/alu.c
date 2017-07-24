@@ -31,6 +31,18 @@ int op_div      (int a, int b) {
 int op_zero     (int a, int b) {
      return ~a;
 }
+int op_alshift  (int a, int b) {
+    return a << b;
+}
+int op_arshift  (int a, int b) {
+    return a >> b;
+}
+int op_llshift  (int a, int b) {
+    return (int)((unsigned int) a << b);
+}
+int op_lrshift  (int a, int b) {
+    return (int)((unsigned int) a >> b);
+}
 
 ALU alu_init() {
     ALU alu = { .operation[OP_ADD]      = &op_add,
@@ -41,7 +53,11 @@ ALU alu_init() {
                 .operation[OP_XOR]      = &op_xor,
                 .operation[OP_MULT]     = &op_mult,
                 .operation[OP_DIV]      = &op_div,
-                .operation[OP_DIV]      = &op_zero};
+                .operation[OP_ALSHIFT]  = &op_alshift,
+                .operation[OP_ARSHIFT]  = &op_arshift,
+                .operation[OP_LLSHIFT]  = &op_llshift,
+                .operation[OP_LRSHIFT]  = &op_lrshift,
+                .operation[OP_ZERO]     = &op_zero};
     return alu;
 }
 

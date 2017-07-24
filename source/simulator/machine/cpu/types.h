@@ -9,6 +9,7 @@
 #include <stdbool.h>
 #include "../util.h"
 #include "../memory/memory.h"
+#include "register.h"
 
 // Cache declarations
 struct dec_t {
@@ -92,7 +93,7 @@ typedef enum {
 typedef struct instruction_ref_t {
     char *mnemonic;
     EType type;
-    void (*realization)(CPU *cpu, ReservationStation*);
+    void (*realization)(CPU *cpu, ...);
 } InstructionRef;
 typedef struct instruction_t {
     Opcode code;
@@ -103,14 +104,14 @@ typedef struct instruction_set_t {
     InstructionRef table[4][64];
 } InstructionSet;
 
-// FIFO declarations
-typedef struct node {
+// IFIFO declarations
+typedef struct inode_t {
     Instruction instruction;
-    struct node *next;
-} Node;
+    struct inode_t *next;
+} INode;
 typedef struct fifo {
-    Node *first;
-} FIFO;
+    INode *first;
+} IFIFO;
 
 // Register declarations
 typedef struct rstation_t ReservationStation;
@@ -154,8 +155,20 @@ typedef struct rstation_t {
     int vj, vk;
     int A;
     ERStationType type;
-    Register buffer;
+    Register result;
 };
+
+// CDBFIFO declarations
+typedef struct cdbnode_t {
+    ERegisters destination;
+    ERStation tag;
+    Word data;
+    struct cdbnote_t *next;
+} CDBNode;
+
+typedef struct cdbfifo_t {
+    CDBNode *first;
+} CDBFifo;
 
 // Pipeline declarations
 enum stages_e {
@@ -164,7 +177,7 @@ enum stages_e {
 } EStage;
 typedef struct {
     Word pc, ri;
-    FIFO queue;
+    IFIFO queue;
     ReservationStation rstation[7];
     void (*stage[STAGE_COUNT])(CPU *);
 } Pipeline;
@@ -174,6 +187,8 @@ typedef enum {
     OP_ADD, OP_SUBTRACT,
     OP_AND, OP_OR, OP_NOR, OP_XOR,
     OP_MULT, OP_DIV,
+    OP_ARSHIFT, OP_ALSHIFT,
+    OP_LRSHIFT, OP_LLSHIFT,
     OP_ZERO,
     OPERATIONS_COUNTER
 } EOperations;
@@ -186,14 +201,22 @@ typedef struct bus_t {
     int busy;
 } Bus;
 
+typedef struct cdb_t {
+    Word data;
+    ERStation tag;
+    ERegisters destination;
+    int busy;
+    CDBFifo queue;
+} CDB;
+
 // CPU declarations
 typedef struct cpu_t {
     Cache cache;
     ALU alu;
-    Register reg[32];
+    Register reg[32], lo, hi;
     Pipeline pipeline;
     InstructionSet inst_set;
-    Bus cdb;
+    CDB cdb;
 } CPU;
 
 #endif //SUPERSCALARSIMULATOR_CPU_PIPELINE_H_H

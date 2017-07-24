@@ -6,24 +6,43 @@
 #include "instructions.h"
 #include "cpu.h"
 #include "../util.h"
+#include "../../system/system.h"
+#include <stdarg.h>
 
-#define PARAM_STANDARD CPU *cpu, ReservationStation *rs
+#define PARAM_STANDARD CPU *cpu, ...
+
+#define INIT_ARGS va_list va; \
+        va_start(va, 4); \
+        Register *result = va_arg(va, Register*); \
+        int vj = va_arg(va, int); \
+        int vk = va_arg(va, int); \
+        int A = va_arg(va, int)
 
 // VER MOVF E BRANCHES
 
 void inst_add(InstructionSet *, void *, char *, EType, size_t, size_t);
 
+// TODO: Ver as sem overflow
+
 // Instruction implementations
 void add     (PARAM_STANDARD) {
-    rs->buffer.content.value = cpu_reg_get(cpu, rs->vk)->content.value + cpu_reg_get(cpu, rs->vj)->content.value;
+    INIT_ARGS;
+    result->content.value = alu_exec(&cpu->alu, OP_ADD, vj, vk);
 }
 void addu    (PARAM_STANDARD) {}
 void addi    (PARAM_STANDARD) {
-    rs->buffer.content.value = cpu_reg_get(cpu, rs->vj)->content.value + rs->A;
+    INIT_ARGS;
+    result->content.value = alu_exec(&cpu->alu, OP_ADD, vj, A);
 }
 void addiu   (PARAM_STANDARD) {}
-void andi    (PARAM_STANDARD) {}
-void and     (PARAM_STANDARD) {}
+void andi    (PARAM_STANDARD) {
+    INIT_ARGS;
+    result->content.value = alu_exec(&cpu->alu, OP_AND, vj, A);
+}
+void and     (PARAM_STANDARD) {
+    INIT_ARGS;
+    result->content.value = alu_exec(&cpu->alu, OP_AND, vj, vk);
+}
 void clo     (PARAM_STANDARD) {}
 void clz     (PARAM_STANDARD) {}
 void _div    (PARAM_STANDARD) {}
@@ -31,21 +50,78 @@ void divu    (PARAM_STANDARD) {}
 void mult    (PARAM_STANDARD) {}
 void multu   (PARAM_STANDARD) {}
 void mul     (PARAM_STANDARD) {
-    rs->buffer.content.value = cpu_reg_get(cpu, rs->vk)->content.value * cpu_reg_get(cpu, rs->vj)->content.value;
+    INIT_ARGS;
+    result->content.value = alu_exec(&cpu->alu, OP_MULT, vj, vk);
 }
 void madd    (PARAM_STANDARD) {}
 void maddu   (PARAM_STANDARD) {}
 void msub    (PARAM_STANDARD) {}
-void nor     (PARAM_STANDARD) {}
-void or      (PARAM_STANDARD) {}
-void ori     (PARAM_STANDARD) {}
-void syscall (PARAM_STANDARD) {}
+void nor     (PARAM_STANDARD) {
+    INIT_ARGS;
+    result->content.value = alu_exec(&cpu->alu, OP_NOR, vj, vk);
+}
+void or      (PARAM_STANDARD) {
+    INIT_ARGS;
+    result->content.value = alu_exec(&cpu->alu, OP_OR, vj, vk);
+}
+void ori     (PARAM_STANDARD) {
+    INIT_ARGS;
+    result->content.value = alu_exec(&cpu->alu, OP_OR, vj, A);
+}
+void syscall (PARAM_STANDARD) {
+
+    Register *v0 = cpu_reg_get(cpu, V0);
+    int value = v0->content.value;
+
+    switch (value) {
+        case SYSCALL_PRINT_INT:
+            so_print_int(cpu);
+            break;
+        case SYSCALL_READ_INT:
+            so_exit(cpu);
+            break;
+    }
+
+}
 void sync    (PARAM_STANDARD) {}
-void slr     (PARAM_STANDARD) {}
-void sra     (PARAM_STANDARD) {}
-void sllv    (PARAM_STANDARD) {}
-void srlv    (PARAM_STANDARD) {}
-void srav    (PARAM_STANDARD) {}
+void sll     (PARAM_STANDARD) {
+    INIT_ARGS;
+    result->content.value = alu_exec(&cpu->alu, OP_LLSHIFT, vk, vj);
+}
+void sllv    (PARAM_STANDARD) {
+    INIT_ARGS;
+    result->content.value = alu_exec(&cpu->alu, OP_LLSHIFT, vk, vj);
+}
+void sra     (PARAM_STANDARD) {
+    INIT_ARGS;
+    result->content.value = alu_exec(&cpu->alu, OP_ARSHIFT, vk, vj);
+}
+void srav    (PARAM_STANDARD) {
+    INIT_ARGS;
+    result->content.value = alu_exec(&cpu->alu, OP_ARSHIFT, vk, vj);
+}
+void srl     (PARAM_STANDARD) {
+    INIT_ARGS;
+    result->content.value = alu_exec(&cpu->alu, OP_LRSHIFT, vk, vj);
+}
+void srlv    (PARAM_STANDARD) {
+    INIT_ARGS;
+    result->content.value = alu_exec(&cpu->alu, OP_LRSHIFT, vk, vj);
+}
+void sub     (PARAM_STANDARD) {
+    INIT_ARGS;
+    result->content.value = alu_exec(&cpu->alu, OP_SUBTRACT, vj, vk);
+}
+void subu    (PARAM_STANDARD) {}
+void xor     (PARAM_STANDARD) {
+    INIT_ARGS;
+    result->content.value = alu_exec(&cpu->alu, OP_XOR, vj, vk);
+}
+void xori    (PARAM_STANDARD) {
+    INIT_ARGS;
+    result->content.value = alu_exec(&cpu->alu, OP_XOR, vj, A);
+}
+void lui     (PARAM_STANDARD) {}
 void jr      (PARAM_STANDARD) {}
 void jalr    (PARAM_STANDARD) {}
 void movz    (PARAM_STANDARD) {}
@@ -54,9 +130,6 @@ void _break  (PARAM_STANDARD) {}
 void mfhi    (PARAM_STANDARD) {}
 void mthi    (PARAM_STANDARD) {}
 void mflo    (PARAM_STANDARD) {}
-void sub     (PARAM_STANDARD) {}
-void subu    (PARAM_STANDARD) {}
-void xor     (PARAM_STANDARD) {}
 void slt     (PARAM_STANDARD) {}
 void sltu    (PARAM_STANDARD) {}
 void tge     (PARAM_STANDARD) {}
@@ -88,9 +161,6 @@ void blez    (PARAM_STANDARD) {}
 void bgtz    (PARAM_STANDARD) {}
 void slti    (PARAM_STANDARD) {}
 void sltiu   (PARAM_STANDARD) {}
-void xori    (PARAM_STANDARD) {}
-void lui     (PARAM_STANDARD) {}
-void sll     (PARAM_STANDARD) {}
 void benql   (PARAM_STANDARD) {}
 void bnel    (PARAM_STANDARD) {}
 void blezl   (PARAM_STANDARD) {}
@@ -99,7 +169,7 @@ void lb      (PARAM_STANDARD) {}
 void lh      (PARAM_STANDARD) {}
 void lwl     (PARAM_STANDARD) {}
 void lw      (PARAM_STANDARD) {
-    rs->buffer.content = cache_read(&cpu->cache, rs->A);
+
 }
 void lbu     (PARAM_STANDARD) {}
 void lhu     (PARAM_STANDARD) {}
@@ -108,7 +178,7 @@ void sb      (PARAM_STANDARD) {}
 void sh      (PARAM_STANDARD) {}
 void swl     (PARAM_STANDARD) {}
 void sw      (PARAM_STANDARD) {
-    rs->buffer.content.value = rs->vk;
+
 }
 
 void nop     (PARAM_STANDARD) {}
@@ -122,7 +192,7 @@ InstructionSet inst_init() {
     InstructionSet instructionSet = {0};
 
     inst_add(&instructionSet, &sll,     "sll",    TYPE_SHIFT,      COLUMN_FUNCT1, 0); //
-    inst_add(&instructionSet, &slr,     "slr",    TYPE_SHIFT,      COLUMN_FUNCT1, 2);
+    inst_add(&instructionSet, &srl,     "srl",    TYPE_SHIFT,      COLUMN_FUNCT1, 2);
     inst_add(&instructionSet, &sra,     "sra",    TYPE_SHIFT,      COLUMN_FUNCT1, 3);
     inst_add(&instructionSet, &sllv,    "sllv",   TYPE_SHIFT,      COLUMN_FUNCT1, 4); //
     inst_add(&instructionSet, &srlv,    "srlv",   TYPE_SHIFT,      COLUMN_FUNCT1, 6);
@@ -139,7 +209,7 @@ InstructionSet inst_init() {
     inst_add(&instructionSet, &mflo,    "mflo",   TYPE_ACUMULATOR, COLUMN_FUNCT1, 19); //;
     inst_add(&instructionSet, &mult,    "mult",   TYPE_MULT,       COLUMN_FUNCT1, 24);
     inst_add(&instructionSet, &multu,   "multu",  TYPE_MULT,       COLUMN_FUNCT1, 25);
-    inst_add(&instructionSet, &div,     "div",    TYPE_MULT,       COLUMN_FUNCT1, 26);
+    inst_add(&instructionSet, &_div,    "div",    TYPE_MULT,       COLUMN_FUNCT1, 26);
     inst_add(&instructionSet, &divu,    "divu",   TYPE_MULT,       COLUMN_FUNCT1, 27); //
     inst_add(&instructionSet, &add,     "add",    TYPE_ARITHMETIC, COLUMN_FUNCT1, 32);
     inst_add(&instructionSet, &addu,    "addu",   TYPE_ARITHMETIC, COLUMN_FUNCT1, 33);

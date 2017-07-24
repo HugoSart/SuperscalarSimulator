@@ -30,8 +30,12 @@
 
 #define SET_COLOR(color)        printf(color)
 
+#define SYSCALL_PRINT_INT 1
+#define SYSCALL_READ_INT 5
+#define SYSCALL_EXIT 10
+
 void so_print_int(CPU *cpu);
-int so_read_int();
+void so_exit(CPU *cpu);
 
 void so_load(Memory *mem, char *bfile_name);
 void so_show_rcr(CPU *cpu);
