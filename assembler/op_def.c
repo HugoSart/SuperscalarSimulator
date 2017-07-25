@@ -262,6 +262,21 @@ int func(unsigned int id) {
 
 }
 
+int rtfunc(unsigned int id) {
+
+    switch (id) {
+        case BGEZ   : return 1;
+        case BGEZAL : return 0x11;
+        case BGTZ   : return 0;
+        case BLEZ   : return 0;
+        case BLTZAL : return 0x10;
+        case BLTZ   : return 0;
+    }
+
+    return NOT_FOUND;
+
+}
+
 char *regcode(unsigned int id) {
 
     if (id > 31) return NULL;

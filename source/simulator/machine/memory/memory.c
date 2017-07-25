@@ -23,11 +23,11 @@ const char *byte_to_binary(int x) {
 int check_address(Memory*, unsigned int);
 
 // memory.h declarations implementations
-Memory mem_init(size_t size, size_t text_address) {
-    Memory mem;
-    mem.byte = calloc(size, sizeof(BYTE));
-    mem.size = size;
-    mem.text_address = text_address;
+Memory *mem_new(size_t size, size_t text_address) {
+    Memory *mem = malloc(sizeof(Memory));
+    mem->byte = calloc(size, sizeof(BYTE));
+    mem->size = size;
+    mem->text_address = text_address;
     return mem;
 }
 
@@ -65,6 +65,32 @@ Word mem_read_word(Memory *mem, unsigned int address) {
 
 }
 
+void mem_clock(Memory *mem) {
+
+    switch (mem->_p_mobo->control_bus.data.value) {
+
+        case CONTROL_READ:
+
+            for (int i = 0; i < CACHE_BLOCK_WORD_COUNT; i++)
+                mem->_p_mobo->data_bus.data[i] = mem_read_word(mem, mem->_p_mobo->address_bus.data.decimal + (i * CACHE_BLOCK_WORD_COUNT));
+
+
+            break;
+
+        case CONTROL_WRITE:
+
+            for (int i = 0; i < CACHE_BLOCK_WORD_COUNT; i++)
+                mem_write_word(mem, mem->_p_mobo->address_bus.data.decimal + (i * CACHE_BLOCK_WORD_COUNT), mem->_p_mobo->data_bus.data[i]);
+
+            mem->_p_mobo->control_bus.busy = NOT_BUSY;
+            mem->_p_mobo->address_bus.busy = NOT_BUSY;
+            mem->_p_mobo->data_bus.busy    = NOT_BUSY;
+
+            break;
+
+    }
+
+}
 /*void mem_print(Memory *mem, Cache *cache) {
     printf("======================= Memory <%zuB> =======================\n\n", mem->size, WORD_SIZE);
     printf("%7c", ' ');

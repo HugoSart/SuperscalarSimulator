@@ -5,7 +5,7 @@
 #ifndef SUPERSCALARSIMULATOR_PIPELINE_H
 #define SUPERSCALARSIMULATOR_PIPELINE_H
 
-#include "types.h"
+#include "../types.h"
 
 // Pipeline struct defiened in cpu_pipeline.h
 

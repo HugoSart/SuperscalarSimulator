@@ -5,14 +5,14 @@
 #ifndef SUPERSCALARSIMULATOR_CPU_H
 #define SUPERSCALARSIMULATOR_CPU_H
 
-#include "types.h"
+#include "../types.h"
 #include "alu.h"
 #include "cache.h"
 #include "instructions.h"
 
 typedef struct cpu_t CPU;
 
-CPU cpu_init(Memory *mem);
+CPU *cpu_new(Memory *mem);
 void cpu_clock(CPU *);
 void cpu_exec(CPU *, EInstructions, ...);
 void cpu_reg_set(CPU *, ERegisters, int value);

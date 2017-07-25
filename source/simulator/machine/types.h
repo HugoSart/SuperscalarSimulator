@@ -7,9 +7,40 @@
 
 #include <stdio.h>
 #include <stdbool.h>
-#include "../util.h"
-#include "../memory/memory.h"
-#include "register.h"
+#include "util.h"
+#include "types.h"
+#include "cpu/register.h"
+
+typedef struct bus_t {
+    Word data;
+    int busy;
+} Bus;
+
+typedef struct bus128_t {
+    Word data[4];
+    int busy;
+} Bus128;
+
+// Mobo declarations
+typedef struct cpu_t CPU;
+typedef struct mem_t Memory;
+typedef struct mobo_t {
+    Memory *mem;
+    CPU *cpu;
+    Bus128 data_bus;
+    Bus control_bus, address_bus;
+} Mobo;
+
+// Memory declarations
+typedef struct mem_t {
+
+    Mobo *_p_mobo;
+
+    BYTE *byte;
+    size_t size;
+    size_t text_address;
+
+};
 
 // Cache declarations
 struct dec_t {
@@ -26,6 +57,10 @@ typedef struct line_t {
     Word word[4];
 } Line;
 typedef struct cache_t {
+
+    // Parents
+    CPU *_p_cpu;
+
     Memory *mem;
     Line *line;
     size_t size; // in bytes
@@ -33,7 +68,6 @@ typedef struct cache_t {
 
 // Instruction declarations
 typedef struct rstation_t ReservationStation;
-typedef struct cpu_t CPU;
 typedef struct r_t {
     unsigned int func : 6;
     unsigned int z    : 5;
@@ -82,7 +116,7 @@ typedef enum {
     INSTRUCTION_COUNT
 } EInstructions;
 typedef enum {
-    RTYPE_R, RTYPE_RI, RTYPE_J, RTYPE_UNKNOWN
+    RTYPE_R, RTYPE_RI, RTYPE_RT, RTYPE_J, RTYPE_UNKNOWN
 } ERType;
 typedef enum {
     TYPE_ARITHMETIC, TYPE_SHIFT, TYPE_LOGICAL, TYPE_IF,
@@ -137,14 +171,15 @@ typedef struct register_t {
 
 // ReservationStation declarations
 typedef enum rstation_type_e {
-    RS_TYPE_ADD, RS_TYPE_MUL, RS_TYPE_LOAD,
+    RS_TYPE_ADD, RS_TYPE_MUL, RS_TYPE_LOAD, RS_TYPE_STORE,
     RS_TYPE_COUNT
 #define RS_TYPE_UNKNOWN RS_TYPE_COUNT
 } ERStationType;
 typedef enum rstation_e {
     RS_ADD1, RS_ADD2, RS_ADD3,
     RS_MUL1, RS_MUL2,
-    RS_LOAD1, RS_LOAD2,
+    RS_LOAD1, RS_LOAD2, RS_LOAD3, RS_LOAD4, RS_LOAD5,
+    RS_SOTR1, RS_STOR2, RS_STOR3, RS_STOR4, RS_STOR5,
     RS_COUNT
 #define RS_UNKNOWN RS_COUNT
 } ERStation;
@@ -155,7 +190,7 @@ typedef struct rstation_t {
     int vj, vk;
     int A;
     ERStationType type;
-    Register result;
+    Word result;
 };
 
 // CDBFIFO declarations
@@ -176,9 +211,12 @@ enum stages_e {
     STAGE_COUNT
 } EStage;
 typedef struct {
+#define ISSUE_STOP 0
+#define ISSUE_CONTINUE 1
     Word pc, ri;
     IFIFO queue;
-    ReservationStation rstation[7];
+    int issue;
+    ReservationStation rstation[RS_COUNT];
     void (*stage[STAGE_COUNT])(CPU *);
 } Pipeline;
 
@@ -189,17 +227,13 @@ typedef enum {
     OP_MULT, OP_DIV,
     OP_ARSHIFT, OP_ALSHIFT,
     OP_LRSHIFT, OP_LLSHIFT,
+    OP_EQUALS, OP_BEQUALS, OP_SEQUALS,
     OP_ZERO,
     OPERATIONS_COUNTER
 } EOperations;
 typedef struct alu_t {
     int (*operation[OPERATIONS_COUNTER])(int, int);
 } ALU;
-
-typedef struct bus_t {
-    Word data;
-    int busy;
-} Bus;
 
 typedef struct cdb_t {
     Word data;
@@ -211,12 +245,17 @@ typedef struct cdb_t {
 
 // CPU declarations
 typedef struct cpu_t {
+
+    // Parents
+    Mobo *_p_mobo;
+
     Cache cache;
     ALU alu;
     Register reg[32], lo, hi;
     Pipeline pipeline;
     InstructionSet inst_set;
     CDB cdb;
+
 } CPU;
 
 #endif //SUPERSCALARSIMULATOR_CPU_PIPELINE_H_H

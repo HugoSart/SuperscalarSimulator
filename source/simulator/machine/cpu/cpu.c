@@ -5,13 +5,15 @@
 #include "instructions.h"
 #include "rstation.h"
 #include "pipeline.h"
-#include "types.h"
+#include "../types.h"
 #include "register.h"
 #include "structures/cdb_fifo.h"
 #include "../util.h"
 
-CPU cpu_init(Memory *mem) {
-    CPU cpu = { .cache    = cache_init(mem, CACHE_SIZE),
+CPU *cpu_new(Memory *mem) {
+
+    CPU *cpu = malloc(sizeof(CPU));
+    *cpu = (CPU){ .cache    = cache_init(mem, CACHE_SIZE),
             .inst_set = inst_init(),
             .alu      = alu_init(),
             .cdb      = {{0}},
@@ -19,12 +21,14 @@ CPU cpu_init(Memory *mem) {
             .cdb = { .data = NULL, .destination = REG_UNKNOWN, .tag = RS_UNKNOWN, .busy = NOT_BUSY, .queue = cdbfifo_init()}};
 
 
-    for (int i = 0; i < 7; i++) {
-        cpu.pipeline.rstation[i].vj = REG_UNKNOWN;
-        cpu.pipeline.rstation[i].vk = REG_UNKNOWN;
-        cpu.pipeline.rstation[i].qj = REG_UNKNOWN;
-        cpu.pipeline.rstation[i].qk = REG_UNKNOWN;
+    for (int i = 0; i < RS_COUNT; i++) {
+        cpu->pipeline.rstation[i].vj = REG_UNKNOWN;
+        cpu->pipeline.rstation[i].vk = REG_UNKNOWN;
+        cpu->pipeline.rstation[i].qj = REG_UNKNOWN;
+        cpu->pipeline.rstation[i].qk = REG_UNKNOWN;
     }
+
+    cpu->cache._p_cpu = cpu;
 
     return cpu;
 }
@@ -88,7 +92,6 @@ ReservationStation *cpu_reg_busy(CPU * cpu, ERegisters e) {
 }
 
 void cpu_clock(CPU *cpu) {
-    cpu_cdb_write(cpu);
     cpu->pipeline.stage[WRITE_RESULT](cpu);
     cpu->pipeline.stage[EXEC](cpu);
     cpu->pipeline.stage[ISSUE](cpu);

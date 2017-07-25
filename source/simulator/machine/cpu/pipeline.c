@@ -3,7 +3,7 @@
 //
 
 #include <string.h>
-#include "types.h"
+#include "../types.h"
 #include "structures/inst_fifo.h"
 #include "cache.h"
 #include "instructions.h"
@@ -18,8 +18,10 @@ ERStationType check_type(EType e) {
         return RS_TYPE_ADD;
     } else if (e == TYPE_MULT) {
         return RS_TYPE_MUL;
-    } else if (e == TYPE_LOAD || e == TYPE_ACUMULATOR || e == TYPE_STORE) {
+    } else if (e == TYPE_LOAD || e == TYPE_ACUMULATOR) {
         return RS_TYPE_LOAD;
+    } else if (e == TYPE_STORE) {
+        return RS_TYPE_STORE;
     } else {
         return RS_TYPE_UNKNOWN;
     }
@@ -43,7 +45,9 @@ int clock(EType e) {
 // Funfando
 void pipe_fetch(CPU *cpu) {
 
-    cpu->pipeline.ri = mem_read_word(cpu->cache.mem, cpu->pipeline.pc.decimal);
+    if (cpu->pipeline.issue == ISSUE_STOP) return;
+
+    cpu->pipeline.ri = cache_read(&cpu->cache, cpu->pipeline.pc.decimal);
     if (cpu->pipeline.ri.value == EOF) return;
     cpu->pipeline.pc.decimal += WORD_SIZE;
 
@@ -52,15 +56,18 @@ void pipe_fetch(CPU *cpu) {
 // Semi-Funfando mas funfando
 void pipe_decode(CPU *cpu) {
 
+    if (cpu->pipeline.issue == ISSUE_STOP) return;
+    if (cpu->pipeline.ri.value == EOF) return;
+
     Opcode opcode = { .opcode = cpu->pipeline.ri.decimal };
     ERType type = RTYPE_UNKNOWN;
-
-    if (cpu->pipeline.ri.value == EOF) return;
 
     size_t m = 0, n = 0;
     if      (opcode.r.op == 0x00) { m = COLUMN_FUNCT1; type = RTYPE_R;  }
     else if (opcode.r.op == 0x1c) { m = COLUMN_FUNCT2; type = RTYPE_R;  }
-    else if (opcode.r.op == 0x01) { m = COLUMN_RT;     type = RTYPE_RI; }
+    else if (opcode.r.op == 0x01) { m = COLUMN_RT;     type = RTYPE_RT; }
+    else if (opcode.r.op == 2 || opcode.r.op == 3)     type = RTYPE_J;
+    else if (opcode.r.op == 4)                         type = RTYPE_RI;
     else                                               type = RTYPE_RI;
 
     if      (m == COLUMN_FUNCT1 || m == COLUMN_FUNCT2) n = opcode.r.func;
@@ -71,6 +78,8 @@ void pipe_decode(CPU *cpu) {
         ififo_add(&cpu->pipeline.queue, opcode, type, &cpu->inst_set.table[COLUMN_FUNCT2][63]);
     else
         ififo_add(&cpu->pipeline.queue, opcode, type, &cpu->inst_set.table[m][n]);
+
+    cpu->pipeline.ri.value = EOF;
     //ref.realization(cpu, opcode.opcode);
     //instruction(cpu, cpu->pipeline.ri.decimal);
 
@@ -90,9 +99,7 @@ void pipe_issue(CPU *cpu) {
     }
 
     if (instruction->ref->type == TYPE_JMP) {
-        cpu->pipeline.pc.value = instruction->code.j.target;
-        ififo_remove(&cpu->pipeline.queue);
-        return;
+        cpu->pipeline.issue = ISSUE_STOP;
     }
 
     if (instruction->code.opcode == 0xC) {
@@ -115,27 +122,40 @@ void pipe_issue(CPU *cpu) {
         if (cpu_rstation(cpu, (ERStation)r)->type != check_type(instruction->ref->type)) continue;
         if (cpu_rstation(cpu, (ERStation)r)->busy != NOT_BUSY)                           continue;
 
-        if (cpu_rstation(cpu, (ERStation)r)->type != RS_TYPE_LOAD && instruction->rtype != RTYPE_RI) {
+        if (cpu_rstation(cpu, (ERStation)r)->type != RS_TYPE_LOAD && cpu_rstation(cpu, (ERStation)r)->type != RS_TYPE_STORE && instruction->rtype != RTYPE_RI && instruction->rtype != RTYPE_RT) {
 
-            if (rs->rstation != NULL) {
-                cpu_rstation(cpu, (ERStation) r)->qj = cpu_rstation_index(cpu, rs->rstation);
+            if (!strcmp(instruction->ref->mnemonic, "j") || !strcmp(instruction->ref->mnemonic, "jal")) {
+                cpu_rstation(cpu, (ERStation)r)->A = instruction->code.j.target;
+                if (!strcmp(instruction->ref->mnemonic, "jal")) {
+                    cpu_reg_get(cpu, RA)->rstation = cpu_rstation(cpu, r);
+                }
             } else {
-                if (!strcpy(instruction->ref->mnemonic, "sll") || !strcpy(instruction->ref->mnemonic, "sra") || !strcpy(instruction->ref->mnemonic, "srl"))
-                    cpu_rstation(cpu, (ERStation) r)->vj = shamt;
-                else cpu_rstation(cpu, (ERStation) r)->vj = rs->content.value;
-                cpu_rstation(cpu, (ERStation) r)->qj = REG_UNKNOWN;
-            }
 
-            if (rt->rstation != NULL) {
-                cpu_rstation(cpu, (ERStation) r)->qk = cpu_rstation_index(cpu, rt->rstation);
-            } else {
-                cpu_rstation(cpu, (ERStation) r)->vk = rt->content.value;
-                cpu_rstation(cpu, (ERStation) r)->qk = REG_UNKNOWN;
-            }
+                if (rs->rstation != NULL) {
+                    cpu_rstation(cpu, (ERStation) r)->qj = cpu_rstation_index(cpu, rs->rstation);
+                } else {
+                    if (!strcmp(instruction->ref->mnemonic, "sll") || !strcmp(instruction->ref->mnemonic, "sra") || !strcmp(instruction->ref->mnemonic, "srl"))
+                        cpu_rstation(cpu, (ERStation) r)->vj = shamt;
+                    else cpu_rstation(cpu, (ERStation) r)->vj = rs->content.value;
+                    cpu_rstation(cpu, (ERStation) r)->qj = REG_UNKNOWN;
+                }
 
-            rd->rstation = cpu_rstation(cpu, (ERStation) r);
+                if (strcmp(instruction->ref->mnemonic, "jr") != 0) {
+
+                    if (rt->rstation != NULL && !strcmp(instruction->ref->mnemonic, "j")) {
+                        cpu_rstation(cpu, (ERStation) r)->qk = cpu_rstation_index(cpu, rt->rstation);
+                    } else {
+                        cpu_rstation(cpu, (ERStation) r)->vk = rt->content.value;
+                        cpu_rstation(cpu, (ERStation) r)->qk = REG_UNKNOWN;
+                    }
+
+                    rd->rstation = cpu_rstation(cpu, (ERStation) r);
+                }
+
+            }
 
         } else {
+            // Load or Store (or RI)
 
             if (rs->rstation != NULL) {
                 cpu_rstation(cpu, (ERStation) r)->qj = cpu_rstation_index(cpu, rs->rstation);
@@ -143,13 +163,20 @@ void pipe_issue(CPU *cpu) {
                 cpu_rstation(cpu, (ERStation) r)->vj = rs->content.value;
                 cpu_rstation(cpu, (ERStation) r)->qj = REG_UNKNOWN;
             }
+
             cpu_rstation(cpu, (ERStation)r)->A = imm;
 
-            if (instruction->ref->type != TYPE_STORE && (instruction->ref->type == TYPE_LOAD || instruction->rtype == RTYPE_RI)) {
+            // Load Only (or RI)
+            if (strcmp(instruction->ref->mnemonic, "beq") && instruction->ref->type != TYPE_STORE && (instruction->ref->type == TYPE_LOAD || instruction->rtype == RTYPE_RI)) {
                 rt->rstation = cpu_rstation(cpu, (ERStation)r);
-            } else {
+            } else if (instruction->rtype != RTYPE_RT){ // Store Only
+
                 if (rt->rstation != NULL) {
-                    cpu_rstation(cpu, (ERStation)r)->qk = cpu_rstation_index(cpu, rs->rstation);
+                    if (!strcmp(instruction->ref->mnemonic, "beq")) {
+                        cpu_rstation(cpu, (ERStation) r)->qk = cpu_rstation_index(cpu, rt->rstation);
+                    } else {
+                        cpu_rstation(cpu, (ERStation) r)->qk = cpu_rstation_index(cpu, rs->rstation);
+                    }
                 } else {
                     cpu_rstation(cpu, (ERStation)r)->vk = rt->content.value;
                     cpu_rstation(cpu, (ERStation)r)->qk = REG_UNKNOWN;
@@ -175,16 +202,32 @@ void pipe_exec(CPU *cpu) {
         if (rs->qj == REG_UNKNOWN && rs->qk == REG_UNKNOWN) {
 
             if (rs->busy == 1) {
+
                 rs->instruction.ref->realization(cpu, &rs->result, rs->vj, rs->vk, rs->A);
-                rs->busy--;
-            } else if (rs->busy > 1) {
-                rs->busy--;
+
+                if (rs->instruction.ref->type == TYPE_JMP) {
+                    if (!strcmp(rs->instruction.ref->mnemonic, "jal")) {
+                        cpu_cdb_put(cpu, r, RA, rs->result);
+                    } else if (rs->instruction.rtype == RTYPE_RT) {
+                        if (rs->result.value != -1) {
+                            cpu_cdb_put(cpu, r, RA, rs->result);
+                        }
+                    }
+                } else {
+
+                    for (int x = 0; x < REG_COUNT; x++)
+                        if (cpu_reg_get(cpu, x)->rstation == cpu_rstation(cpu, r))
+                            cpu_cdb_put(cpu, r, x, rs->result);
+
+                }
             }
+
+            if (rs->busy >= 1)
+                rs->busy--;
 
         }
 
-        // TODO: Implementar Load/Store Step 1
-        // TODO: Implementar Load Step 2
+        /** @Step1: write in control, address and data busses */
 
     }
 
@@ -195,26 +238,24 @@ void pipe_write_result(CPU *cpu) {
     for (int r = 0; r < RS_COUNT; r++) {
         if (cpu_rstation(cpu, (ERStation)r)->busy == 0) {
             if (cpu_rstation(cpu, (ERStation) r)->instruction.ref->type != TYPE_STORE) {
-                for (int x = 0; x < REG_COUNT; x++)
-                    if (cpu_reg_get(cpu, x)->rstation == cpu_rstation(cpu, r)) {
-                        cpu_cdb_put(cpu, r, x, cpu_rstation(cpu, r)->result.content);
-                        //cpu_reg_get(cpu, x)->content.value = cpu_rstation(cpu, r)->result.content.value;
-                    }
+
+                cpu_cdb_write(cpu);
+
                 for (int x = 0; x < REG_COUNT; x++)
                     if (cpu_rstation(cpu, x)->qj == r) {
-                        cpu_rstation(cpu, x)->vj = cpu_rstation(cpu, r)->result.content.value;
+                        cpu_rstation(cpu, x)->vj = cpu_rstation(cpu, r)->result.value;
                         cpu_rstation(cpu, x)->qj = REG_UNKNOWN;
                     }
                 for (int x = 0; x < REG_COUNT; x++)
                     if (cpu_rstation(cpu, x)->qk == r) {
-                        cpu_rstation(cpu, x)->vk = cpu_rstation(cpu, r)->result.content.value;
+                        cpu_rstation(cpu, x)->vk = cpu_rstation(cpu, r)->result.value;
                         cpu_rstation(cpu, x)->qk = REG_UNKNOWN;
                     }
             } else {
                 // TODO: Atenção barramento
                 cache_write(&cpu->cache, cpu_rstation(cpu, r)->A, (Word){.value = cpu_rstation(cpu, r)->vk} );
             }
-            rstation_clean(cpu_rstation(cpu, r));
+            rstation_clean(cpu, cpu_rstation(cpu, r));
         }
     }
 
@@ -230,15 +271,17 @@ Pipeline pipe_init() {
 
     for (int i = 0; i < RS_COUNT; i++) {
 
-        if      (i < 3) pipeline.rstation[i].type = RS_TYPE_ADD;
-        else if (i < 5) pipeline.rstation[i].type = RS_TYPE_MUL;
-        else if (i < 7) pipeline.rstation[i].type = RS_TYPE_LOAD;
-        else            pipeline.rstation[i].type = RS_TYPE_UNKNOWN;
+        if      (i < 3)  pipeline.rstation[i].type = RS_TYPE_ADD;
+        else if (i < 5)  pipeline.rstation[i].type = RS_TYPE_MUL;
+        else if (i < 10) pipeline.rstation[i].type = RS_TYPE_LOAD;
+        else if (i < 15) pipeline.rstation[i].type = RS_TYPE_STORE;
+        else             pipeline.rstation[i].type = RS_TYPE_UNKNOWN;
 
         pipeline.rstation[i].busy = NOT_BUSY;
-        pipeline.rstation[i].result.rstation = NULL;
 
     }
+
+    pipeline.issue = ISSUE_CONTINUE;
 
     return pipeline;
 }

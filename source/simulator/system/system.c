@@ -6,7 +6,7 @@
 #include <string.h>
 #include "system.h"
 #include "../machine/cpu/rstation.h"
-#include "../machine/cpu/types.h"
+#include "../machine/types.h"
 #include "../machine/cpu/structures/inst_fifo.h"
 #include "../machine/cpu/register.h"
 #include "../machine/util.h"
@@ -65,6 +65,7 @@ void so_show_rcr(CPU *cpu) {
         if (mem->byte[i] != 0)
             if (i >= mem->text_address) SET_COLOR(COLOR_CYAN_BRIGHT);
             else                        SET_COLOR(COLOR_MAGENTA_BRIGHT);
+        if (cpu->pipeline.pc.value == WORD_ADDRESS(i)) SET_COLOR(COLOR_BLUE_BRIGHT);
 
         printf("%02X ", mem->byte[i]);
 
@@ -120,7 +121,7 @@ void so_show_rrf(CPU *cpu) {
 
         size_t size = ififo_size(&cpu->pipeline.queue);
         int i2 = i - 1;
-        if (i2 < 7 && i2 >= 0) {
+        if (i2 < RS_COUNT && i2 >= 0) {
             printf("%10c", ' ');
             char name[10];
             switch (cpu->pipeline.rstation[i2].type) {
@@ -132,6 +133,9 @@ void so_show_rrf(CPU *cpu) {
                     break;
                 case RS_TYPE_LOAD:
                     strcpy(name, "LOAD");
+                    break;
+                case RS_TYPE_STORE:
+                    strcpy(name, "STOR");
                     break;
                 default:
                     strcpy(name, "????");
@@ -156,25 +160,25 @@ void so_show_rrf(CPU *cpu) {
 
         }
 
-        if (i == 9) {
+        if (i == 17) {
             printf("%10c%sInstruction Queue -> %s", ' ', COLOR_BLUE_BRIGHT, COLOR_NORMAL);
             ififo_print(&cpu->pipeline.queue);
         }
 
-        if (i == 11) {
+        if (i == 19) {
             printf("%10c%sCDB Queue -> %s", ' ', COLOR_BLUE_BRIGHT, COLOR_NORMAL);
             cdbfifo_print(&cpu->cdb.queue);
         }
 
-        if (i == 12) {
+        if (i == 20) {
             printf("%10c%sTag  : %s%d", ' ', COLOR_BLUE, COLOR_NORMAL, cpu->cdb.tag);
         }
 
-        if (i == 13) {
+        if (i == 21) {
             printf("%10c%sDest : %s%d", ' ', COLOR_BLUE, COLOR_NORMAL, cpu->cdb.destination);
         }
 
-        if (i == 14) {
+        if (i == 22) {
             printf("%10c%sData : %s%d", ' ', COLOR_BLUE, COLOR_NORMAL, cpu->cdb.data.value);
         }
 

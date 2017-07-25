@@ -5,7 +5,7 @@
 #ifndef SUPERSCALARSIMULATOR_CDB_FIFO_H
 #define SUPERSCALARSIMULATOR_CDB_FIFO_H
 
-#include "../types.h"
+#include "../../types.h"
 
 CDBFifo cdbfifo_init();
 

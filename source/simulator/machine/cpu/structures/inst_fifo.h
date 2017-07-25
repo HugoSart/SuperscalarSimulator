@@ -6,7 +6,7 @@
 #define SUPERSCALARSIMULATOR_FIFO_H
 
 #include <stdio.h>
-#include "../types.h"
+#include "../../types.h"
 
 IFIFO ififo_init();
 

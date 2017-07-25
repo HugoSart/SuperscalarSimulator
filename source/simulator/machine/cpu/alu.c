@@ -43,6 +43,15 @@ int op_llshift  (int a, int b) {
 int op_lrshift  (int a, int b) {
     return (int)((unsigned int) a >> b);
 }
+int op_equals   (int a, int b) {
+    return a == b;
+}
+int op_bequals  (int a, int b) {
+    return a >= b;
+}
+int op_sequals  (int a, int b) {
+    return a <= b;
+}
 
 ALU alu_init() {
     ALU alu = { .operation[OP_ADD]      = &op_add,
@@ -57,6 +66,9 @@ ALU alu_init() {
                 .operation[OP_ARSHIFT]  = &op_arshift,
                 .operation[OP_LLSHIFT]  = &op_llshift,
                 .operation[OP_LRSHIFT]  = &op_lrshift,
+                .operation[OP_EQUALS]   = &op_equals,
+                .operation[OP_BEQUALS]  = &op_bequals,
+                .operation[OP_SEQUALS]  = &op_sequals,
                 .operation[OP_ZERO]     = &op_zero};
     return alu;
 }

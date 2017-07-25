@@ -15,7 +15,7 @@ set(SOURCE_FILES
         source/simulator/machine/cpu/cache.h
         source/simulator/machine/cpu/cache.c
         source/simulator/machine/util.h
-        source/simulator/machine/cpu/types.h
+        source/simulator/machine/types.h
         source/simulator/machine/cpu/instructions.h
         source/simulator/machine/cpu/instructions.c
         source/simulator/machine/cpu/alu.c

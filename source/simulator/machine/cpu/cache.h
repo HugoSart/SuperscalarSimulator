@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include "../memory/memory.h"
-#include "types.h"
+#include "../types.h"
 
 #define UNDEFINED_TAG -1
 

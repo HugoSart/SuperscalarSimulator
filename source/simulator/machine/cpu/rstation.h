@@ -13,6 +13,6 @@
 typedef struct rstation_t ReservationStation;
 
 int rstation_index(CPU *cpu, ReservationStation *rstation);
-void rstation_clean(ReservationStation *);
+void rstation_clean(CPU *cpu, ReservationStation *rstation);
 
 #endif //SUPERSCALARSIMULATOR_RESTATIONS_H

@@ -6,7 +6,7 @@
 #define SUPERSCALARSIMULATOR_INSTRUCTIONS_H
 
 #include <stdarg.h>
-#include "types.h"
+#include "../types.h"
 #include "alu.h"
 #include "cache.h"
 

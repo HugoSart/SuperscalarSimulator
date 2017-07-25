@@ -16,6 +16,7 @@
 "#".*
 ","	   { return COMMA; }
 ")"    { return CP;}
+"NULL" { yylval.d = 0; return NUMBER; }
 [0-9]*"(" { yytext[strlen(yytext) - 1] = '\0'; yylval.d = atoi(yytext); return DISP;}
 [0-9]+|[-][0-9]+ { yylval.d = atoi(yytext); return NUMBER; }
 0[xX][0-9a-fA-F]+ { yylval.d = strtol(yytext, NULL, 16); return NUMBER; }
@@ -99,15 +100,15 @@
 "slti"   { yylval.d = SLTI;  return OP_3I; }
 "sltiu"  { yylval.d = SLTIU; return OP_3I; }
 
-"bclf"   { yylval.d = BCLF;  return OP_3S; }
-"beq"    { yylval.d = BEQ;   return OP_3S; }
-"bgez"   { yylval.d = BGEZ;  return OP_3; }
-"bgezal" { yylval.d = BGEZAL;return OP_2; }
-"bgtz"   { yylval.d = BGTZ;  return OP_2; }
-"blez"   { yylval.d = BLEZ;  return OP_2; }
-"bltzal" { yylval.d = BLTZAL;return OP_3S; }
-"bltz"   { yylval.d = BLTZ;  return OP_3; }
-"bne"    { yylval.d = BNE;   return OP_2; }
+"bclf"   { yylval.d = BCLF;  return OP_3I; }
+"beq"    { yylval.d = BEQ;   return OP_2I; }
+"bgez"   { yylval.d = BGEZ;  return OP_2B; }
+"bgezal" { yylval.d = BGEZAL;return OP_2B; }
+"bgtz"   { yylval.d = BGTZ;  return OP_2B; }
+"blez"   { yylval.d = BLEZ;  return OP_2B; }
+"bltzal" { yylval.d = BLTZAL;return OP_2B; }
+"bltz"   { yylval.d = BLTZ;  return OP_2B; }
+"bne"    { yylval.d = BNE;   return OP_2I; }
 
 "j"      { yylval.d = J;     return OP_1T; }
 "jal"    { yylval.d = JAL;   return OP_1T; }

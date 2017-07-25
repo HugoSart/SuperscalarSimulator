@@ -5,7 +5,7 @@
     #include <string.h>
     #include "../op_def.h"
     #include "../list.h"
-    #include "../../source/simulator/machine/cpu/types.h"
+    #include "../../source/simulator/machine/types.h"
 
 #define YYDEBUG 1
 
@@ -52,8 +52,8 @@
 %token CP
 %token<d> NUMBER DISP REG
 %token<str> LABEL VAR
-%token<d> OP_3 OP_3I OP_3S OP_2 OP_2I OP_2A OP_1 OP_1T OP_1S NOP
-%token COMMA COLON 
+%token<d> OP_3 OP_3I OP_3S OP_2 OP_2I OP_2A OP_1 OP_1T OP_1S OP_2B NOP
+%token COMMA COLON
 %token OPCODE
 %token ADRESS
 %token EOL QUOTE
@@ -227,6 +227,25 @@ argText: OP_3 REG COMMA REG COMMA REG {
     fwrite(&bi, 4, 1, file_out);
 
   }
+  | OP_2B REG COMMA value {
+
+    inc_inst();
+
+    yybuffer[0] = '\0';
+
+    int op = $1, r1 = $2, num = $4;
+
+    strcat(yybuffer, itbs(6, opcode(op)));
+    strcat(yybuffer, itbs(5, r1));
+    strcat(yybuffer, itbs(5, rtfunc(op))); //dsm
+    strcat(yybuffer, itbs(16, num));
+
+    unsigned int bi = bsti(yybuffer);
+
+    printf("opcode : %s\n", yybuffer);
+    fwrite(&bi, 4, 1, file_out);
+
+  }
   | OP_2A REG COMMA value {
 
     inc_inst();
@@ -353,7 +372,7 @@ value: NUMBER { $$ = $1 };
     fread(&(aux.byte[3]), 1, 1, file_out);
     fseek(file_out, return_offset, SEEK_SET);
 
-    $$ = aux.value;
+    $$ = var->offset + $1;
 
   }
   ;
@@ -408,7 +427,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    //list_print(&labelList);
+    //list_print(&labelList);//
 
     rewind(file_in);
     yyin = file_in;

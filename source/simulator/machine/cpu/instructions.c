@@ -13,7 +13,7 @@
 
 #define INIT_ARGS va_list va; \
         va_start(va, 4); \
-        Register *result = va_arg(va, Register*); \
+        Word *result = va_arg(va, Word*); \
         int vj = va_arg(va, int); \
         int vk = va_arg(va, int); \
         int A = va_arg(va, int)
@@ -27,21 +27,21 @@ void inst_add(InstructionSet *, void *, char *, EType, size_t, size_t);
 // Instruction implementations
 void add     (PARAM_STANDARD) {
     INIT_ARGS;
-    result->content.value = alu_exec(&cpu->alu, OP_ADD, vj, vk);
+    result->value = alu_exec(&cpu->alu, OP_ADD, vj, vk);
 }
 void addu    (PARAM_STANDARD) {}
 void addi    (PARAM_STANDARD) {
     INIT_ARGS;
-    result->content.value = alu_exec(&cpu->alu, OP_ADD, vj, A);
+    result->value = alu_exec(&cpu->alu, OP_ADD, vj, A);
 }
 void addiu   (PARAM_STANDARD) {}
 void andi    (PARAM_STANDARD) {
     INIT_ARGS;
-    result->content.value = alu_exec(&cpu->alu, OP_AND, vj, A);
+    result->value = alu_exec(&cpu->alu, OP_AND, vj, A);
 }
 void and     (PARAM_STANDARD) {
     INIT_ARGS;
-    result->content.value = alu_exec(&cpu->alu, OP_AND, vj, vk);
+    result->value = alu_exec(&cpu->alu, OP_AND, vj, vk);
 }
 void clo     (PARAM_STANDARD) {}
 void clz     (PARAM_STANDARD) {}
@@ -51,22 +51,22 @@ void mult    (PARAM_STANDARD) {}
 void multu   (PARAM_STANDARD) {}
 void mul     (PARAM_STANDARD) {
     INIT_ARGS;
-    result->content.value = alu_exec(&cpu->alu, OP_MULT, vj, vk);
+    result->value = alu_exec(&cpu->alu, OP_MULT, vj, vk);
 }
 void madd    (PARAM_STANDARD) {}
 void maddu   (PARAM_STANDARD) {}
 void msub    (PARAM_STANDARD) {}
 void nor     (PARAM_STANDARD) {
     INIT_ARGS;
-    result->content.value = alu_exec(&cpu->alu, OP_NOR, vj, vk);
+    result->value = alu_exec(&cpu->alu, OP_NOR, vj, vk);
 }
 void or      (PARAM_STANDARD) {
     INIT_ARGS;
-    result->content.value = alu_exec(&cpu->alu, OP_OR, vj, vk);
+    result->value = alu_exec(&cpu->alu, OP_OR, vj, vk);
 }
 void ori     (PARAM_STANDARD) {
     INIT_ARGS;
-    result->content.value = alu_exec(&cpu->alu, OP_OR, vj, A);
+    result->value = alu_exec(&cpu->alu, OP_OR, vj, A);
 }
 void syscall (PARAM_STANDARD) {
 
@@ -86,44 +86,42 @@ void syscall (PARAM_STANDARD) {
 void sync    (PARAM_STANDARD) {}
 void sll     (PARAM_STANDARD) {
     INIT_ARGS;
-    result->content.value = alu_exec(&cpu->alu, OP_LLSHIFT, vk, vj);
+    result->value = alu_exec(&cpu->alu, OP_LLSHIFT, vk, vj);
 }
 void sllv    (PARAM_STANDARD) {
     INIT_ARGS;
-    result->content.value = alu_exec(&cpu->alu, OP_LLSHIFT, vk, vj);
+    result->value = alu_exec(&cpu->alu, OP_LLSHIFT, vk, vj);
 }
 void sra     (PARAM_STANDARD) {
     INIT_ARGS;
-    result->content.value = alu_exec(&cpu->alu, OP_ARSHIFT, vk, vj);
+    result->value = alu_exec(&cpu->alu, OP_ARSHIFT, vk, vj);
 }
 void srav    (PARAM_STANDARD) {
     INIT_ARGS;
-    result->content.value = alu_exec(&cpu->alu, OP_ARSHIFT, vk, vj);
+    result->value = alu_exec(&cpu->alu, OP_ARSHIFT, vk, vj);
 }
 void srl     (PARAM_STANDARD) {
     INIT_ARGS;
-    result->content.value = alu_exec(&cpu->alu, OP_LRSHIFT, vk, vj);
+    result->value = alu_exec(&cpu->alu, OP_LRSHIFT, vk, vj);
 }
 void srlv    (PARAM_STANDARD) {
     INIT_ARGS;
-    result->content.value = alu_exec(&cpu->alu, OP_LRSHIFT, vk, vj);
+    result->value = alu_exec(&cpu->alu, OP_LRSHIFT, vk, vj);
 }
 void sub     (PARAM_STANDARD) {
     INIT_ARGS;
-    result->content.value = alu_exec(&cpu->alu, OP_SUBTRACT, vj, vk);
+    result->value = alu_exec(&cpu->alu, OP_SUBTRACT, vj, vk);
 }
 void subu    (PARAM_STANDARD) {}
 void xor     (PARAM_STANDARD) {
     INIT_ARGS;
-    result->content.value = alu_exec(&cpu->alu, OP_XOR, vj, vk);
+    result->value = alu_exec(&cpu->alu, OP_XOR, vj, vk);
 }
 void xori    (PARAM_STANDARD) {
     INIT_ARGS;
-    result->content.value = alu_exec(&cpu->alu, OP_XOR, vj, A);
+    result->value = alu_exec(&cpu->alu, OP_XOR, vj, A);
 }
 void lui     (PARAM_STANDARD) {}
-void jr      (PARAM_STANDARD) {}
-void jalr    (PARAM_STANDARD) {}
 void movz    (PARAM_STANDARD) {}
 void movn    (PARAM_STANDARD) {}
 void _break  (PARAM_STANDARD) {}
@@ -139,26 +137,112 @@ void tltu    (PARAM_STANDARD) {}
 void teq     (PARAM_STANDARD) {}
 void tne     (PARAM_STANDARD) {}
 void msubu   (PARAM_STANDARD) {}
-void bltz    (PARAM_STANDARD) {}
-void bgez    (PARAM_STANDARD) {}
-void bltzl   (PARAM_STANDARD) {}
-void bgzel   (PARAM_STANDARD) {}
 void tgei    (PARAM_STANDARD) {}
 void tgeiu   (PARAM_STANDARD) {}
 void tlti    (PARAM_STANDARD) {}
 void tltiu   (PARAM_STANDARD) {}
 void tegi    (PARAM_STANDARD) {}
 void tnei    (PARAM_STANDARD) {}
-void bltzal  (PARAM_STANDARD) {}
-void bgezal  (PARAM_STANDARD) {}
+void j       (PARAM_STANDARD) {
+    INIT_ARGS;
+    cpu->pipeline.pc.value = A;
+    cpu->pipeline.ri.value = EOF;
+    cpu->pipeline.issue = ISSUE_CONTINUE;
+}
+void jr      (PARAM_STANDARD) {
+    INIT_ARGS;
+    cpu->pipeline.pc.value = vj;
+    cpu->pipeline.ri.value = EOF;
+    cpu->pipeline.issue = ISSUE_CONTINUE;
+}
+void jal     (PARAM_STANDARD) {
+    INIT_ARGS;
+    result->value = cpu->pipeline.pc.value;
+    cpu->pipeline.pc.value = A;
+    cpu->pipeline.ri.value = EOF;
+    cpu->pipeline.issue = ISSUE_CONTINUE;
+}
+void jalr    (PARAM_STANDARD) {}
+void beq     (PARAM_STANDARD) {
+    INIT_ARGS;
+    if (cpu->alu.operation[OP_EQUALS](vj, vk)) {
+        cpu->pipeline.pc.value = A;
+        cpu->pipeline.ri.value = EOF;
+    }
+    result->value = -1;
+    cpu->pipeline.issue = ISSUE_CONTINUE;
+}
+void bgez    (PARAM_STANDARD) {
+    INIT_ARGS;
+    if (cpu->alu.operation[OP_BEQUALS](vj, 0)) {
+        cpu->pipeline.pc.value = A;
+        cpu->pipeline.ri.value = EOF;
+    }
+    result->value = -1;
+    cpu->pipeline.issue = ISSUE_CONTINUE;
+}
+void bgezal  (PARAM_STANDARD) {
+    INIT_ARGS;
+    if (cpu->alu.operation[OP_BEQUALS](vj, 0)) {
+        result->value = cpu->pipeline.pc.value;
+        cpu->pipeline.pc.value = A;
+        cpu->pipeline.ri.value = EOF;
+    } else {
+        result->value = -1;
+    }
+    cpu->pipeline.issue = ISSUE_CONTINUE;
+}
+void bgtz    (PARAM_STANDARD) {
+    INIT_ARGS;
+    if (!cpu->alu.operation[OP_SEQUALS](vj, 0)) {
+        cpu->pipeline.pc.value = A;
+        cpu->pipeline.ri.value = EOF;
+    }
+    result->value = -1;
+    cpu->pipeline.issue = ISSUE_CONTINUE;
+}
+void blez    (PARAM_STANDARD) {
+    INIT_ARGS;
+    if (cpu->alu.operation[OP_SEQUALS](vj, 0)) {
+        cpu->pipeline.pc.value = A;
+        cpu->pipeline.ri.value = EOF;
+    }
+    result->value = -1;
+    cpu->pipeline.issue = ISSUE_CONTINUE;
+}
+void bltzal  (PARAM_STANDARD) {
+    INIT_ARGS;
+    if (!cpu->alu.operation[OP_BEQUALS](vj, 0)) {
+        result->value = cpu->pipeline.pc.value;
+        cpu->pipeline.pc.value = A;
+        cpu->pipeline.ri.value = EOF;
+    } else {
+        result->value = -1;
+    }
+    cpu->pipeline.issue = ISSUE_CONTINUE;
+}
+void bltz    (PARAM_STANDARD) {
+    INIT_ARGS;
+    if (!cpu->alu.operation[OP_BEQUALS](vj, 0)) {
+        cpu->pipeline.pc.value = A;
+        cpu->pipeline.ri.value = EOF;
+    }
+    result->value = -1;
+    cpu->pipeline.issue = ISSUE_CONTINUE;
+}
+void bne     (PARAM_STANDARD) {
+    INIT_ARGS;
+    if (!cpu->alu.operation[OP_EQUALS](vj, vk)) {
+        cpu->pipeline.pc.value = A;
+        cpu->pipeline.ri.value = EOF;
+    }
+    result->value = -1;
+    cpu->pipeline.issue = ISSUE_CONTINUE;
+}
+void bltzl   (PARAM_STANDARD) {} // ????
+void bgzel   (PARAM_STANDARD) {} // ????
 void bltzall (PARAM_STANDARD) {}
 void bgczall (PARAM_STANDARD) {}
-void j       (PARAM_STANDARD) {}
-void jal     (PARAM_STANDARD) {}
-void beq     (PARAM_STANDARD) {}
-void bne     (PARAM_STANDARD) {}
-void blez    (PARAM_STANDARD) {}
-void bgtz    (PARAM_STANDARD) {}
 void slti    (PARAM_STANDARD) {}
 void sltiu   (PARAM_STANDARD) {}
 void benql   (PARAM_STANDARD) {}
@@ -169,7 +253,9 @@ void lb      (PARAM_STANDARD) {}
 void lh      (PARAM_STANDARD) {}
 void lwl     (PARAM_STANDARD) {}
 void lw      (PARAM_STANDARD) {
-
+    INIT_ARGS;
+    printf("AA: %d\n", A);
+    *result = cache_read(&cpu->cache, A);
 }
 void lbu     (PARAM_STANDARD) {}
 void lhu     (PARAM_STANDARD) {}
@@ -283,6 +369,11 @@ InstructionSet inst_init() {
     inst_add(&instructionSet, &sw,      "sw",     TYPE_STORE,      COLUMN_OP, 43);
 
     inst_add(&instructionSet, &nop,     "NOP",    TYPE_UNKNOWN,    COLUMN_FUNCT2, 63);
+
+    for (int i = 0; i < 4; i++)
+        for (int j = 0; j < 64; j++)
+            if (instructionSet.table[i][j].realization == NULL)
+                inst_add(&instructionSet, &err, "ERR", TYPE_UNKNOWN, i, j);
 
     return instructionSet;
 }
