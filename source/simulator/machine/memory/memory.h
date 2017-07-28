@@ -9,9 +9,9 @@
 #include "../motherboard/mobo.h"
 #include "../cpu/rstation.h"
 
-#define MEM_SIZE 512
+#define MEM_SIZE 1024
 //#define MEM_TEXT_ADDRESS 49548387
-#define MEM_TEXT_ADDRESS 128
+#define MEM_TEXT_ADDRESS 256
 
 #define CONTROL_NOP   0
 #define CONTROL_READ  1

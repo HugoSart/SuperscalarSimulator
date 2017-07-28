@@ -4,7 +4,7 @@
 #include "../util.h"
 
 void miss_handler(Cache *, unsigned int);
-Line get_memory_block(Cache *cache, unsigned int);
+Line get_memory_block(Cache *, unsigned int);
 
 Cache cache_init(Memory *mem, size_t size) {
 
@@ -29,28 +29,10 @@ Cache cache_init(Memory *mem, size_t size) {
 
 }
 
-void cache_print(Cache *cache) {
-
-    printf("---------- Cache<%zu Cells x %d Bytes> -----------\n\n", cache->size, WORD_SIZE);
-
-    for (unsigned int l = 0; l < LINE_COUNT(cache->size); l++) {
-        printf("Line %u \t--> %d\t", l, cache->line[l].tag);
-        for (unsigned int i = 0; i < CACHE_BLOCK_WORD_COUNT; i++) {
-            if (i != 0) printf("                ");
-            printf("  [");
-            for (unsigned j = 0; j < WORD_SIZE; j++) {
-                printf("%d", cache->line[l].word[i].byte[j]);
-                if (j != WORD_SIZE - 1) printf(",");
-            }
-            printf("]\n");
-        }
-    }
-    printf("\n------------------------------------------------\n");
-}
-
 Word cache_read(Cache *cache, unsigned int address) {
 
     Address a = {.full_address = WORD_ADDRESS(address)};
+    //a.mapped_address.type = address >= cache->mem->text_address;
 
     if (a.mapped_address.tag != cache->line[a.mapped_address.line].tag) {
         miss_handler(cache, address);
@@ -61,8 +43,9 @@ Word cache_read(Cache *cache, unsigned int address) {
 }
 
 void cache_write(Cache *cache, unsigned int address, Word word) {
-    printf("WRITEEE!\n");
+
     Address a = {.full_address = WORD_ADDRESS(address)};
+    //a.mapped_address.type = address >= cache->mem->text_address;
 
     if (a.mapped_address.tag != cache->line[a.mapped_address.line].tag) {
         miss_handler(cache, address);
@@ -73,7 +56,7 @@ void cache_write(Cache *cache, unsigned int address, Word word) {
 }
 
 Line get_memory_block(Cache *cache, unsigned int address) {
-    printf("BLOCKKK!\n");
+
     address = BLOCK_ADDRESS(address);
     Address a = {.full_address = address};
     Line line = {.tag = a.mapped_address.tag};
@@ -101,12 +84,17 @@ Line get_memory_block(Cache *cache, unsigned int address) {
 
 void miss_handler(Cache *cache, unsigned int address) {
 
+    address = BLOCK_ADDRESS(address);
     Address a = { .full_address = address };
 
+
     if (cache->line[a.mapped_address.line].tag != -1) {
+
+        cache->line[1].word[0].value = -1;
+
         cache->_p_cpu->_p_mobo->control_bus.data.value = CONTROL_WRITE;
         cache->_p_cpu->_p_mobo->control_bus.busy = 1;
-        a.mapped_address.tag = cache->line[a.mapped_address.line].tag;
+        a.mapped_address.tag = cache->line->tag;
         cache->_p_cpu->_p_mobo->address_bus.data.decimal = a.full_address;
         cache->_p_cpu->_p_mobo->address_bus.busy = 1;
 

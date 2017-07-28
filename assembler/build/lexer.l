@@ -15,9 +15,9 @@
 "|"	   { return ABS; }
 "#".*
 ","	   { return COMMA; }
+"("    { return OP;}
 ")"    { return CP;}
 "NULL" { yylval.d = 0; return NUMBER; }
-[0-9]*"(" { yytext[strlen(yytext) - 1] = '\0'; yylval.d = atoi(yytext); return DISP;}
 [0-9]+|[-][0-9]+ { yylval.d = atoi(yytext); return NUMBER; }
 0[xX][0-9a-fA-F]+ { yylval.d = strtol(yytext, NULL, 16); return NUMBER; }
 \n     { return EOL; }
@@ -101,18 +101,18 @@
 "sltiu"  { yylval.d = SLTIU; return OP_3I; }
 
 "bclf"   { yylval.d = BCLF;  return OP_3I; }
-"beq"    { yylval.d = BEQ;   return OP_2I; }
+"beq"    { yylval.d = BEQ;   return OP_3I; }
 "bgez"   { yylval.d = BGEZ;  return OP_2B; }
 "bgezal" { yylval.d = BGEZAL;return OP_2B; }
 "bgtz"   { yylval.d = BGTZ;  return OP_2B; }
 "blez"   { yylval.d = BLEZ;  return OP_2B; }
 "bltzal" { yylval.d = BLTZAL;return OP_2B; }
 "bltz"   { yylval.d = BLTZ;  return OP_2B; }
-"bne"    { yylval.d = BNE;   return OP_2I; }
+"bne"    { yylval.d = BNE;   return OP_3I; }
 
 "j"      { yylval.d = J;     return OP_1T; }
 "jal"    { yylval.d = JAL;   return OP_1T; }
-"jalr"   { yylval.d = JALR;  return OP_2; }
+"jalr"   { yylval.d = JALR;  return OP_1; }
 "jr"     { yylval.d = JR;    return OP_1; }
 
 "teq"    { yylval.d = TEQ;   return OP_2; }
@@ -126,24 +126,24 @@
 "tlti"   { yylval.d = TLTI;  return OP_2I; }
 "tltiu"  { yylval.d = TLTIU; return OP_2I; }
 
-"lb"     { yylval.d = LB;    return OP_2I; }
-"lbu"    { yylval.d = LBU;   return OP_2I; }
-"lh"     { yylval.d = LH;    return OP_2I; }
-"lhu"    { yylval.d = LHU;   return OP_2I; }
-"lw"     { yylval.d = LW;    return OP_2I; }
-"lwcl"   { yylval.d = LWCL;  return OP_2I; }
-"lwl"    { yylval.d = LWL;   return OP_2I; }
-"lwr"    { yylval.d = LWR;   return OP_2I; }
-"ll"     { yylval.d = LL;    return OP_2I; }
+"lb"     { yylval.d = LB;    return OP_2O; }
+"lbu"    { yylval.d = LBU;   return OP_2O; }
+"lh"     { yylval.d = LH;    return OP_2O; }
+"lhu"    { yylval.d = LHU;   return OP_2O; }
+"lw"     { yylval.d = LW;    return OP_2O; }
+"lwcl"   { yylval.d = LWCL;  return OP_2O; }
+"lwl"    { yylval.d = LWL;   return OP_2O; }
+"lwr"    { yylval.d = LWR;   return OP_2O; }
+"ll"     { yylval.d = LL;    return OP_2O; }
 
-"sb"     { yylval.d = SB;    return OP_2A; }
-"sh"     { yylval.d = SH;    return OP_2A; }
-"sw"     { yylval.d = SW;    return OP_2A; }
-"swcl"   { yylval.d = SWCL;  return OP_2A; }
-"sdcl"   { yylval.d = SDCL;  return OP_2A; }
-"swl"    { yylval.d = SWL;   return OP_2A; }
-"swr"    { yylval.d = SWR;   return OP_2A; }
-"sc"     { yylval.d = SC;    return OP_2A; }
+"sb"     { yylval.d = SB;    return OP_2O; }
+"sh"     { yylval.d = SH;    return OP_2O; }
+"sw"     { yylval.d = SW;    return OP_2O; }
+"swcl"   { yylval.d = SWCL;  return OP_2O; }
+"sdcl"   { yylval.d = SDCL;  return OP_2O; }
+"swl"    { yylval.d = SWL;   return OP_2O; }
+"swr"    { yylval.d = SWR;   return OP_2O; }
+"sc"     { yylval.d = SC;    return OP_2O; }
 
 "mfhi"   { yylval.d = MFHI;  return OP_1; }
 "mflo"   { yylval.d = MFLO;  return OP_1; }

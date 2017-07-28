@@ -7,7 +7,7 @@
 
 #define UNDEFINED_TAG -1
 
-#define CACHE_SIZE 64//32768 // 2048 blocos
+#define CACHE_SIZE 128//32768 // 2048 blocos
 #define CACHE_BLOCK_WORD_COUNT 4
 
 #define WORD_ADDRESS(address)   address - (address % (WORD_SIZE))

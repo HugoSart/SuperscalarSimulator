@@ -23,8 +23,8 @@ int main() {
     }
 
     while(true) {
+        so_show_rcr(cpu);
         so_show_rrf(cpu);
-        //so_show_rcr(cpu);
         getchar();
         cpu_clock(cpu);
     }

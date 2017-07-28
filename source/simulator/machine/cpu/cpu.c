@@ -83,7 +83,17 @@ void cpu_cdb_write(CPU *cpu) {
 
     cpu->cdb.tag = RS_UNKNOWN;
     cpu->cdb.destination = REG_UNKNOWN;
+    cpu->cdb.data.value = 0;
     cpu->cdb.busy = NOT_BUSY;
+
+    if (cpu->cdb.busy == NOT_BUSY && cpu->cdb.queue.first != NULL) {
+        cpu->cdb.tag = cpu->cdb.queue.first->tag;
+        cpu->cdb.destination = cpu->cdb.queue.first->destination;
+        cpu->cdb.data = cpu->cdb.queue.first->data;
+        cpu->cdb.busy = 1;
+        cdbfifo_remove(&cpu->cdb.queue);
+    }
+
 
 }
 

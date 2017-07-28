@@ -16,6 +16,10 @@ void so_print_int(CPU *cpu) {
     printf("%d\n", cpu_reg_get(cpu, A0)->content.value);
 }
 
+void so_read_int(CPU *cpu) {
+    scanf("%d", &(cpu->reg->content.value));
+}
+
 void so_exit(CPU *cpu) {
     exit(EXIT_SUCCESS);
 }
@@ -106,11 +110,12 @@ void so_show_rrf(CPU *cpu) {
 
     printf("\n%s%11cREGISTERS%s%27cRESERVATION STATIONS%s\n\n", COLOR_WHITE_BRIGHT, ' ', COLOR_NORMAL, ' ', COLOR_WHITE_BRIGHT);
 
-    for (int i = 0; i < 32; i++) {
+    for (int i = 0; i < REG_COUNT_2; i++) {
         int space = 1;
+        if (i == 32) printf("\n");
         if (i < 10) space = 2;
         printf("%2c", ' ');
-        if (cpu->cdb.destination == cpu_reg_index(cpu, cpu_reg_get(cpu, i))) printf("%s [C]%s", COLOR_RED, COLOR_NORMAL);
+        if (cdbfifo_find_by_dest(&cpu->cdb.queue, i)) printf("%s [C]%s", COLOR_RED, COLOR_NORMAL);
         else if (cpu->reg[i].rstation != NULL) printf("%s [%d]%s", COLOR_RED, rstation_index(cpu, cpu->reg[i].rstation), COLOR_NORMAL);
         else printf("    ");
         printf(" %sRegister %s$%u%s %*c: %s%d\t", COLOR_YELLOW, COLOR_YELLOW_BRIGHT, i, COLOR_YELLOW, \
@@ -171,15 +176,25 @@ void so_show_rrf(CPU *cpu) {
         }
 
         if (i == 20) {
-            printf("%10c%sTag  : %s%d", ' ', COLOR_BLUE, COLOR_NORMAL, cpu->cdb.tag);
+            if (cpu->cdb.tag != RS_UNKNOWN) printf("%10c%sTag  : %s%d", ' ', COLOR_BLUE, COLOR_NORMAL, cpu->cdb.tag);
+            else                            printf("%10c%sTag  : %s", ' ', COLOR_BLUE, COLOR_NORMAL);
         }
 
         if (i == 21) {
-            printf("%10c%sDest : %s%d", ' ', COLOR_BLUE, COLOR_NORMAL, cpu->cdb.destination);
+            if (cpu->cdb.destination != REG_UNKNOWN) printf("%10c%sDest : %s%d", ' ', COLOR_BLUE, COLOR_NORMAL, cpu->cdb.destination);
+            else                            printf("%10c%sDest : %s", ' ', COLOR_BLUE, COLOR_NORMAL);
         }
 
         if (i == 22) {
-            printf("%10c%sData : %s%d", ' ', COLOR_BLUE, COLOR_NORMAL, cpu->cdb.data.value);
+            if (cpu->cdb.data.value != 0) printf("%10c%sData : %s%d", ' ', COLOR_BLUE, COLOR_NORMAL, cpu->cdb.data.value);
+            else printf("%10c%sData : %s", ' ', COLOR_BLUE, COLOR_NORMAL);
+        }
+
+        if (i == 24) {
+            printf("          %sIssue : %s", COLOR_GREEN_BRIGHT, COLOR_GREEN);
+            if (cpu->pipeline.issue == ISSUE_STOP) printf("%sstopped", COLOR_RED);
+            else    printf("issuing");
+            printf("%s", COLOR_NORMAL);
         }
 
         printf("\n");

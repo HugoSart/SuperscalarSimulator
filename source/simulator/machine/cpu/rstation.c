@@ -8,7 +8,7 @@
 #include "cpu.h"
 
 int rstation_index(CPU *cpu, ReservationStation *rstation) {
-    for (int i = 0; i < 7; i++) {
+    for (int i = 0; i < RS_COUNT; i++) {
         if (rstation == &cpu->pipeline.rstation[i]) {
             return i;
         }
@@ -23,7 +23,8 @@ void rstation_clean(CPU *cpu, ReservationStation *rstation) {
     rstation->vj = REG_UNKNOWN;
     rstation->qk = REG_UNKNOWN;
     rstation->qj = REG_UNKNOWN;
-    rstation->result.value = 0;
+    rstation->result.content.value = 0;
+    rstation->result.validation = 1;
     rstation->instruction.ref = NULL;
     rstation->instruction.code.opcode = 0;
     rstation->instruction.rtype = RTYPE_UNKNOWN;

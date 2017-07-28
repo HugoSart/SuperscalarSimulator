@@ -19,6 +19,7 @@
 #define CLOCK_MULT 5
 #define CLOCK_ACUMULATOR 1
 #define CLOCK_JMP 2
+#define CLOCK_BRANCH 2
 #define CLOCK_LOAD 4
 
 InstructionSet inst_init();

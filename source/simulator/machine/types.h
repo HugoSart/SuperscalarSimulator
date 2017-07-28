@@ -45,8 +45,8 @@ typedef struct mem_t {
 // Cache declarations
 struct dec_t {
     unsigned int byte : 4;
-    unsigned int line : 2; // 11
-    unsigned int tag  : 3;// 14
+    unsigned int line : 3; // 11
+    unsigned int tag  : 2; // 14
 };
 typedef union dec_address {
     unsigned int full_address;
@@ -64,6 +64,7 @@ typedef struct cache_t {
     Memory *mem;
     Line *line;
     size_t size; // in bytes
+
 } Cache;
 
 // Instruction declarations
@@ -120,7 +121,7 @@ typedef enum {
 } ERType;
 typedef enum {
     TYPE_ARITHMETIC, TYPE_SHIFT, TYPE_LOGICAL, TYPE_IF,
-    TYPE_MULT, TYPE_ACUMULATOR, TYPE_JMP, TYPE_LOAD, TYPE_STORE,
+    TYPE_MULT, TYPE_ACUMULATOR, TYPE_JMP, TYPE_BRANCH, TYPE_LOAD, TYPE_STORE,
     TYPE_COUNT
 #define TYPE_UNKNOWN TYPE_COUNT
 } EType;
@@ -148,6 +149,14 @@ typedef struct fifo {
 } IFIFO;
 
 // Register declarations
+typedef struct lohi_t {
+    long int lo : 32;
+    long int hi : 32;
+} LOHI;
+typedef union lohi_u {
+    int value;
+    LOHI lohi;
+} CLOHI;
 typedef struct rstation_t ReservationStation;
 typedef enum reg_e {
     ZERO,
@@ -161,8 +170,10 @@ typedef enum reg_e {
     GP, SP,
     S8, FP = S8,
     RA,
-    REG_COUNT
-#define REG_UNKNOWN REG_COUNT
+    REG_COUNT,
+    LO = 32, HI = 33,
+    REG_COUNT_2 = 34
+#define REG_UNKNOWN REG_COUNT_2
 } ERegisters;
 typedef struct register_t {
     Word content;
@@ -183,14 +194,22 @@ typedef enum rstation_e {
     RS_COUNT
 #define RS_UNKNOWN RS_COUNT
 } ERStation;
+typedef struct rsresult_t {
+    Word content;
+    int validation;
+} RSResult;
 typedef struct rstation_t {
-    int busy;
+
     Instruction instruction;
+    ERStationType type;
+
+    int busy;
     int qj, qk;
     int vj, vk;
     int A;
-    ERStationType type;
-    Word result;
+
+    RSResult result;
+
 };
 
 // CDBFIFO declarations
@@ -198,7 +217,7 @@ typedef struct cdbnode_t {
     ERegisters destination;
     ERStation tag;
     Word data;
-    struct cdbnote_t *next;
+    struct cdbnode_t *next;
 } CDBNode;
 
 typedef struct cdbfifo_t {
@@ -251,7 +270,7 @@ typedef struct cpu_t {
 
     Cache cache;
     ALU alu;
-    Register reg[32], lo, hi;
+    Register reg[34];
     Pipeline pipeline;
     InstructionSet inst_set;
     CDB cdb;

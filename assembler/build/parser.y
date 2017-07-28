@@ -49,10 +49,10 @@
 }
 
 /* declare tokens */
-%token CP
+%token CP OP
 %token<d> NUMBER DISP REG
 %token<str> LABEL VAR
-%token<d> OP_3 OP_3I OP_3S OP_2 OP_2I OP_2A OP_1 OP_1T OP_1S OP_2B NOP
+%token<d> OP_3 OP_3I OP_3S OP_2 OP_2I OP_2A OP_1 OP_1T OP_1S OP_2B OP_2O NOP
 %token COMMA COLON
 %token OPCODE
 %token ADRESS
@@ -243,20 +243,39 @@ argText: OP_3 REG COMMA REG COMMA REG {
     unsigned int bi = bsti(yybuffer);
 
     printf("opcode : %s\n", yybuffer);
-    fwrite(&bi, 4, 1, file_out);
+    fwrite(&bi, 4, 1, file_out);//d
 
   }
-  | OP_2A REG COMMA value {
+  | OP_2O REG COMMA NUMBER OP REG CP {
 
     inc_inst();
 
     yybuffer[0] = '\0';
 
-    int op = $1, r1 = $2, num = $4;
+    int op = $1, rt = $2, rs = $6, num = $4;
 
     strcat(yybuffer, itbs(6, opcode(op)));
-    strcat(yybuffer, itbs(5, 0));
-    strcat(yybuffer, itbs(5, r1));
+    strcat(yybuffer, itbs(5, rs));
+    strcat(yybuffer, itbs(5, rt));
+    strcat(yybuffer, itbs(16, num));
+
+    unsigned int bi = bsti(yybuffer);
+
+    printf("opcode : %s\n", yybuffer);
+    fwrite(&bi, 4, 1, file_out);
+
+  }
+  | OP_2O REG COMMA VAR {
+
+    inc_inst();
+
+    yybuffer[0] = '\0';
+
+    int op = $1, rt = $2, rs = 0, num = $4;
+
+    strcat(yybuffer, itbs(6, opcode(op)));
+    strcat(yybuffer, itbs(5, rs));
+    strcat(yybuffer, itbs(5, rt));
     strcat(yybuffer, itbs(16, num));
 
     unsigned int bi = bsti(yybuffer);
@@ -352,27 +371,6 @@ value: NUMBER { $$ = $1 };
       fseek(file_out, return_offset, SEEK_SET);
 
       $$ = var->offset;
-
-  }
-  | DISP VAR CP {
-
-    LNode *var = list_get(&varList, $2);
-    if (var == NULL) var = list_get(&labelList, $2);
-    if (var == NULL) {
-        yyerror("Variable undefined");
-    }
-
-    union word aux = {0};
-
-    unsigned int return_offset = ftell(file_out);
-    fseek(file_out, var->offset + $1, SEEK_SET);
-    fread(&(aux.byte[0]), 1, 1, file_out);
-    fread(&(aux.byte[1]), 1, 1, file_out);
-    fread(&(aux.byte[2]), 1, 1, file_out);
-    fread(&(aux.byte[3]), 1, 1, file_out);
-    fseek(file_out, return_offset, SEEK_SET);
-
-    $$ = var->offset + $1;
 
   }
   ;

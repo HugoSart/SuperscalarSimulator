@@ -12,6 +12,7 @@ CDBFifo cdbfifo_init();
 void cdbfifo_add(CDBFifo *fifo, ERStation tag, ERegisters destination, Word data);
 void cdbfifo_remove(CDBFifo *fifo);
 void cdbfifo_print(CDBFifo *fifo);
+int cdbfifo_find_by_dest(CDBFifo *fifo, ERegisters e);
 size_t cdbfifo_size(CDBFifo *fifo);
 
 #endif //SUPERSCALARSIMULATOR_CDB_FIFO_H
