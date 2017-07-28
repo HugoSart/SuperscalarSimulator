@@ -19,10 +19,8 @@ ca15:   .int    17
 
 
         .text
-main:   mul $1, $1, $1
-        mul $0, $1, $1
-ihi:    mult $0, $1
-        jalr $3
+main:   addi $0, $1, 20
+        or  $1, $0, $20
 
 
 

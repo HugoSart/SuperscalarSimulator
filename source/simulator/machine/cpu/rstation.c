@@ -19,10 +19,10 @@ int rstation_index(CPU *cpu, ReservationStation *rstation) {
 void rstation_clean(CPU *cpu, ReservationStation *rstation) {
 
     rstation->busy = NOT_BUSY;
-    rstation->vk = REG_UNKNOWN;
-    rstation->vj = REG_UNKNOWN;
-    rstation->qk = REG_UNKNOWN;
-    rstation->qj = REG_UNKNOWN;
+    rstation->vk = 0;
+    rstation->vj = 0;
+    rstation->qk = RS_UNKNOWN;
+    rstation->qj = RS_UNKNOWN;
     rstation->result.content.value = 0;
     rstation->result.validation = 1;
     rstation->instruction.ref = NULL;

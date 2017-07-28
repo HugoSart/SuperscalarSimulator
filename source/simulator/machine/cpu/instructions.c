@@ -331,27 +331,27 @@ InstructionSet inst_init() {
     inst_add(&instructionSet, &clz,     "clz",    TYPE_ARITHMETIC, COLUMN_FUNCT2, 32);
     inst_add(&instructionSet, &clo,     "clo",    TYPE_ARITHMETIC, COLUMN_FUNCT2, 33);
 
-    inst_add(&instructionSet, &bltz,    "bltz",   TYPE_BRANCH,        COLUMN_RT, 0);
-    inst_add(&instructionSet, &bgez,    "bgez",   TYPE_BRANCH,        COLUMN_RT, 1);
-    inst_add(&instructionSet, &bltzl,   "bltzl",  TYPE_BRANCH,        COLUMN_RT, 2);
-    inst_add(&instructionSet, &bgzel,   "bgzel",  TYPE_BRANCH,        COLUMN_RT, 3);
+    inst_add(&instructionSet, &bltz,    "bltz",   TYPE_BRANCH,     COLUMN_RT, 0);
+    inst_add(&instructionSet, &bgez,    "bgez",   TYPE_BRANCH,     COLUMN_RT, 1);
+    inst_add(&instructionSet, &bltzl,   "bltzl",  TYPE_BRANCH,     COLUMN_RT, 2);
+    inst_add(&instructionSet, &bgzel,   "bgzel",  TYPE_BRANCH,     COLUMN_RT, 3);
     inst_add(&instructionSet, &tgei,    "tgei",   TYPE_UNKNOWN,    COLUMN_RT, 8);
     inst_add(&instructionSet, &tgeiu,   "tgeiu",  TYPE_UNKNOWN,    COLUMN_RT, 9);
     inst_add(&instructionSet, &tlti,    "tlti",   TYPE_UNKNOWN,    COLUMN_RT, 10);
     inst_add(&instructionSet, &tltiu,   "tltiu",  TYPE_UNKNOWN,    COLUMN_RT, 11);
     inst_add(&instructionSet, &tegi,    "tegi",   TYPE_UNKNOWN,    COLUMN_RT, 12);
     inst_add(&instructionSet, &tnei,    "tnei",   TYPE_UNKNOWN,    COLUMN_RT, 14);
-    inst_add(&instructionSet, &bltzal,  "bltzal", TYPE_BRANCH,        COLUMN_RT, 16);
-    inst_add(&instructionSet, &bgezal,  "bgezal", TYPE_BRANCH,        COLUMN_RT, 17);
-    inst_add(&instructionSet, &bltzall, "bltzall",TYPE_BRANCH,        COLUMN_RT, 18);
-    inst_add(&instructionSet, &bgczall, "bgczall",TYPE_BRANCH,        COLUMN_RT, 19);
+    inst_add(&instructionSet, &bltzal,  "bltzal", TYPE_BRANCH,     COLUMN_RT, 16);
+    inst_add(&instructionSet, &bgezal,  "bgezal", TYPE_BRANCH,     COLUMN_RT, 17);
+    inst_add(&instructionSet, &bltzall, "bltzall",TYPE_BRANCH,     COLUMN_RT, 18);
+    inst_add(&instructionSet, &bgczall, "bgczall",TYPE_BRANCH,     COLUMN_RT, 19);
 
     inst_add(&instructionSet, &j,       "j",      TYPE_JMP,        COLUMN_OP, 2);
     inst_add(&instructionSet, &jal,     "jal",    TYPE_JMP,        COLUMN_OP, 3);
-    inst_add(&instructionSet, &beq,     "beq",    TYPE_BRANCH,        COLUMN_OP, 4);
-    inst_add(&instructionSet, &bne,     "bne",    TYPE_BRANCH,        COLUMN_OP, 5);
-    inst_add(&instructionSet, &blez,    "blez",   TYPE_BRANCH,        COLUMN_OP, 6);
-    inst_add(&instructionSet, &bgtz,    "bgtz",   TYPE_BRANCH,        COLUMN_OP, 7);
+    inst_add(&instructionSet, &beq,     "beq",    TYPE_BRANCH,     COLUMN_OP, 4);
+    inst_add(&instructionSet, &bne,     "bne",    TYPE_BRANCH,     COLUMN_OP, 5);
+    inst_add(&instructionSet, &blez,    "blez",   TYPE_BRANCH,     COLUMN_OP, 6);
+    inst_add(&instructionSet, &bgtz,    "bgtz",   TYPE_BRANCH,     COLUMN_OP, 7);
     inst_add(&instructionSet, &addi,    "addi",   TYPE_ARITHMETIC, COLUMN_OP, 8);
     inst_add(&instructionSet, &addu,    "addu",   TYPE_ARITHMETIC, COLUMN_OP, 9);
     inst_add(&instructionSet, &slti,    "slti",   TYPE_IF,         COLUMN_OP, 10);
@@ -359,7 +359,7 @@ InstructionSet inst_init() {
     inst_add(&instructionSet, &andi,    "andi",   TYPE_LOGICAL,    COLUMN_OP, 12);
     inst_add(&instructionSet, &ori,     "ori",    TYPE_LOGICAL,    COLUMN_OP, 13);
     inst_add(&instructionSet, &xori,    "xori",   TYPE_LOGICAL,    COLUMN_OP, 14);
-    inst_add(&instructionSet, &lui,     "lui",    TYPE_LOGICAL,    COLUMN_OP, 15);
+    inst_add(&instructionSet, &lui,     "lui",    TYPE_LOAD,       COLUMN_OP, 15);
     inst_add(&instructionSet, &benql,   "benql",  TYPE_JMP,        COLUMN_OP, 20);
     inst_add(&instructionSet, &bnel,    "bnel",   TYPE_JMP,        COLUMN_OP, 21);
     inst_add(&instructionSet, &blezl,   "blezl",  TYPE_JMP,        COLUMN_OP, 22);

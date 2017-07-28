@@ -153,13 +153,13 @@ void so_show_rrf(CPU *cpu) {
             if (cpu->pipeline.rstation[i2].instruction.ref == NULL) printf("              ");
             else                                                    printf("    %s%*c  ", cpu->pipeline.rstation[i2].instruction.ref->mnemonic, 8 - strlen(cpu->pipeline.rstation[i2].instruction.ref->mnemonic), ' ');
 
-            if (cpu->pipeline.rstation[i2].vj != REG_UNKNOWN) printf("%02d  ", cpu->pipeline.rstation[i2].vj);
+            if (cpu->pipeline.rstation[i2].vj != 0) printf("%02d  ", cpu->pipeline.rstation[i2].vj);
             else                                     printf("    ");
-            if (cpu->pipeline.rstation[i2].vk != REG_UNKNOWN) printf("%02d  ", cpu->pipeline.rstation[i2].vk);
+            if (cpu->pipeline.rstation[i2].vk != 0) printf("%02d  ", cpu->pipeline.rstation[i2].vk);
             else                                     printf("    ");
-            if (cpu->pipeline.rstation[i2].qj != REG_UNKNOWN) printf("%02d  ", cpu->pipeline.rstation[i2].qj);
+            if (cpu->pipeline.rstation[i2].qj != RS_UNKNOWN) printf("%02d  ", cpu->pipeline.rstation[i2].qj);
             else                                     printf("    ");
-            if (cpu->pipeline.rstation[i2].qk != REG_UNKNOWN) printf("%02d  ", cpu->pipeline.rstation[i2].qk);
+            if (cpu->pipeline.rstation[i2].qk != RS_UNKNOWN) printf("%02d  ", cpu->pipeline.rstation[i2].qk);
             else                                     printf("    ");
             if (cpu->pipeline.rstation[i2].A != 0)   printf("%d  ", cpu->pipeline.rstation[i2].A);
 

@@ -171,14 +171,14 @@ void pipe_issue(CPU *cpu) {
                 rstation->qj = cpu_rstation_index(cpu, rs->rstation);
             } else {
                 rstation->vj = rs->content.value;
-                rstation->qj = REG_UNKNOWN;
+                rstation->qj = RS_UNKNOWN;
             }
 
             if (rt->rstation != NULL) {
                 rstation->qk = cpu_rstation_index(cpu, rt->rstation);
             } else {
                 rstation->vk = rt->content.value;
-                rstation->qk = REG_UNKNOWN;
+                rstation->qk = RS_UNKNOWN;
             }
 
             // Apenas mul possuí destino de escrita
@@ -193,7 +193,7 @@ void pipe_issue(CPU *cpu) {
                 rstation->qj = cpu_rstation_index(cpu, rs->rstation);
             } else {
                 rstation->vj = rs->content.value;
-                rstation->qj = REG_UNKNOWN;
+                rstation->qj = RS_UNKNOWN;
             }
 
             // Apenas beq e bne usam dois registradores
@@ -201,7 +201,7 @@ void pipe_issue(CPU *cpu) {
                 rstation->qk = cpu_rstation_index(cpu, rt->rstation);
             } else {
                 rstation->vk = rt->content.value;
-                rstation->qk = REG_UNKNOWN;
+                rstation->qk = RS_UNKNOWN;
             }
 
             rstation->A = imm;
@@ -215,7 +215,7 @@ void pipe_issue(CPU *cpu) {
                     rstation->qj = cpu_rstation_index(cpu, rs->rstation);
                 } else {
                     rstation->vj = rs->content.value;
-                    rstation->qj = REG_UNKNOWN;
+                    rstation->qj = RS_UNKNOWN;
                 }
 
                 // Verifica se é jalr
@@ -229,8 +229,60 @@ void pipe_issue(CPU *cpu) {
                 rstation->A = target;
             }
 
-        }
+        } else if (instruction->ref->type == TYPE_SHIFT) {
 
+            if (rt->rstation != NULL) {
+                rstation->qk = cpu_rstation_index(cpu, rt->rstation);
+            } else {
+                rstation->vk = rt->content.value;
+                rstation->qk = RS_UNKNOWN;
+            }
+
+            // Tem shamt
+            if (funct <= 3) {
+                rstation->A = shamt;
+            } else {
+                if (rs->rstation != NULL) {
+                    rstation->qj = cpu_rstation_index(cpu, rs->rstation);
+                } else {
+                    rstation->vj = rs->content.value;
+                    rstation->qj = RS_UNKNOWN;
+                }
+            }
+
+            rd->rstation = rstation;
+
+        } else if (instruction->ref->type == TYPE_ARITHMETIC || instruction->ref->type == TYPE_LOGICAL) {
+
+            // Todos usam rs como valor
+            if (rs->rstation != NULL) {
+                rstation->qj = cpu_rstation_index(cpu, rs->rstation);
+            } else {
+                rstation->vj = rs->content.value;
+                rstation->qj = RS_UNKNOWN;
+            }
+
+            // RI usa rt como retorno
+            if (instruction->rtype == RTYPE_RI) {
+
+                rstation->A = imm;
+
+                rt->rstation = rstation;
+
+            } else {
+
+                if (rt->rstation != NULL) {
+                    rstation->qk = cpu_rstation_index(cpu, rt->rstation);
+                } else {
+                    rstation->vk = rt->content.value;
+                    rstation->qk = RS_UNKNOWN;
+                }
+
+                rd->rstation = rstation;
+
+            }
+
+        }
 
         /** else if (cpu_rstation(cpu, (ERStation) r)->type != RS_TYPE_LOAD &&
                    cpu_rstation(cpu, (ERStation) r)->type != RS_TYPE_STORE && instruction->rtype != RTYPE_RI &&
@@ -313,14 +365,14 @@ void pipe_exec(CPU *cpu) {
 
         ReservationStation *rstation = cpu_rstation(cpu, (ERStation) r);
 
-        if (rstation->qj == REG_UNKNOWN && rstation->qk == REG_UNKNOWN) {
+        if (rstation->qj == RS_UNKNOWN && rstation->qk == RS_UNKNOWN) {
 
             if (rstation->busy == 1) {
 
                 rstation->instruction.ref->realization(cpu, &rstation, &rstation->result, rstation->vj, rstation->vk, rstation->A);
 
                 int reg_index = reg_waiting(cpu, rstation);
-                if (reg_index != REG_UNKNOWN && rstation->result.validation == 1)
+                if (reg_index != RS_UNKNOWN && rstation->result.validation == 1)
                     cpu_cdb_put(cpu, (ERStation) r, (ERegisters) reg_index, rstation->result.content);
                 rstation->result.validation = 1;
 
@@ -342,11 +394,11 @@ void pipe_write_result(CPU *cpu) {
                 for (int x = 0; x < REG_COUNT; x++) {
                     if (cpu_rstation(cpu, x)->qj == r) {
                         cpu_rstation(cpu, x)->vj = cpu_rstation(cpu, r)->result.content.value;
-                        cpu_rstation(cpu, x)->qj = REG_UNKNOWN;
+                        cpu_rstation(cpu, x)->qj = RS_UNKNOWN;
                     }
                     if (cpu_rstation(cpu, x)->qk == r) {
                         cpu_rstation(cpu, x)->vk = cpu_rstation(cpu, r)->result.content.value;
-                        cpu_rstation(cpu, x)->qk = REG_UNKNOWN;
+                        cpu_rstation(cpu, x)->qk = RS_UNKNOWN;
                     }
                 }
 
@@ -380,6 +432,8 @@ Pipeline pipe_init() {
         pipeline.rstation[i].busy = NOT_BUSY;
         pipeline.rstation[i].result.validation = 1;
         pipeline.rstation[i].result.content.value = 0;
+        pipeline.rstation[i].qj = RS_UNKNOWN;
+        pipeline.rstation[i].qk = RS_UNKNOWN;
 
     }
 

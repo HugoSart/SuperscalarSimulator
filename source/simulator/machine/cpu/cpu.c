@@ -20,14 +20,6 @@ CPU *cpu_new(Memory *mem) {
             .pipeline = pipe_init(),
             .cdb = { .data = NULL, .destination = REG_UNKNOWN, .tag = RS_UNKNOWN, .busy = NOT_BUSY, .queue = cdbfifo_init()}};
 
-
-    for (int i = 0; i < RS_COUNT; i++) {
-        cpu->pipeline.rstation[i].vj = REG_UNKNOWN;
-        cpu->pipeline.rstation[i].vk = REG_UNKNOWN;
-        cpu->pipeline.rstation[i].qj = REG_UNKNOWN;
-        cpu->pipeline.rstation[i].qk = REG_UNKNOWN;
-    }
-
     cpu->cache._p_cpu = cpu;
 
     return cpu;
