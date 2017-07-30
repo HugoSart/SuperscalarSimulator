@@ -70,8 +70,11 @@ void cpu_cdb_write(CPU *cpu) {
 
     if (cpu->cdb.destination == REG_UNKNOWN) return;
 
-    cpu_reg_get(cpu, cpu->cdb.destination)->content = cpu->cdb.data;
-    cpu_reg_get(cpu, cpu->cdb.destination)->rstation = NULL;
+    if (cpu_reg_get(cpu, cpu->cdb.destination)->rstation == cpu_rstation(cpu, cpu->cdb.tag)) {
+        cpu_reg_get(cpu, cpu->cdb.destination)->content = cpu->cdb.data;
+        cpu_reg_get(cpu, cpu->cdb.destination)->rstation = NULL;
+        rstation_clean(cpu, cpu_rstation(cpu, cpu->cdb.tag));
+    }
 
     cpu->cdb.tag = RS_UNKNOWN;
     cpu->cdb.destination = REG_UNKNOWN;
@@ -85,7 +88,6 @@ void cpu_cdb_write(CPU *cpu) {
         cpu->cdb.busy = 1;
         cdbfifo_remove(&cpu->cdb.queue);
     }
-
 
 }
 

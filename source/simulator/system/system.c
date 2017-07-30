@@ -13,11 +13,12 @@
 #include "../machine/cpu/structures/cdb_fifo.h"
 
 void so_print_int(CPU *cpu) {
-    printf("%d\n", cpu_reg_get(cpu, A0)->content.value);
+    printf("print_int: %d\n", cpu_reg_get(cpu, A0)->content.value);
 }
 
 void so_read_int(CPU *cpu) {
-    scanf("%d", &(cpu->reg->content.value));
+    printf("read_int: ");
+    scanf("%d", &cpu->reg[V0].content.value);
 }
 
 void so_exit(CPU *cpu) {
@@ -54,7 +55,7 @@ void so_show_rcr(CPU *cpu) {
     for(int i = 0; i < 16; i++) {
         printf("%s%02d%s ", COLOR_WHITE, i, COLOR_NORMAL);
     }
-    printf("  %sRegister %s$%u%s %*c: %s%d", COLOR_YELLOW, COLOR_YELLOW_BRIGHT, 0, COLOR_YELLOW, 2, ' ', COLOR_NORMAL, cpu_reg_get(cpu, 0)->content.value);
+    printf("  %sRegister %s$%s%s %*c: %s%d", COLOR_YELLOW, COLOR_YELLOW_BRIGHT, reg_name(0), COLOR_YELLOW, 2, ' ', COLOR_NORMAL, cpu_reg_get(cpu, 0)->content.value);
     int line = 0, line2 = 1;
     //printf("        ------------------------------------------------- ");
     for(unsigned int i = 0; i < mem->size; i ++) {
@@ -64,10 +65,12 @@ void so_show_rcr(CPU *cpu) {
             printf("  %s%04X%s ", COLOR_WHITE, i, COLOR_NORMAL);
         }
 
-        if (i >= mem->text_address)  SET_COLOR(COLOR_CYAN);
+        if (i >= cpu->reg[SP].content.decimal)  SET_COLOR(COLOR_RED);
+        else if (i >= mem->text_address) SET_COLOR(COLOR_CYAN);
         else                         SET_COLOR(COLOR_MAGENTA);
         if (mem->byte[i] != 0)
-            if (i >= mem->text_address) SET_COLOR(COLOR_CYAN_BRIGHT);
+            if (i >= cpu->reg[SP].content.decimal) SET_COLOR(COLOR_RED_BRIGHT);
+            else if (i >= mem->text_address) SET_COLOR(COLOR_CYAN_BRIGHT);
             else                        SET_COLOR(COLOR_MAGENTA_BRIGHT);
         if (cpu->pipeline.pc.value == WORD_ADDRESS(i)) SET_COLOR(COLOR_BLUE_BRIGHT);
 
@@ -95,7 +98,7 @@ void so_show_rcr(CPU *cpu) {
             if (i >= cache.size) printf("%55c", ' ');
             int space = 1;
             if (line2 < 10) space = 2;
-            printf("  %sRegister %s$%u%s %*c: %s%d", COLOR_YELLOW, COLOR_YELLOW_BRIGHT, line2, COLOR_YELLOW, space, ' ', COLOR_NORMAL, cpu_reg_get(cpu, line2)->content.value);
+            printf("  %sRegister %s$%s%s %*c: %s%d", COLOR_YELLOW, COLOR_YELLOW_BRIGHT, reg_name(line2), COLOR_YELLOW, space, ' ', COLOR_NORMAL, cpu_reg_get(cpu, line2)->content.value);
             line2++;
         }
 
@@ -108,21 +111,20 @@ void so_show_rcr(CPU *cpu) {
 
 void so_show_rrf(CPU *cpu) {
 
-    printf("\n%s%11cREGISTERS%s%27cRESERVATION STATIONS%s\n\n", COLOR_WHITE_BRIGHT, ' ', COLOR_NORMAL, ' ', COLOR_WHITE_BRIGHT);
+    printf("\n%s%13cREGISTERS%s%42cRESERVATION STATIONS%s\n\n", COLOR_WHITE_BRIGHT, ' ', COLOR_NORMAL, ' ', COLOR_WHITE_BRIGHT);
 
     for (int i = 0; i < REG_COUNT_2; i++) {
         int space = 1;
         if (i == 32) printf("\n");
         if (i < 10) space = 2;
         printf("%2c", ' ');
-        if (cdbfifo_find_by_dest(&cpu->cdb.queue, i)) printf("%s [C]%s", COLOR_RED, COLOR_NORMAL);
-        else if (cpu->reg[i].rstation != NULL) printf("%s [%d]%s", COLOR_RED, rstation_index(cpu, cpu->reg[i].rstation), COLOR_NORMAL);
+        if (cpu->reg[i].rstation != NULL) printf("%s [%d]%s", COLOR_RED, rstation_index(cpu, cpu->reg[i].rstation), COLOR_NORMAL);
         else printf("    ");
-        printf(" %sRegister %s$%u%s %*c: %s%d\t", COLOR_YELLOW, COLOR_YELLOW_BRIGHT, i, COLOR_YELLOW, \
-               space, ' ', COLOR_NORMAL, cpu_reg_get(cpu, i)->content.value);
+        if (i == 0) printf(" %sRegister %s$%s%s : %s%6d\t", COLOR_YELLOW, COLOR_YELLOW_BRIGHT, reg_name(i), COLOR_YELLOW, COLOR_NORMAL, cpu_reg_get(cpu, i)->content.value);
+        else        printf(" %sRegister %s$%s%s   : %s%6d\t", COLOR_YELLOW, COLOR_YELLOW_BRIGHT, reg_name(i), COLOR_YELLOW, COLOR_NORMAL, cpu_reg_get(cpu, i)->content.value);
 
         INode *current = cpu->pipeline.queue.first;
-        if (i == 0) printf("%10c%sNAME  BUSY  MNEMONIC  Vj  Vk  Qj  Qk  A%s ", ' ', COLOR_CYAN, COLOR_NORMAL);
+        if (i == 0) printf("%10c%sNAME  BUSY  MNEMONIC      Vj      Vk      Qj      Qk       A%s ", ' ', COLOR_CYAN, COLOR_NORMAL);
 
         size_t size = ififo_size(&cpu->pipeline.queue);
         int i2 = i - 1;
@@ -147,21 +149,22 @@ void so_show_rrf(CPU *cpu) {
             }
             printf("%s  ", name);
 
-            if (cpu->pipeline.rstation[i2].busy != NOT_BUSY)    printf("%s%02d%s", COLOR_RED, cpu->pipeline.rstation[i2].busy, COLOR_NORMAL);
+            if (cpu->pipeline.rstation[i2].busy >  0)           printf("%s%02d%s", COLOR_RED, cpu->pipeline.rstation[i2].busy, COLOR_NORMAL);
+            else if (cpu->pipeline.rstation[i2].busy == 0)      printf("%s%02d%s", COLOR_BLUE, cpu->pipeline.rstation[i2].busy, COLOR_NORMAL);
             else                                                printf("%sNo%s", COLOR_GREEN, COLOR_NORMAL);
 
             if (cpu->pipeline.rstation[i2].instruction.ref == NULL) printf("              ");
             else                                                    printf("    %s%*c  ", cpu->pipeline.rstation[i2].instruction.ref->mnemonic, 8 - strlen(cpu->pipeline.rstation[i2].instruction.ref->mnemonic), ' ');
 
-            if (cpu->pipeline.rstation[i2].vj != 0) printf("%02d  ", cpu->pipeline.rstation[i2].vj);
-            else                                     printf("    ");
-            if (cpu->pipeline.rstation[i2].vk != 0) printf("%02d  ", cpu->pipeline.rstation[i2].vk);
-            else                                     printf("    ");
-            if (cpu->pipeline.rstation[i2].qj != RS_UNKNOWN) printf("%02d  ", cpu->pipeline.rstation[i2].qj);
-            else                                     printf("    ");
-            if (cpu->pipeline.rstation[i2].qk != RS_UNKNOWN) printf("%02d  ", cpu->pipeline.rstation[i2].qk);
-            else                                     printf("    ");
-            if (cpu->pipeline.rstation[i2].A != 0)   printf("%d  ", cpu->pipeline.rstation[i2].A);
+            if (cpu->pipeline.rstation[i2].vj != 0)  printf("%6d  ", cpu->pipeline.rstation[i2].vj);
+            else                                     printf("%6c  ", ' ');
+            if (cpu->pipeline.rstation[i2].vk != 0)  printf("%6d  ", cpu->pipeline.rstation[i2].vk);
+            else                                     printf("%6c  ", ' ');
+            if (cpu->pipeline.rstation[i2].qj != RS_UNKNOWN) printf("%6d  ", cpu->pipeline.rstation[i2].qj);
+            else                                     printf("%6c  ", ' ');
+            if (cpu->pipeline.rstation[i2].qk != RS_UNKNOWN) printf("%6d  ", cpu->pipeline.rstation[i2].qk);
+            else                                     printf("%6c  ", ' ');
+            if (cpu->pipeline.rstation[i2].A != 0)   printf("%6d  ", cpu->pipeline.rstation[i2].A);
 
         }
 
@@ -199,5 +202,18 @@ void so_show_rrf(CPU *cpu) {
 
         printf("\n");
     }
+}
+
+int so_finished(CPU *cpu) {
+
+    int allClean = 1;
+    for (int r = 0; r < RS_COUNT; r++)
+        if (cpu_rstation(cpu, r)->busy != NOT_BUSY) {
+            allClean = 0;
+            break;
+        }
+
+    return cpu->pipeline.ri.value == EOF && allClean == 1 && cpu->cdb.destination == REG_UNKNOWN && cpu->pipeline.queue.first == NULL;
+
 }
 

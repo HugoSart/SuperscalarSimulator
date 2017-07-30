@@ -6,6 +6,7 @@
 #include "../util.h"
 #include "rstation.h"
 #include "cpu.h"
+#include "structures/cdb_fifo.h"
 
 int rstation_index(CPU *cpu, ReservationStation *rstation) {
     for (int i = 0; i < RS_COUNT; i++) {
@@ -29,10 +30,5 @@ void rstation_clean(CPU *cpu, ReservationStation *rstation) {
     rstation->instruction.code.opcode = 0;
     rstation->instruction.rtype = RTYPE_UNKNOWN;
     rstation->A = 0;
-
-    for (int i = 0; i < REG_COUNT; i++) {
-        if (cpu_reg_get(cpu, i)->rstation == rstation)
-            cpu_reg_get(cpu, i)->rstation = NULL;
-    }
 
 }

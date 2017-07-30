@@ -44,7 +44,7 @@ int opcode(unsigned int id) {
         case OR:
             return 0x0;
         case ORI:
-            return 0xd;
+            return 63;
         case SLL:
             return 0;
         case SLLV:
@@ -163,6 +163,8 @@ int opcode(unsigned int id) {
             return 0;
         case MTHI:
             return 0;
+        case MTLO:
+            return 0;
         case MOVN:
             return 0;
         case MOVZ:
@@ -251,6 +253,8 @@ int func(unsigned int id) {
             return 0x12;
         case MTHI:
             return 0x11;
+        case MTLO:
+            return 0x13;
         case MOVN:
             return 0xb;
         case MOVZ:

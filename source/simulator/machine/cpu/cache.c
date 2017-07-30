@@ -37,7 +37,6 @@ Word cache_read(Cache *cache, unsigned int address) {
     if (a.mapped_address.tag != cache->line[a.mapped_address.line].tag) {
         miss_handler(cache, address);
     }
-    printf("\n");
     return cache->line[a.mapped_address.line].word[a.mapped_address.byte / CACHE_BLOCK_WORD_COUNT];
 
 }
@@ -90,20 +89,25 @@ void miss_handler(Cache *cache, unsigned int address) {
 
     if (cache->line[a.mapped_address.line].tag != -1) {
 
-        cache->line[1].word[0].value = -1;
+        Address back_address = {0};
+
+        back_address.mapped_address.tag = cache->line[a.mapped_address.line].tag;
+        back_address.mapped_address.line = a.mapped_address.line;
+        back_address.mapped_address.byte = 0;
 
         cache->_p_cpu->_p_mobo->control_bus.data.value = CONTROL_WRITE;
         cache->_p_cpu->_p_mobo->control_bus.busy = 1;
-        a.mapped_address.tag = cache->line->tag;
-        cache->_p_cpu->_p_mobo->address_bus.data.decimal = a.full_address;
+        cache->_p_cpu->_p_mobo->address_bus.data.decimal = back_address.full_address;
         cache->_p_cpu->_p_mobo->address_bus.busy = 1;
 
-        for (int i = 0; i < CACHE_BLOCK_WORD_COUNT; i++)
-            cache->_p_cpu->_p_mobo->data_bus.data[i] = cache->line[a.mapped_address.line].word[i];
+        for (int i = 0; i < CACHE_BLOCK_WORD_COUNT; i++) {
+            cache->_p_cpu->_p_mobo->data_bus.data[i] = cache->line[back_address.mapped_address.line].word[i];
+        }
         cache->_p_cpu->_p_mobo->address_bus.busy = 1;
 
         // Simula clock da RAM
         mem_clock(cache->mem);
+
     }
 
     cache->_p_cpu->_p_mobo->control_bus.data.value = CONTROL_NOP;

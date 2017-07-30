@@ -145,9 +145,10 @@
 "swr"    { yylval.d = SWR;   return OP_2O; }
 "sc"     { yylval.d = SC;    return OP_2O; }
 
-"mfhi"   { yylval.d = MFHI;  return OP_1; }
-"mflo"   { yylval.d = MFLO;  return OP_1; }
-"mthi"   { yylval.d = MTHI;  return OP_1; }
+"mfhi"   { yylval.d = MFHI;  return OP_1M; }
+"mflo"   { yylval.d = MFLO;  return OP_1M; }
+"mthi"   { yylval.d = MTHI;  return OP_1M2; }
+"mtlo"   { yylval.d = MTLO;  return OP_1M2; }
 "movn"   { yylval.d = MOVN;  return OP_3; }
 "movz"   { yylval.d = MOVZ;  return OP_3; }
 

@@ -4,6 +4,7 @@
 
 #include "mobo.h"
 #include "../cpu/rstation.h"
+#include "../util.h"
 
 Mobo *mobo_new(CPU *cpu, Memory *mem) {
     Mobo *mobo = malloc(sizeof(Mobo));
@@ -13,6 +14,7 @@ Mobo *mobo_new(CPU *cpu, Memory *mem) {
         .data_bus.busy = NOT_BUSY, .data_bus.data = {{0}} };
     cpu->_p_mobo = mobo;
     mem->_p_mobo = mobo;
+    cpu->reg[SP].content.decimal = mem->size - 4;
     return mobo;
 }
 

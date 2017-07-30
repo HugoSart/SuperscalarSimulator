@@ -52,7 +52,7 @@
 %token CP OP
 %token<d> NUMBER DISP REG
 %token<str> LABEL VAR
-%token<d> OP_3 OP_3I OP_3S OP_2 OP_2I OP_2A OP_1 OP_1T OP_1S OP_2B OP_2O NOP
+%token<d> OP_3 OP_3I OP_3S OP_2 OP_2I OP_2A OP_1 OP_1T OP_1S OP_1M OP_1M2 OP_2B OP_2O NOP
 %token COMMA COLON
 %token OPCODE
 %token ADRESS
@@ -83,7 +83,6 @@ expData:
     for (int i = array_size - 1; i >= 0; i--) {
         fwrite(&array[i], sizeof(int), 1, file_out);
     }
-    printf("\n");
     free(array);
     array_size = 0;
 
@@ -246,7 +245,7 @@ argText: OP_3 REG COMMA REG COMMA REG {
     fwrite(&bi, 4, 1, file_out);//d
 
   }
-  | OP_2O REG COMMA NUMBER OP REG CP {
+  | OP_2O REG COMMA value OP REG CP {
 
     inc_inst();
 
@@ -265,16 +264,16 @@ argText: OP_3 REG COMMA REG COMMA REG {
     fwrite(&bi, 4, 1, file_out);
 
   }
-  | OP_2O REG COMMA VAR {
+  | OP_2O REG COMMA value {
 
     inc_inst();
 
     yybuffer[0] = '\0';
 
-    int op = $1, rt = $2, rs = 0, num = $4;
+    int op = $1, rt = $2, num = $4;
 
     strcat(yybuffer, itbs(6, opcode(op)));
-    strcat(yybuffer, itbs(5, rs));
+    strcat(yybuffer, itbs(5, 0));
     strcat(yybuffer, itbs(5, rt));
     strcat(yybuffer, itbs(16, num));
 
@@ -306,7 +305,7 @@ argText: OP_3 REG COMMA REG COMMA REG {
   }
   | OP_1T value {
 
-    inc_inst();
+    inc_inst(); //i2dd
 
     yybuffer[0] = '\0';
 
@@ -333,6 +332,45 @@ argText: OP_3 REG COMMA REG COMMA REG {
     unsigned int bi = bsti(yybuffer);
 
     printf("syscall: %s\n", yybuffer);
+    fwrite(&bi, 4, 1, file_out);
+
+  }
+  | OP_1M REG {
+
+    inc_inst(); //i2dd
+
+    yybuffer[0] = '\0';
+
+    int op = $1, r1 = $2;
+
+    strcat(yybuffer, itbs(6, opcode(op)));
+    strcat(yybuffer, itbs(10, 0));
+    strcat(yybuffer, itbs(5, r1));
+    strcat(yybuffer, itbs(5, 0));
+    strcat(yybuffer, itbs(6, func(op)));
+
+    unsigned int bi = bsti(yybuffer);
+
+    printf("opcode : %s\n", yybuffer);
+    fwrite(&bi, 4, 1, file_out);
+
+  }
+  | OP_1M2 REG {
+
+    inc_inst(); //i2dd
+
+    yybuffer[0] = '\0';
+
+    int op = $1, r1 = $2;
+
+    strcat(yybuffer, itbs(6, opcode(op)));
+    strcat(yybuffer, itbs(5, r1));
+    strcat(yybuffer, itbs(15, 0));
+    strcat(yybuffer, itbs(6, func(op)));
+
+    unsigned int bi = bsti(yybuffer);
+
+    printf("opcode : %s\n", yybuffer);
     fwrite(&bi, 4, 1, file_out);
 
   }
@@ -409,10 +447,11 @@ int main(int argc, char **argv) {
         int foi = 0;
         for (int i = 0; i < strlen(buffer2); i++) {
             if (buffer2[i] != ' ' || buffer2[i] != '\n') {
+                if (buffer2[i] == '#') break;
                 foi = 1;
             }
         }
-        if (foi) line_count++;
+        if (foi || !strcmp(buffer, "syscall") || !strcmp(buffer, "NOP")) line_count++;
 
         if (buffer[strlen(buffer) - 1] == ':') {
             buffer[strlen(buffer) - 1] = '\0';
@@ -433,6 +472,8 @@ int main(int argc, char **argv) {
 
     int end = -1;
     fwrite(&end, sizeof(end), 1, file_out);
+
+    printf("Instruction counter: %d\n", line_count);
 
 	fclose(file_out);
     fclose(file_in);

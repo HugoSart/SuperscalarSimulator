@@ -14,7 +14,7 @@
 #include "../../system/system.h"
 
 ERStationType check_type(EType e) {
-    if (e == TYPE_ARITHMETIC || e == TYPE_LOGICAL || e == TYPE_IF || e == TYPE_SHIFT || e == TYPE_JMP || e == TYPE_BRANCH) {
+    if (e == TYPE_ARITHMETIC || e == TYPE_LOGICAL || e == TYPE_IF || e == TYPE_SHIFT || e == TYPE_JMP || e == TYPE_BRANCH || e == TYPE_UNKNOWN) {
         return RS_TYPE_ADD;
     } else if (e == TYPE_MULT) {
         return RS_TYPE_MUL;
@@ -111,7 +111,7 @@ void pipe_decode(CPU *cpu) {
     else
         ififo_add(&cpu->pipeline.queue, opcode, type, &cpu->inst_set.table[m][n]);
 
-    if (cpu->inst_set.table[m][n].type == TYPE_JMP || cpu->inst_set.table[m][n].type == TYPE_BRANCH)
+    if (cpu->inst_set.table[m][n].type == TYPE_JMP || cpu->inst_set.table[m][n].type == TYPE_BRANCH || cpu->inst_set.table[m][n].type == TYPE_UNKNOWN)
         cpu->pipeline.issue = ISSUE_STOP;
 
     cpu->pipeline.ri.value = EOF;
@@ -133,12 +133,11 @@ void pipe_issue(CPU *cpu) {
         return;
     }
 
-    if (instruction->ref->type == TYPE_JMP) {
+    if (instruction->ref->type == TYPE_JMP || instruction->ref->type == TYPE_STORE) {
         cpu->pipeline.issue = ISSUE_STOP;
     }
 
-    if (instruction->code.opcode == 0xC) {
-        //cpu_reg_get(cpu, V0)->content.value = SYSCALL_PRINT_INT;
+    if (instruction->code.opcode == 0xC && false) {
         cpu->inst_set.table[COLUMN_FUNCT1][12].realization(cpu, NULL);
         ififo_remove(&cpu->pipeline.queue);
         return;
@@ -184,8 +183,41 @@ void pipe_issue(CPU *cpu) {
             // Apenas mul possuí destino de escrita
             if (!strcmp(instruction->ref->mnemonic, "mul")) {
                 rd->rstation = rstation;
+            } else {
+                hi->rstation = rstation;
+                lo->rstation = rstation;
             }
 
+
+        } else if (instruction->ref->type == TYPE_ACUMULATOR) {
+
+            // mf?? (MoveFrom...)
+            if (funct % 2 == 0) {
+
+                Register *aux = (funct == 0x10) ? hi : lo;
+
+                if (aux->rstation != NULL) {
+                    rstation->qj = cpu_rstation_index(cpu, aux->rstation);
+                } else {
+                    rstation->vj = aux->content.value;
+                    rstation->qj = RS_UNKNOWN;
+                }
+
+                rd->rstation = rstation;
+
+            } else {
+
+                Register *aux = (funct == 0x11) ? hi : lo;
+                aux->rstation = rstation;
+
+                if (rs->rstation != NULL) {
+                    rstation->qj = cpu_rstation_index(cpu, rs->rstation);
+                } else {
+                    rstation->vj = rs->content.value;
+                    rstation->qj = RS_UNKNOWN;
+                }
+
+            }
 
         } else if (instruction->ref->type == TYPE_BRANCH) {
 
@@ -252,7 +284,7 @@ void pipe_issue(CPU *cpu) {
 
             rd->rstation = rstation;
 
-        } else if (instruction->ref->type == TYPE_ARITHMETIC || instruction->ref->type == TYPE_LOGICAL) {
+        } else if (instruction->ref->type == TYPE_ARITHMETIC || instruction->ref->type == TYPE_LOGICAL || instruction->ref->type == TYPE_IF) {
 
             // Todos usam rs como valor
             if (rs->rstation != NULL) {
@@ -280,6 +312,41 @@ void pipe_issue(CPU *cpu) {
 
                 rd->rstation = rstation;
 
+            }
+
+        } else if (instruction->ref->type == TYPE_LOAD || instruction->ref->type == TYPE_STORE) {
+
+            if (rs->rstation != NULL) {
+                rstation->qj = cpu_rstation_index(cpu, rs->rstation);
+            } else {
+                rstation->vj = rs->content.value;
+                rstation->qj = RS_UNKNOWN;
+            }
+
+            rstation->A = imm;
+
+            if (instruction->ref->type == TYPE_LOAD)
+                rt->rstation = rstation;
+            else { // Store ONLY
+
+                if (rt->rstation != NULL) {
+                    rstation->qk = cpu_rstation_index(cpu, rt->rstation);
+                } else {
+                    rstation->vk = rt->content.value;
+                    rstation->qk = RS_UNKNOWN;
+                }
+
+            }
+
+        } else { // Syscall, usa valor em v0
+
+            Register *v0 = cpu_reg_get(cpu, V0);
+
+            if (v0->rstation != NULL) {
+                rstation->qj = cpu_rstation_index(cpu, v0->rstation);
+            } else {
+                rstation->vj = v0->content.value;
+                rstation->qj = RS_UNKNOWN;
             }
 
         }
@@ -369,10 +436,10 @@ void pipe_exec(CPU *cpu) {
 
             if (rstation->busy == 1) {
 
-                rstation->instruction.ref->realization(cpu, &rstation, &rstation->result, rstation->vj, rstation->vk, rstation->A);
+                rstation->instruction.ref->realization(cpu, rstation, &(rstation->result), rstation->vj, rstation->vk, rstation->A);
 
                 int reg_index = reg_waiting(cpu, rstation);
-                if (reg_index != RS_UNKNOWN && rstation->result.validation == 1)
+                if (reg_index != REG_UNKNOWN && rstation->result.validation == 1)
                     cpu_cdb_put(cpu, (ERStation) r, (ERegisters) reg_index, rstation->result.content);
                 rstation->result.validation = 1;
 
@@ -389,23 +456,21 @@ void pipe_exec(CPU *cpu) {
 void pipe_write_result(CPU *cpu) {
 
     for (int r = 0; r < RS_COUNT; r++) {
+        //if (cpu_rstation(cpu, (ERStation) r)->instruction.ref != NULL) printf("%s: %d\n", cpu_rstation(cpu, (ERStation) r)->instruction.ref->mnemonic, reg_waiting(cpu, r));
         if (cpu_rstation(cpu, (ERStation) r)->busy == 0) {
-            if (cpu_rstation(cpu, (ERStation) r)->instruction.ref->type != TYPE_STORE) {
-                for (int x = 0; x < REG_COUNT; x++) {
-                    if (cpu_rstation(cpu, x)->qj == r) {
-                        cpu_rstation(cpu, x)->vj = cpu_rstation(cpu, r)->result.content.value;
-                        cpu_rstation(cpu, x)->qj = RS_UNKNOWN;
-                    }
-                    if (cpu_rstation(cpu, x)->qk == r) {
-                        cpu_rstation(cpu, x)->vk = cpu_rstation(cpu, r)->result.content.value;
-                        cpu_rstation(cpu, x)->qk = RS_UNKNOWN;
-                    }
+            for (int x = 0; x < RS_COUNT; x++) {
+                if (cpu_rstation(cpu, x)->qj == r) {
+                    cpu_rstation(cpu, x)->vj = cpu_rstation(cpu, r)->result.content.value;
+                    cpu_rstation(cpu, x)->qj = RS_UNKNOWN;
                 }
-
-            } else {
-                cache_write(&cpu->cache, cpu_rstation(cpu, r)->A, (Word) {.value = cpu_rstation(cpu, r)->vk});
+                if (cpu_rstation(cpu, x)->qk == r) {
+                    cpu_rstation(cpu, x)->vk = cpu_rstation(cpu, r)->result.content.value;
+                    cpu_rstation(cpu, x)->qk = RS_UNKNOWN;
+                }
             }
-            rstation_clean(cpu, cpu_rstation(cpu, r));
+
+            if (reg_waiting(cpu, cpu_rstation(cpu, (ERStation) r)) == REG_UNKNOWN) rstation_clean(cpu, cpu_rstation(cpu, r));
+
         }
     }
 

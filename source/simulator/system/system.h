@@ -35,10 +35,12 @@
 #define SYSCALL_EXIT 10
 
 void so_print_int(CPU *cpu);
+void so_read_int(CPU *cpu);
 void so_exit(CPU *cpu);
 
 void so_load(Memory *mem, char *bfile_name);
 void so_show_rcr(CPU *cpu);
 void so_show_rrf(CPU *cpu);
+int so_finished(CPU *cpu);
 
 #endif //SUPERSCALARSIMULATOR_SYSTEM_H_H

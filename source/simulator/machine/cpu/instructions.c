@@ -7,12 +7,13 @@
 #include "cpu.h"
 #include "../util.h"
 #include "../../system/system.h"
+#include "../types.h"
 #include <stdarg.h>
 
 #define PARAM_STANDARD CPU *cpu, ...
 
 #define INIT_ARGS va_list va; \
-        va_start(va, 4); \
+        va_start(va, 5); \
         ReservationStation *rs = va_arg(va, ReservationStation*); \
         RSResult *result = va_arg(va, RSResult*); \
         int vj = va_arg(va, int); \
@@ -23,19 +24,64 @@
 
 void inst_add(InstructionSet *, void *, char *, EType, size_t, size_t);
 
-// TODO: Ver as sem overflow
-
 // Instruction implementations
 void add     (PARAM_STANDARD) {
     INIT_ARGS;
     result->content.value = alu_exec(&cpu->alu, OP_ADD, vj, vk);
 }
-void addu    (PARAM_STANDARD) {}
+void addu    (PARAM_STANDARD) {
+    INIT_ARGS;
+    result->content.value = alu_exec(&cpu->alu, OP_ADDU, vj, vk);
+}
 void addi    (PARAM_STANDARD) {
     INIT_ARGS;
     result->content.value = alu_exec(&cpu->alu, OP_ADD, vj, A);
 }
-void addiu   (PARAM_STANDARD) {}
+void addiu   (PARAM_STANDARD) {
+    INIT_ARGS;
+    result->content.value = alu_exec(&cpu->alu, OP_ADDU, vj, A);
+}
+
+void sub     (PARAM_STANDARD) {
+    INIT_ARGS;
+    result->content.value = alu_exec(&cpu->alu, OP_SUB, vj, vk);
+}
+void subu    (PARAM_STANDARD) {
+    INIT_ARGS;
+    result->content.value = alu_exec(&cpu->alu, OP_SUBU, vj, vk);
+}
+
+void clo     (PARAM_STANDARD) {}
+void clz     (PARAM_STANDARD) {}
+
+void _div    (PARAM_STANDARD) {
+    INIT_ARGS;;
+    cpu_cdb_put(cpu, rstation_index(cpu, rs), LO, (Word) {.value = vj / vk});
+    cpu_cdb_put(cpu, rstation_index(cpu, rs), HI, (Word) {.value = vj % vk});
+}
+void divu    (PARAM_STANDARD) {
+    INIT_ARGS;;
+    cpu_cdb_put(cpu, rstation_index(cpu, rs), LO, (Word) {.value = (unsigned int)vj / (unsigned int)vk});
+    cpu_cdb_put(cpu, rstation_index(cpu, rs), HI, (Word) {.value = (unsigned int)vj % (unsigned int)vk});
+}
+
+void mul     (PARAM_STANDARD) {
+    INIT_ARGS;
+    result->content.value = alu_exec(&cpu->alu, OP_MULT, vj, vk);
+}
+void mult    (PARAM_STANDARD) {
+    INIT_ARGS;
+    CLOHI clohi = { .value = alu_exec(&cpu->alu, OP_MULT, vj, vk) };
+    cpu_cdb_put(cpu, rstation_index(cpu, rs), LO, (Word) {.value = clohi.lohi.lo});
+    cpu_cdb_put(cpu, rstation_index(cpu, rs), HI, (Word) {.value = clohi.lohi.hi});
+}
+void multu   (PARAM_STANDARD) {
+    INIT_ARGS;
+    CLOHI clohi = { .value = alu_exec(&cpu->alu, OP_MULTU, vj, vk) };
+    cpu_cdb_put(cpu, rstation_index(cpu, rs), LO, (Word) {.value = clohi.lohi.lo});
+    cpu_cdb_put(cpu, rstation_index(cpu, rs), HI, (Word) {.value = clohi.lohi.hi});
+}
+
 void andi    (PARAM_STANDARD) {
     INIT_ARGS;
     result->content.value = alu_exec(&cpu->alu, OP_AND, vj, A);
@@ -44,28 +90,6 @@ void and     (PARAM_STANDARD) {
     INIT_ARGS;
     result->content.value = alu_exec(&cpu->alu, OP_AND, vj, vk);
 }
-void clo     (PARAM_STANDARD) {}
-void clz     (PARAM_STANDARD) {}
-void _div    (PARAM_STANDARD) {
-    INIT_ARGS;;
-    cpu_cdb_put(cpu, rstation_index(cpu, rs), LO, (Word) {.value = vj / vk});
-    cpu_cdb_put(cpu, rstation_index(cpu, rs), HI, (Word) {.value = vj % vk});
-}
-void divu    (PARAM_STANDARD) {}
-void mult    (PARAM_STANDARD) {
-    INIT_ARGS;
-    CLOHI clohi = { .value = alu_exec(&cpu->alu, OP_MULT, vj, vk) };
-    cpu_cdb_put(cpu, rstation_index(cpu, rs), LO, (Word) {.value = clohi.lohi.lo});
-    cpu_cdb_put(cpu, rstation_index(cpu, rs), HI, (Word) {.value = clohi.lohi.hi});
-}
-void multu   (PARAM_STANDARD) {}
-void mul     (PARAM_STANDARD) {
-    INIT_ARGS;
-    result->content.value = alu_exec(&cpu->alu, OP_MULT, vj, vk);
-}
-void madd    (PARAM_STANDARD) {}
-void maddu   (PARAM_STANDARD) {}
-void msub    (PARAM_STANDARD) {}
 void nor     (PARAM_STANDARD) {
     INIT_ARGS;
     result->content.value = alu_exec(&cpu->alu, OP_NOR, vj, vk);
@@ -73,29 +97,20 @@ void nor     (PARAM_STANDARD) {
 void or      (PARAM_STANDARD) {
     INIT_ARGS;
     result->content.value = alu_exec(&cpu->alu, OP_OR, vj, vk);
-}
+} // \/ Troquei o op e funcionou !?!?!!??!?
 void ori     (PARAM_STANDARD) {
     INIT_ARGS;
     result->content.value = alu_exec(&cpu->alu, OP_OR, vj, A);
+} // DANDO SEG FAULT SABE LÁ DEUS PQ, Apenas essa, que está idêntica a todas as outras, e apenas se é chamada após alguma outra
+void xor     (PARAM_STANDARD) {
+    INIT_ARGS;
+    result->content.value = alu_exec(&cpu->alu, OP_XOR, vj, vk);
 }
-void syscall (PARAM_STANDARD) {
-
-    Register *v0 = cpu_reg_get(cpu, V0);
-    int value = v0->content.value;
-
-    switch (value) {
-        case SYSCALL_PRINT_INT:
-            so_print_int(cpu);
-            break;
-        case SYSCALL_READ_INT:
-            so_read_int(cpu);
-        case SYSCALL_EXIT:
-            so_exit(cpu);
-            break;
-    }
-
+void xori    (PARAM_STANDARD) {
+    INIT_ARGS;
+    result->content.value = alu_exec(&cpu->alu, OP_XOR, vj, A);
 }
-void sync    (PARAM_STANDARD) {}
+
 void sll     (PARAM_STANDARD) {
     INIT_ARGS;
     result->content.value = alu_exec(&cpu->alu, OP_LLSHIFT, vk, vj);
@@ -120,29 +135,42 @@ void srlv    (PARAM_STANDARD) {
     INIT_ARGS;
     result->content.value = alu_exec(&cpu->alu, OP_LRSHIFT, vk, vj);
 }
-void sub     (PARAM_STANDARD) {
+
+void mfhi    (PARAM_STANDARD) {
     INIT_ARGS;
-    result->content.value = alu_exec(&cpu->alu, OP_SUBTRACT, vj, vk);
+    result->content = cpu_reg_get(cpu, HI)->content;
 }
-void subu    (PARAM_STANDARD) {}
-void xor     (PARAM_STANDARD) {
+void mthi    (PARAM_STANDARD) {
     INIT_ARGS;
-    result->content.value = alu_exec(&cpu->alu, OP_XOR, vj, vk);
+    cpu_cdb_put(cpu, rstation_index(cpu, rs), HI, (Word){.value = vj});
+    result->validation = 0;
 }
-void xori    (PARAM_STANDARD) {
+void mflo    (PARAM_STANDARD) {
     INIT_ARGS;
-    result->content.value = alu_exec(&cpu->alu, OP_XOR, vj, A);
+    result->content = cpu_reg_get(cpu, LO)->content;
 }
-void lui     (PARAM_STANDARD) {}
-void movz    (PARAM_STANDARD) {}
-void movn    (PARAM_STANDARD) {}
-void _break  (PARAM_STANDARD) {}
-void mfhi    (PARAM_STANDARD) {}
-void mthi    (PARAM_STANDARD) {}
-void mflo    (PARAM_STANDARD) {}
-void slt     (PARAM_STANDARD) {}
-void sltu    (PARAM_STANDARD) {}
-void msubu   (PARAM_STANDARD) {}
+void mtlo    (PARAM_STANDARD) {
+    INIT_ARGS;
+    cpu_cdb_put(cpu, rstation_index(cpu, rs), LO, (Word){.value = vj});
+    result->validation = 0;
+}
+
+void slt     (PARAM_STANDARD) {
+    INIT_ARGS;
+    result->content.value = alu_exec(&cpu->alu, OP_SMALLER, vj, vk);
+}
+void sltu    (PARAM_STANDARD) {
+    INIT_ARGS;
+    result->content.value = alu_exec(&cpu->alu, OP_USMALLER, vj, vk);
+}
+void slti    (PARAM_STANDARD) {
+    INIT_ARGS;
+    result->content.value = alu_exec(&cpu->alu, OP_SMALLER, vj, A);
+}
+void sltiu   (PARAM_STANDARD) {
+    INIT_ARGS;
+    result->content.value = alu_exec(&cpu->alu, OP_USMALLER, vj, A);
+}
 
 void j       (PARAM_STANDARD) {
     INIT_ARGS;
@@ -170,6 +198,7 @@ void jalr    (PARAM_STANDARD) {
     cpu->pipeline.ri.value = EOF;
     cpu->pipeline.issue = ISSUE_CONTINUE;
 }
+
 void beq     (PARAM_STANDARD) {
     INIT_ARGS;
     if (cpu->alu.operation[OP_EQUALS](vj, vk)) {
@@ -180,7 +209,7 @@ void beq     (PARAM_STANDARD) {
 }
 void bgez    (PARAM_STANDARD) {
     INIT_ARGS;
-    if (cpu->alu.operation[OP_BEQUALS](vj, 0)) {
+    if (cpu->alu.operation[OP_TEQUALS](vj, 0)) {
         cpu->pipeline.pc.value = A;
         cpu->pipeline.ri.value = EOF;
     }
@@ -188,7 +217,7 @@ void bgez    (PARAM_STANDARD) {
 }
 void bgezal  (PARAM_STANDARD) {
     INIT_ARGS;
-    if (cpu->alu.operation[OP_BEQUALS](vj, 0)) {
+    if (cpu->alu.operation[OP_TEQUALS](vj, 0)) {
         result->content.value = cpu->pipeline.pc.value;
         cpu->pipeline.pc.value = A;
         cpu->pipeline.ri.value = EOF;
@@ -213,7 +242,7 @@ void blez    (PARAM_STANDARD) {
 }
 void bltzal  (PARAM_STANDARD) {
     INIT_ARGS;
-    if (!cpu->alu.operation[OP_BEQUALS](vj, 0)) {
+    if (!cpu->alu.operation[OP_TEQUALS](vj, 0)) {
         result->content.value = cpu->pipeline.pc.value;
         cpu->pipeline.pc.value = A;
         cpu->pipeline.ri.value = EOF;
@@ -222,7 +251,7 @@ void bltzal  (PARAM_STANDARD) {
 }
 void bltz    (PARAM_STANDARD) {
     INIT_ARGS;
-    if (!cpu->alu.operation[OP_BEQUALS](vj, 0)) {
+    if (!cpu->alu.operation[OP_TEQUALS](vj, 0)) {
         cpu->pipeline.pc.value = A;
         cpu->pipeline.ri.value = EOF;
     }
@@ -236,47 +265,44 @@ void bne     (PARAM_STANDARD) {
     }
     cpu->pipeline.issue = ISSUE_CONTINUE;
 }
-void bltzl   (PARAM_STANDARD) {} // ????
-void bgzel   (PARAM_STANDARD) {} // ????
-void bltzall (PARAM_STANDARD) {}
-void bgczall (PARAM_STANDARD) {}
-void slti    (PARAM_STANDARD) {}
-void sltiu   (PARAM_STANDARD) {}
-void benql   (PARAM_STANDARD) {}
-void bnel    (PARAM_STANDARD) {}
-void blezl   (PARAM_STANDARD) {}
-void bgtzl   (PARAM_STANDARD) {}
+
 void lb      (PARAM_STANDARD) {}
 void lh      (PARAM_STANDARD) {}
 void lwl     (PARAM_STANDARD) {}
 void lw      (PARAM_STANDARD) {
     INIT_ARGS;
-    result->content = cache_read(&cpu->cache, A);
+    unsigned int address = (unsigned int)alu_exec(&cpu->alu, OP_ADD, A, vj);
+    result->content = cache_read(&cpu->cache, address);
 }
 void lbu     (PARAM_STANDARD) {}
 void lhu     (PARAM_STANDARD) {}
 void lwr     (PARAM_STANDARD) {}
+void lui     (PARAM_STANDARD) {}
+
 void sb      (PARAM_STANDARD) {}
 void sh      (PARAM_STANDARD) {}
 void swl     (PARAM_STANDARD) {}
 void sw      (PARAM_STANDARD) {
-
+    INIT_ARGS;
+    unsigned int address = (unsigned int)alu_exec(&cpu->alu, OP_ADD, A, vj);
+    cache_write(&cpu->cache, address, (Word){ .value = vk} );
+    result->validation = 0;
+    cpu->pipeline.issue = ISSUE_CONTINUE;
 }
 
-void tgei    (PARAM_STANDARD) {}
-void tgeiu   (PARAM_STANDARD) {}
-void tlti    (PARAM_STANDARD) {}
-void tltiu   (PARAM_STANDARD) {}
-void tegi    (PARAM_STANDARD) {}
-void tnei    (PARAM_STANDARD) {}
-void tge     (PARAM_STANDARD) {}
-void tgeu    (PARAM_STANDARD) {}
-void tlt     (PARAM_STANDARD) {}
-void tltu    (PARAM_STANDARD) {}
-void teq     (PARAM_STANDARD) {}
-void tne     (PARAM_STANDARD) {}
+void _break  (PARAM_STANDARD) {}
+void syscall (PARAM_STANDARD) {
+    INIT_ARGS;
+    switch (vj) {
+        case SYSCALL_PRINT_INT  : so_print_int(cpu);  break;
+        case SYSCALL_READ_INT   : so_read_int(cpu);   break;
+        case SYSCALL_EXIT       : so_exit(cpu);       break;
+    }
+    cpu->pipeline.issue = ISSUE_CONTINUE;
+}
+void nop     (PARAM_STANDARD) {
 
-void nop     (PARAM_STANDARD) {}
+}
 
 void err     (PARAM_STANDARD) {
     printf("ERROR: No such instruction.\n");
@@ -294,14 +320,12 @@ InstructionSet inst_init() {
     inst_add(&instructionSet, &srav,    "srav",   TYPE_SHIFT,      COLUMN_FUNCT1, 7);
     inst_add(&instructionSet, &jr,      "jr",     TYPE_JMP,        COLUMN_FUNCT1, 8);
     inst_add(&instructionSet, &jalr,    "jalr",   TYPE_JMP,        COLUMN_FUNCT1, 9);
-    inst_add(&instructionSet, &movz,    "movz",   TYPE_IF,         COLUMN_FUNCT1, 10);
-    inst_add(&instructionSet, &movn,    "movn",   TYPE_IF,         COLUMN_FUNCT1, 11);
     inst_add(&instructionSet, &syscall, "syscall",TYPE_UNKNOWN,    COLUMN_FUNCT1, 12);
     inst_add(&instructionSet, &_break,  "break",  TYPE_JMP,        COLUMN_FUNCT1, 13); //
-    inst_add(&instructionSet, &sync,    "sync",   TYPE_UNKNOWN,    COLUMN_FUNCT1, 16);
-    inst_add(&instructionSet, &mfhi,    "mfhi",   TYPE_ACUMULATOR, COLUMN_FUNCT1, 17);
-    inst_add(&instructionSet, &mthi,    "mthi",   TYPE_ACUMULATOR, COLUMN_FUNCT1, 18);
-    inst_add(&instructionSet, &mflo,    "mflo",   TYPE_ACUMULATOR, COLUMN_FUNCT1, 19); //;
+    inst_add(&instructionSet, &mfhi,    "mfhi",   TYPE_ACUMULATOR, COLUMN_FUNCT1, 16);
+    inst_add(&instructionSet, &mthi,    "mthi",   TYPE_ACUMULATOR, COLUMN_FUNCT1, 17);
+    inst_add(&instructionSet, &mflo,    "mflo",   TYPE_ACUMULATOR, COLUMN_FUNCT1, 18);
+    inst_add(&instructionSet, &mtlo,    "mtlo",   TYPE_ACUMULATOR, COLUMN_FUNCT1, 19); //;
     inst_add(&instructionSet, &mult,    "mult",   TYPE_MULT,       COLUMN_FUNCT1, 24);
     inst_add(&instructionSet, &multu,   "multu",  TYPE_MULT,       COLUMN_FUNCT1, 25);
     inst_add(&instructionSet, &_div,    "div",    TYPE_MULT,       COLUMN_FUNCT1, 26);
@@ -316,35 +340,15 @@ InstructionSet inst_init() {
     inst_add(&instructionSet, &nor,     "nor",    TYPE_LOGICAL,    COLUMN_FUNCT1, 39);
     inst_add(&instructionSet, &slt,     "slt",    TYPE_IF,         COLUMN_FUNCT1, 42);
     inst_add(&instructionSet, &sltu,    "sltu",   TYPE_IF,         COLUMN_FUNCT1, 43); //
-    inst_add(&instructionSet, &tge,     "tge",    TYPE_UNKNOWN,    COLUMN_FUNCT1, 48);
-    inst_add(&instructionSet, &tgeu,    "tgeu",   TYPE_UNKNOWN,    COLUMN_FUNCT1, 49);
-    inst_add(&instructionSet, &tlt,     "tlt",    TYPE_UNKNOWN,    COLUMN_FUNCT1, 50);
-    inst_add(&instructionSet, &tltu,    "tltu",   TYPE_UNKNOWN,    COLUMN_FUNCT1, 51);
-    inst_add(&instructionSet, &teq,     "teq",    TYPE_UNKNOWN,    COLUMN_FUNCT1, 52);
-    inst_add(&instructionSet, &tne,     "tne",    TYPE_UNKNOWN,    COLUMN_FUNCT1, 54);
 
-    inst_add(&instructionSet, &madd,    "madd",   TYPE_MULT,       COLUMN_FUNCT2, 0);
-    inst_add(&instructionSet, &maddu,   "maddu",  TYPE_MULT,       COLUMN_FUNCT2, 1);
     inst_add(&instructionSet, &mul,     "mul",    TYPE_MULT,       COLUMN_FUNCT2, 2); //
-    inst_add(&instructionSet, &msub,    "msub",   TYPE_MULT,       COLUMN_FUNCT2, 4);
-    inst_add(&instructionSet, &msubu,   "msubu",  TYPE_MULT,       COLUMN_FUNCT2, 5);
     inst_add(&instructionSet, &clz,     "clz",    TYPE_ARITHMETIC, COLUMN_FUNCT2, 32);
     inst_add(&instructionSet, &clo,     "clo",    TYPE_ARITHMETIC, COLUMN_FUNCT2, 33);
 
     inst_add(&instructionSet, &bltz,    "bltz",   TYPE_BRANCH,     COLUMN_RT, 0);
     inst_add(&instructionSet, &bgez,    "bgez",   TYPE_BRANCH,     COLUMN_RT, 1);
-    inst_add(&instructionSet, &bltzl,   "bltzl",  TYPE_BRANCH,     COLUMN_RT, 2);
-    inst_add(&instructionSet, &bgzel,   "bgzel",  TYPE_BRANCH,     COLUMN_RT, 3);
-    inst_add(&instructionSet, &tgei,    "tgei",   TYPE_UNKNOWN,    COLUMN_RT, 8);
-    inst_add(&instructionSet, &tgeiu,   "tgeiu",  TYPE_UNKNOWN,    COLUMN_RT, 9);
-    inst_add(&instructionSet, &tlti,    "tlti",   TYPE_UNKNOWN,    COLUMN_RT, 10);
-    inst_add(&instructionSet, &tltiu,   "tltiu",  TYPE_UNKNOWN,    COLUMN_RT, 11);
-    inst_add(&instructionSet, &tegi,    "tegi",   TYPE_UNKNOWN,    COLUMN_RT, 12);
-    inst_add(&instructionSet, &tnei,    "tnei",   TYPE_UNKNOWN,    COLUMN_RT, 14);
     inst_add(&instructionSet, &bltzal,  "bltzal", TYPE_BRANCH,     COLUMN_RT, 16);
     inst_add(&instructionSet, &bgezal,  "bgezal", TYPE_BRANCH,     COLUMN_RT, 17);
-    inst_add(&instructionSet, &bltzall, "bltzall",TYPE_BRANCH,     COLUMN_RT, 18);
-    inst_add(&instructionSet, &bgczall, "bgczall",TYPE_BRANCH,     COLUMN_RT, 19);
 
     inst_add(&instructionSet, &j,       "j",      TYPE_JMP,        COLUMN_OP, 2);
     inst_add(&instructionSet, &jal,     "jal",    TYPE_JMP,        COLUMN_OP, 3);
@@ -353,17 +357,13 @@ InstructionSet inst_init() {
     inst_add(&instructionSet, &blez,    "blez",   TYPE_BRANCH,     COLUMN_OP, 6);
     inst_add(&instructionSet, &bgtz,    "bgtz",   TYPE_BRANCH,     COLUMN_OP, 7);
     inst_add(&instructionSet, &addi,    "addi",   TYPE_ARITHMETIC, COLUMN_OP, 8);
-    inst_add(&instructionSet, &addu,    "addu",   TYPE_ARITHMETIC, COLUMN_OP, 9);
+    inst_add(&instructionSet, &addiu,    "addiu", TYPE_ARITHMETIC, COLUMN_OP, 9);
     inst_add(&instructionSet, &slti,    "slti",   TYPE_IF,         COLUMN_OP, 10);
     inst_add(&instructionSet, &sltiu,   "sltiu",  TYPE_IF,         COLUMN_OP, 11);
     inst_add(&instructionSet, &andi,    "andi",   TYPE_LOGICAL,    COLUMN_OP, 12);
-    inst_add(&instructionSet, &ori,     "ori",    TYPE_LOGICAL,    COLUMN_OP, 13);
+    inst_add(&instructionSet, &ori,     "ori",    TYPE_LOGICAL,    COLUMN_OP, 63); // 13
     inst_add(&instructionSet, &xori,    "xori",   TYPE_LOGICAL,    COLUMN_OP, 14);
     inst_add(&instructionSet, &lui,     "lui",    TYPE_LOAD,       COLUMN_OP, 15);
-    inst_add(&instructionSet, &benql,   "benql",  TYPE_JMP,        COLUMN_OP, 20);
-    inst_add(&instructionSet, &bnel,    "bnel",   TYPE_JMP,        COLUMN_OP, 21);
-    inst_add(&instructionSet, &blezl,   "blezl",  TYPE_JMP,        COLUMN_OP, 22);
-    inst_add(&instructionSet, &bgtzl,   "bgtzl",  TYPE_JMP,        COLUMN_OP, 23);
     inst_add(&instructionSet, &lb,      "lb",     TYPE_LOAD,       COLUMN_OP, 32);
     inst_add(&instructionSet, &lh,      "lh",     TYPE_LOAD,       COLUMN_OP, 33);
     inst_add(&instructionSet, &lwl,     "lwl",    TYPE_LOAD,       COLUMN_OP, 34);

@@ -37,8 +37,8 @@ typedef struct mem_t {
     Mobo *_p_mobo;
 
     BYTE *byte;
-    size_t size;
-    size_t text_address;
+    unsigned int size;
+    unsigned int text_address;
 
 };
 
@@ -46,7 +46,7 @@ typedef struct mem_t {
 struct dec_t {
     unsigned int byte : 4;
     unsigned int line : 3; // 11
-    unsigned int tag  : 2; // 14
+    unsigned int tag  : 3; // 14
 };
 typedef union dec_address {
     unsigned int full_address;
@@ -113,7 +113,7 @@ typedef enum {
     TEQ, TEQI, TGE, TGEU, TGEI, TGEIU, TLT, TLTU, TLTI, TLTIU,
     LB, LBU, LH, LHU, LW, LWCL, LWL, LWR, LL,
     SB, SH, SW, SWCL, SDCL, SWL, SWR, SC,
-    MFHI, MFLO, MTHI, MOVN, MOVZ,
+    MFHI, MFLO, MTHI, MTLO, MOVN, MOVZ,
     INSTRUCTION_COUNT
 } EInstructions;
 typedef enum {
@@ -150,8 +150,8 @@ typedef struct fifo {
 
 // Register declarations
 typedef struct lohi_t {
-    long int lo : 32;
-    long int hi : 32;
+    long long int lo : 32;
+    long long int hi : 32;
 } LOHI;
 typedef union lohi_u {
     int value;
@@ -241,12 +241,12 @@ typedef struct {
 
 // ALU declarations
 typedef enum {
-    OP_ADD, OP_SUBTRACT,
+    OP_ADD, OP_ADDU, OP_SUB, OP_SUBU,
     OP_AND, OP_OR, OP_NOR, OP_XOR,
-    OP_MULT, OP_DIV,
+    OP_MULT, OP_MULTU, OP_DIV, OP_DIVU,
     OP_ARSHIFT, OP_ALSHIFT,
     OP_LRSHIFT, OP_LLSHIFT,
-    OP_EQUALS, OP_BEQUALS, OP_SEQUALS,
+    OP_EQUALS, OP_TEQUALS, OP_SEQUALS, OP_TALLER, OP_UTALLER, OP_SMALLER, OP_USMALLER,
     OP_ZERO,
     OPERATIONS_COUNTER
 } EOperations;

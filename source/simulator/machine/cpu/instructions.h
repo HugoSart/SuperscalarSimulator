@@ -10,7 +10,7 @@
 #include "alu.h"
 #include "cache.h"
 
-#define CLOCK_UNKNOWN -1
+#define CLOCK_UNKNOWN 2
 
 #define CLOCK_ARITHMETIC 2
 #define CLOCK_SHIFT 1
