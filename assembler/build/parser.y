@@ -293,7 +293,7 @@ argText: OP_3 REG COMMA REG COMMA REG {
 
     strcat(yybuffer, itbs(6, opcode(op)));
     strcat(yybuffer, itbs(5, reg));
-    strcat(yybuffer, itbs(15, itbs(15,0)));
+    strcat(yybuffer, itbs(15, 0));
     strcat(yybuffer, itbs(6, func(op)));
 
 
@@ -451,7 +451,11 @@ int main(int argc, char **argv) {
                 foi = 1;
             }
         }
-        if (foi || !strcmp(buffer, "syscall") || !strcmp(buffer, "NOP")) line_count++;
+        if (foi || !strcmp(buffer, "syscall") || !strcmp(buffer2, "syscall") ||
+                !strcmp(buffer, "NOP") || !strcmp(buffer2, "NOP"))
+            line_count++;
+
+        printf("buffer12: %s %s\n", buffer, buffer2);
 
         if (buffer[strlen(buffer) - 1] == ':') {
             buffer[strlen(buffer) - 1] = '\0';

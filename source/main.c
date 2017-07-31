@@ -5,17 +5,21 @@
 #include <string.h>
 #include "simulator/machine/cpu/cpu.h"
 #include "simulator/system/system.h"
-
-int cbc;
-int rrf;
-int rcr;
+#include "args.h"
 
 int main(int argc, char **argv) {
 
+    //int a = s_add(1, 2);
+
     char *file_name = "";
 
+    cbc = 0;
+    rrf = 0;
+    rcr = 0;
+    miss = 0;
+
     int c;
-    while ((c = getopt(argc, argv, "f:m:s:")) != -1) {
+    while ((c = getopt(argc, argv, "f:m:s:h")) != -1) {
         switch (c) {
             case 'f':
                 file_name = optarg;
@@ -24,9 +28,16 @@ int main(int argc, char **argv) {
                 if (!strcmp(optarg, "cbc")) cbc = 1;
                 break;
             case 's':
-                if (!strcmp(optarg, "rrf")) rrf = 1;
-                else if (!strcmp(optarg, "rcr")) rcr = 1;
+                if      (!strcmp(optarg, "rrf"))    rrf  = 1;
+                else if (!strcmp(optarg, "rcr"))    rcr  = 1;
+                else if (!strcmp(optarg, "miss"))   miss = 1;
                 break;
+            case 'h':
+                printf("  -f binary_file_path_name -> Specify the compiled file to be executed.\n");
+                printf("  -m arg                   -> Execution mode. Args: 'cbc' - clock by clock.\n");
+                printf("  -s arg                   -> Show. Args: 'rrf'  - registers, stations and fifo;\n");
+                printf("                                          'rcr'  - ram, cache and registers;\n");
+                printf("                                          'miss' - cache misses.\n");
             case '?':
                 if (optopt == 'f')
                     fprintf(stderr, "Option -%c requires an argument.\n", optopt);
@@ -49,7 +60,6 @@ int main(int argc, char **argv) {
     so_load(mem, file_name);
 
     Mobo *mobo = mobo_new(cpu, mem);
-
 
     int clock = 0;
     while (!so_finished(cpu)) {

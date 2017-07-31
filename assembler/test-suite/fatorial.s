@@ -3,7 +3,7 @@ resp:   .int    1
 
         .text
 main:   addi    $v0, $zero, 5   # v0 será o n
-        syscall
+        syscall                 # hehehehe
 
         addi    $v0, $v0, 1     # adiciona 1 para bne comparar certo
         addi    $t0, $zero, 1   # t0 será o contador
@@ -16,8 +16,6 @@ loop:   mul     $t1, $t1, $t0
         sw      $t1, resp
         lw      $a0, resp
         addi    $v0, $zero, 1
-        syscall
-
-
+        syscall                 # printa int
 
 

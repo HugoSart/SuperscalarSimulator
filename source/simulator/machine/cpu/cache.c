@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include "cache.h"
 #include "../util.h"
+#include "../../system/system.h"
+#include "../../../args.h"
 
 void miss_handler(Cache *, unsigned int);
 Line get_memory_block(Cache *, unsigned int);
@@ -86,6 +88,7 @@ void miss_handler(Cache *cache, unsigned int address) {
     address = BLOCK_ADDRESS(address);
     Address a = { .full_address = address };
 
+    if (miss) printf("%sCACHE MISS!%s Address: %s%d\n", COLOR_RED_BRIGHT, COLOR_YELLOW, COLOR_NORMAL, address);
 
     if (cache->line[a.mapped_address.line].tag != -1) {
 

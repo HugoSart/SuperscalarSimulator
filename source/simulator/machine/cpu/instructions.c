@@ -51,8 +51,14 @@ void subu    (PARAM_STANDARD) {
     result->content.value = alu_exec(&cpu->alu, OP_SUBU, vj, vk);
 }
 
-void clo     (PARAM_STANDARD) {}
-void clz     (PARAM_STANDARD) {}
+void clo     (PARAM_STANDARD) {
+    INIT_ARGS;
+    result->content.value = alu_exec(&cpu->alu, OP_CLO, vj, vk);
+}
+void clz     (PARAM_STANDARD) {
+    INIT_ARGS;
+    result->content.value = alu_exec(&cpu->alu, OP_CLZ, vj, vk);
+}
 
 void _div    (PARAM_STANDARD) {
     INIT_ARGS;;
@@ -266,28 +272,28 @@ void bne     (PARAM_STANDARD) {
     cpu->pipeline.issue = ISSUE_CONTINUE;
 }
 
-void lb      (PARAM_STANDARD) {}
-void lh      (PARAM_STANDARD) {}
-void lwl     (PARAM_STANDARD) {}
 void lw      (PARAM_STANDARD) {
     INIT_ARGS;
     unsigned int address = (unsigned int)alu_exec(&cpu->alu, OP_ADD, A, vj);
     result->content = cache_read(&cpu->cache, address);
 }
-void lbu     (PARAM_STANDARD) {}
-void lhu     (PARAM_STANDARD) {}
-void lwr     (PARAM_STANDARD) {}
-void lui     (PARAM_STANDARD) {}
-
-void sb      (PARAM_STANDARD) {}
-void sh      (PARAM_STANDARD) {}
-void swl     (PARAM_STANDARD) {}
 void sw      (PARAM_STANDARD) {
     INIT_ARGS;
     unsigned int address = (unsigned int)alu_exec(&cpu->alu, OP_ADD, A, vj);
     cache_write(&cpu->cache, address, (Word){ .value = vk} );
     result->validation = 0;
     cpu->pipeline.issue = ISSUE_CONTINUE;
+}
+
+void movn     (PARAM_STANDARD) {
+    INIT_ARGS;
+    result->content.value = vj;
+    result->validation = alu_exec(&cpu->alu, OP_EQUALS, vk, 0);
+}
+void movz     (PARAM_STANDARD) {
+    INIT_ARGS;
+    result->content.value = vj;
+    result->validation = alu_exec(&cpu->alu, OP_EQUALS, vk, 0);
 }
 
 void _break  (PARAM_STANDARD) {}
@@ -320,6 +326,8 @@ InstructionSet inst_init() {
     inst_add(&instructionSet, &srav,    "srav",   TYPE_SHIFT,      COLUMN_FUNCT1, 7);
     inst_add(&instructionSet, &jr,      "jr",     TYPE_JMP,        COLUMN_FUNCT1, 8);
     inst_add(&instructionSet, &jalr,    "jalr",   TYPE_JMP,        COLUMN_FUNCT1, 9);
+    inst_add(&instructionSet, &movn,    "movn",   TYPE_ARITHMETIC, COLUMN_FUNCT1, 11);
+    inst_add(&instructionSet, &movz,    "movz",   TYPE_ARITHMETIC, COLUMN_FUNCT1, 10);
     inst_add(&instructionSet, &syscall, "syscall",TYPE_UNKNOWN,    COLUMN_FUNCT1, 12);
     inst_add(&instructionSet, &_break,  "break",  TYPE_JMP,        COLUMN_FUNCT1, 13); //
     inst_add(&instructionSet, &mfhi,    "mfhi",   TYPE_ACUMULATOR, COLUMN_FUNCT1, 16);
@@ -357,24 +365,13 @@ InstructionSet inst_init() {
     inst_add(&instructionSet, &blez,    "blez",   TYPE_BRANCH,     COLUMN_OP, 6);
     inst_add(&instructionSet, &bgtz,    "bgtz",   TYPE_BRANCH,     COLUMN_OP, 7);
     inst_add(&instructionSet, &addi,    "addi",   TYPE_ARITHMETIC, COLUMN_OP, 8);
-    inst_add(&instructionSet, &addiu,    "addiu", TYPE_ARITHMETIC, COLUMN_OP, 9);
+    inst_add(&instructionSet, &addiu,   "addiu",  TYPE_ARITHMETIC, COLUMN_OP, 9);
     inst_add(&instructionSet, &slti,    "slti",   TYPE_IF,         COLUMN_OP, 10);
     inst_add(&instructionSet, &sltiu,   "sltiu",  TYPE_IF,         COLUMN_OP, 11);
     inst_add(&instructionSet, &andi,    "andi",   TYPE_LOGICAL,    COLUMN_OP, 12);
     inst_add(&instructionSet, &ori,     "ori",    TYPE_LOGICAL,    COLUMN_OP, 63); // 13
     inst_add(&instructionSet, &xori,    "xori",   TYPE_LOGICAL,    COLUMN_OP, 14);
-    inst_add(&instructionSet, &lui,     "lui",    TYPE_LOAD,       COLUMN_OP, 15);
-    inst_add(&instructionSet, &lb,      "lb",     TYPE_LOAD,       COLUMN_OP, 32);
-    inst_add(&instructionSet, &lh,      "lh",     TYPE_LOAD,       COLUMN_OP, 33);
-    inst_add(&instructionSet, &lwl,     "lwl",    TYPE_LOAD,       COLUMN_OP, 34);
     inst_add(&instructionSet, &lw,      "lw",     TYPE_LOAD,       COLUMN_OP, 35);
-    inst_add(&instructionSet, &lbu,     "lbu",    TYPE_LOAD,       COLUMN_OP, 36);
-    inst_add(&instructionSet, &lhu,     "lhu",    TYPE_LOAD,       COLUMN_OP, 37);
-    inst_add(&instructionSet, &lwr,     "lwr",    TYPE_LOAD,       COLUMN_OP, 38);
-
-    inst_add(&instructionSet, &sb,      "sb",     TYPE_STORE,      COLUMN_OP, 40);
-    inst_add(&instructionSet, &sh,      "sh",     TYPE_STORE,      COLUMN_OP, 41);
-    inst_add(&instructionSet, &swl,     "swl",    TYPE_STORE,      COLUMN_OP, 42);
     inst_add(&instructionSet, &sw,      "sw",     TYPE_STORE,      COLUMN_OP, 43);
 
     inst_add(&instructionSet, &nop,     "NOP",    TYPE_UNKNOWN,    COLUMN_FUNCT2, 63);

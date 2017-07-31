@@ -1,10 +1,9 @@
 cmake_minimum_required(VERSION 3.7)
-project(SuperscalarSimulator)
-
-set(CMAKE_C_FLAGS "-lpthread")
+project(SuperscalarSimulator C ASM)
 
 set(CMAKE_C_STANDARD 99)
 set(SOURCE_FILES
+        source/simulator/machine/cpu/alu.s
         source/main.c
         assembler/bop.h
         assembler/bop.c
@@ -31,6 +30,6 @@ set(SOURCE_FILES
         source/simulator/machine/cpu/register.c
         source/simulator/machine/cpu/register.h
         source/simulator/machine/motherboard/mobo.c
-        source/simulator/machine/motherboard/mobo.h source/simulator/machine/cpu/structures/cdb_fifo.c source/simulator/machine/cpu/structures/cdb_fifo.h)
+        source/simulator/machine/motherboard/mobo.h source/simulator/machine/cpu/structures/cdb_fifo.c source/simulator/machine/cpu/structures/cdb_fifo.h source/args.h)
 
 add_executable(SuperscalarSimulator ${SOURCE_FILES})

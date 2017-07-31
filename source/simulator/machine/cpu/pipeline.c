@@ -441,7 +441,6 @@ void pipe_exec(CPU *cpu) {
                 int reg_index = reg_waiting(cpu, rstation);
                 if (reg_index != REG_UNKNOWN && rstation->result.validation == 1)
                     cpu_cdb_put(cpu, (ERStation) r, (ERegisters) reg_index, rstation->result.content);
-                rstation->result.validation = 1;
 
             }
 
@@ -469,7 +468,15 @@ void pipe_write_result(CPU *cpu) {
                 }
             }
 
-            if (reg_waiting(cpu, cpu_rstation(cpu, (ERStation) r)) == REG_UNKNOWN) rstation_clean(cpu, cpu_rstation(cpu, r));
+            if (reg_waiting(cpu, cpu_rstation(cpu, (ERStation) r)) == REG_UNKNOWN) {
+                rstation_clean(cpu, cpu_rstation(cpu, r));
+            } else if (cpu_rstation(cpu, (ERStation) r)->result.validation == 0) {
+                if (cpu_reg_get(cpu, reg_waiting(cpu, cpu_rstation(cpu, (ERStation) r))) != NULL)
+                    cpu_reg_get(cpu, reg_waiting(cpu, cpu_rstation(cpu, (ERStation) r)))->rstation = NULL;
+                rstation_clean(cpu, cpu_rstation(cpu, r));
+            } /*else if (reg_waiting(cpu, cpu_rstation(cpu, (ERStation) r)) == REG_UNKNOWN) {
+                rstation_clean(cpu, cpu_rstation(cpu, r));
+            } */
 
         }
     }

@@ -73,6 +73,12 @@ int op_smaller  (int a, int b) {
 int op_usmaller (int a, int b) {
     return (unsigned int)a < (unsigned int)b;
 }
+int op_clo      (int a, int b) {
+    return __builtin_clz(~a);
+}
+int op_clz      (int a, int b) {
+    return __builtin_clz(a);
+}
 int op_zero     (int a, int b) {
     return ~a;
 }
@@ -101,7 +107,10 @@ ALU alu_init() {
             .operation[OP_UTALLER]  = &op_utaller,
             .operation[OP_SMALLER]  = &op_smaller,
             .operation[OP_USMALLER] = &op_usmaller,
+            .operation[OP_CLO]      = &op_clo,
+            .operation[OP_CLZ]      = &op_clz,
             .operation[OP_ZERO]     = &op_zero};
+    //s_add();
     return alu;
 }
 
