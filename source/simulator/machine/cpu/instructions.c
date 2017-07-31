@@ -280,7 +280,7 @@ void lw      (PARAM_STANDARD) {
 void sw      (PARAM_STANDARD) {
     INIT_ARGS;
     unsigned int address = (unsigned int)alu_exec(&cpu->alu, OP_ADD, A, vj);
-    cache_write(&cpu->cache, address, (Word){ .value = vk} );
+    cache_write(&cpu->cache, address, (Word){ .value = vk } );
     result->validation = 0;
     cpu->pipeline.issue = ISSUE_CONTINUE;
 }

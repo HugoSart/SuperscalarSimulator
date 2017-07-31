@@ -45,8 +45,8 @@ typedef struct mem_t {
 // Cache declarations
 struct dec_t {
     unsigned int byte : 4;
-    unsigned int line : 3; // 11
-    unsigned int tag  : 3; // 14
+    unsigned int line : 12; // 11
+    unsigned int tag  : 14; // 14
 };
 typedef union dec_address {
     unsigned int full_address;

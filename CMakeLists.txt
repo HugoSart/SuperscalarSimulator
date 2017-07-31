@@ -1,9 +1,8 @@
 cmake_minimum_required(VERSION 3.7)
-project(SuperscalarSimulator C ASM)
+project(SuperscalarSimulator C)
 
 set(CMAKE_C_STANDARD 99)
 set(SOURCE_FILES
-        source/simulator/machine/cpu/alu.s
         source/main.c
         assembler/bop.h
         assembler/bop.c

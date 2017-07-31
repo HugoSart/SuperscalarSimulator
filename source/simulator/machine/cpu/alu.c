@@ -110,7 +110,7 @@ ALU alu_init() {
             .operation[OP_CLO]      = &op_clo,
             .operation[OP_CLZ]      = &op_clz,
             .operation[OP_ZERO]     = &op_zero};
-    //s_add();
+
     return alu;
 }
 

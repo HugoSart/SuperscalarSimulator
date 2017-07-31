@@ -323,7 +323,7 @@ void pipe_issue(CPU *cpu) {
                 rstation->qj = RS_UNKNOWN;
             }
 
-            rstation->A = imm;
+            rstation->A = imm + cpu->_p_mobo->mem->text_address;
 
             if (instruction->ref->type == TYPE_LOAD)
                 rt->rstation = rstation;

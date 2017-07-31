@@ -57,6 +57,7 @@ int main(int argc, char **argv) {
     for (int i = 0; i < strlen(file_name); i++)
         if (file_name[i] == '?') file_name[i] = ' ';
 
+    printf("%sLoading memory...%s\n", COLOR_BLUE_BRIGHT, COLOR_NORMAL);
     so_load(mem, file_name);
 
     Mobo *mobo = mobo_new(cpu, mem);

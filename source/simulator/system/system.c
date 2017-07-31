@@ -34,8 +34,8 @@ void so_load(Memory *mem, char *bfile_name) {
         return;
     }
 
-    for (size_t i = mem->text_address; i < mem->text_address + 400; fread(&mem->byte[i], sizeof(BYTE), 1, file), i++);
-    for (size_t i = 0; i < mem->text_address; fread(&mem->byte[i], sizeof(BYTE), 1, file), i++);
+    for (unsigned int i = mem->text_address; i < mem->text_address + 400; fread(&mem->byte[i], sizeof(BYTE), 1, file), i++);
+    for (unsigned int i = 0; i < mem->text_address; fread(&mem->byte[i], sizeof(BYTE), 1, file), i++);
 
 }
 

@@ -1,4 +1,4 @@
-/* simplest version of calculator */
+/* simplest version ofdsad calculadtor */
 %{
     #include <stdio.h>
     #include <stdlib.h>
@@ -78,8 +78,8 @@ data_line:
 expData:
   | LABEL STORAGE_TYPE argData {
 
-    list_add(&varList, $1, ftell(file_out) + MEM_TEXT_ADDRESS);
-
+    list_add(&varList, $1, ftell(file_out));
+    list_print(&varList);
     for (int i = array_size - 1; i >= 0; i--) {
         fwrite(&array[i], sizeof(int), 1, file_out);
     }
@@ -102,7 +102,7 @@ argData: NUMBER {
     array[array_size] = $1;
     array_size++;
 
-  }
+  }//adsadddsadsaddddsa
   ;
 
 text_line:
@@ -242,7 +242,7 @@ argText: OP_3 REG COMMA REG COMMA REG {
     unsigned int bi = bsti(yybuffer);
 
     printf("opcode : %s\n", yybuffer);
-    fwrite(&bi, 4, 1, file_out);//d
+    fwrite(&bi, 4, 1, file_out);//da
 
   }
   | OP_2O REG COMMA value OP REG CP {
@@ -282,7 +282,7 @@ argText: OP_3 REG COMMA REG COMMA REG {
     printf("opcode : %s\n", yybuffer);
     fwrite(&bi, 4, 1, file_out);
 
-  }
+  } // t
   | OP_1 REG {
 
     inc_inst();
@@ -393,7 +393,7 @@ value: NUMBER { $$ = $1 };
   | VAR {
 
       LNode *var = list_get(&varList, $1);
-      if (var == NULL) var = list_get(&labelList, $1);
+        if (var == NULL) var = list_get(&labelList, $1);
       if (var == NULL) {
         yyerror("Variable undefined");
       }

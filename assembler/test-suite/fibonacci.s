@@ -1,6 +1,6 @@
         .data
-testesl0:   .int    0
-testesl1:   .int    1
+zero:   .int    0
+um:     .int    1
 
         .text
 main:   lw      $t0, zero
