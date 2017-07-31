@@ -23,7 +23,7 @@ main:   lw      $t0, count
         syscall                 # printa count
 
         lw      $a0, array
-        NOP #
+        NOP ##
         NOP #
         NOP #
         syscall                 # printa count
